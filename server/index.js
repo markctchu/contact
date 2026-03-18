@@ -20,7 +20,8 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 3001;
 
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../client/dist')));
+const distPath = path.resolve(__dirname, '..', 'client', 'dist');
+app.use(express.static(distPath));
 
 // Global interval for game ticks (countdowns)
 setInterval(() => {
@@ -131,7 +132,7 @@ io.on('connection', (socket) => {
 
 // Catch-all to serve index.html for SPA routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 server.listen(PORT, () => {
