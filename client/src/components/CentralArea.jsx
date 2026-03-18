@@ -74,7 +74,11 @@ function CentralArea({ room, socketId }) {
           ) : status === 'setting_word' || status === 'waiting' ? (
             <div className="text-gray-500 italic flex flex-col items-center">
               <div className="animate-spin h-5 w-5 sm:h-7 sm:w-7 border-3 border-blue-500/30 border-t-blue-500 rounded-full mb-2"></div>
-              <p className="text-xs sm:text-base font-medium text-blue-400/60 font-bold uppercase tracking-widest animate-pulse">Waiting for Wordmaster to pick a secret word...</p>
+              <p className="text-xs sm:text-base font-medium text-blue-400/60 font-bold uppercase tracking-widest animate-pulse text-center">
+                {status === 'waiting' 
+                  ? 'Tap Wordmaster to submit a secret word...' 
+                  : 'Waiting for Wordmaster to pick a secret word...'}
+              </p>
             </div>
           ) : (
             <div className="text-gray-600 text-xs sm:text-base font-medium italic opacity-50">
