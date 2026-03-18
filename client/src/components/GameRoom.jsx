@@ -20,8 +20,8 @@ function GameRoom({ room, username, socketId }) {
   return (
     <div className="flex flex-col h-[100dvh] bg-gray-950 text-white overflow-hidden">
       {/* Top Bar */}
-      <header className="bg-gray-900 border-b border-gray-800 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center shadow-lg z-10 shrink-0">
-        <div className="flex items-center space-x-3 sm:space-x-4">
+      <header className="bg-gray-900 border-b border-gray-800 px-3 sm:px-6 py-2 sm:py-4 flex justify-between items-center shadow-lg z-10 shrink-0">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <div className="bg-blue-600 p-1.5 sm:p-2 rounded-lg">
             <h1 className="text-lg sm:text-xl font-black leading-none">C</h1>
           </div>

@@ -11,15 +11,15 @@ function CentralArea({ room, socketId }) {
 
   // Dynamic sizing based on word length to ensure it fits the screen
   const getBoxSize = (wordLength) => {
-    if (wordLength > 12) return 'w-5 h-8 sm:w-12 sm:h-16 text-sm sm:text-3xl';
-    if (wordLength > 8) return 'w-6 h-9 sm:w-12 sm:h-16 text-base sm:text-3xl';
-    return 'w-8 h-12 sm:w-12 sm:h-16 text-xl sm:text-3xl';
+    if (wordLength > 12) return 'w-6 h-9 sm:w-12 sm:h-16 text-base sm:text-3xl';
+    if (wordLength > 8) return 'w-8 h-12 sm:w-12 sm:h-16 text-xl sm:text-3xl';
+    return 'w-10 h-14 sm:w-12 sm:h-16 text-2xl sm:text-3xl';
   };
 
   const boxClass = getBoxSize(displayWord.length);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full p-1 sm:p-4 overflow-hidden relative">
+    <div className="flex flex-col items-center justify-center w-full h-full p-0 sm:p-4 overflow-hidden relative">
       <div className="flex flex-col items-center justify-center space-y-2 sm:space-y-8 w-full transition-all duration-300 max-h-full py-1 sm:py-2">
         
         {/* Revealed Word Prefix / Intro */}
@@ -27,7 +27,7 @@ function CentralArea({ room, socketId }) {
           <h3 className="text-[9px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 uppercase">
             {revealedPrefix ? 'Current Prefix' : "Let's Play"}
           </h3>
-          <div className="flex flex-wrap gap-1 sm:gap-2 justify-center items-center max-w-full px-1">
+          <div className="flex flex-wrap gap-1 sm:gap-2 justify-center items-center max-w-full px-0">
             {displayWord.split('').map((char, i) => (
               <div 
                 key={i} 
@@ -54,7 +54,7 @@ function CentralArea({ room, socketId }) {
         <div className="flex items-center justify-center w-full px-2 min-h-0 overflow-hidden shrink">
           {status === 'victory_countdown' ? (
             <div className="bg-yellow-600 p-3 sm:p-6 rounded-xl sm:rounded-3xl shadow-2xl animate-pulse w-full max-w-sm">
-              <h4 className="text-xs sm:text-lg font-black text-black uppercase mb-1 leading-none">Victory!</h4>
+              <h4 className="text-sm sm:text-lg font-black text-black uppercase mb-1 leading-none">Victory!</h4>
               <p className="text-black/80 text-[10px] sm:text-sm font-bold mb-1 sm:mb-2 leading-none">Contest within:</p>
               <div className="text-2xl sm:text-5xl font-black text-black leading-none">{victoryCountdown}s</div>
             </div>
@@ -82,14 +82,14 @@ function CentralArea({ room, socketId }) {
           ) : status === 'setting_word' || status === 'waiting' ? (
             <div className="text-gray-500 italic flex flex-col items-center py-2">
               <div className="animate-spin h-4 w-4 sm:h-7 sm:w-7 border-2 sm:border-3 border-blue-500/30 border-t-blue-500 rounded-full mb-2"></div>
-              <p className="text-[10px] sm:text-base font-medium text-blue-400/60 font-bold uppercase tracking-widest animate-pulse text-center px-4">
+              <p className="text-sm sm:text-base font-bold text-blue-400/60 uppercase tracking-widest animate-pulse text-center px-6 leading-relaxed">
                 {status === 'waiting' 
                   ? 'Tap Wordmaster to submit a secret word...' 
                   : 'Waiting for Wordmaster to pick a secret word...'}
               </p>
             </div>
           ) : (
-            <div className="text-gray-600 text-[10px] sm:text-base font-medium italic opacity-50 py-4 text-center">
+            <div className="text-gray-500 text-sm sm:text-base font-bold italic opacity-40 py-4 text-center px-8 leading-relaxed">
               Waiting for players to submit a clue...
             </div>
           )}
