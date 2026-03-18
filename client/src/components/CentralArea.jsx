@@ -24,21 +24,25 @@ function CentralArea({ room, socketId }) {
       <div className="flex flex-col items-center justify-center space-y-2 sm:space-y-8 w-full transition-all duration-300 max-h-full py-1 sm:py-2">
         
         {isCountdownActive ? (
-          /* Prominent Countdown Display (Replaces Letters) */
-          <div className="flex-1 flex flex-col items-center justify-center w-full animate-in fade-in zoom-in duration-300">
+          /* Squat Horizontal Countdown Display */
+          <div className="flex-1 flex flex-col items-center justify-center w-full animate-in fade-in zoom-in duration-300 px-2">
             {status === 'victory_countdown' ? (
-              <div className="bg-yellow-600 p-6 sm:p-12 rounded-3xl shadow-2xl animate-pulse w-full max-w-sm text-center border-4 border-yellow-400">
-                <h4 className="text-xl sm:text-3xl font-black text-black uppercase mb-2 tracking-tighter">Victory!</h4>
-                <div className="text-7xl sm:text-9xl font-black text-black leading-none">{victoryCountdown}</div>
-                <p className="text-black/80 text-xs sm:text-sm font-bold mt-4 uppercase tracking-widest">Contest Now!</p>
+              <div className="bg-yellow-600 py-3 px-6 sm:py-6 sm:px-12 rounded-2xl shadow-xl animate-pulse w-full max-w-md flex items-center justify-between border-2 border-yellow-400">
+                <div className="text-left">
+                  <h4 className="text-sm sm:text-xl font-black text-black uppercase leading-tight tracking-tighter">Victory!</h4>
+                  <p className="text-black/80 text-[10px] sm:text-xs font-bold uppercase tracking-widest">Contest Now!</p>
+                </div>
+                <div className="text-5xl sm:text-7xl font-black text-black leading-none ml-4">{victoryCountdown}</div>
               </div>
             ) : (
-              <div className="bg-blue-600 p-6 sm:p-12 rounded-3xl shadow-2xl animate-bounce w-full max-w-sm text-center border-4 border-blue-400">
-                <h4 className="text-xl sm:text-3xl font-black text-white uppercase mb-2 tracking-tighter">Contact!</h4>
-                <div className="text-7xl sm:text-9xl font-black text-white leading-none">{currentClue.countdown}</div>
-                <p className="text-white/80 text-xs sm:text-sm font-bold mt-4 uppercase tracking-widest px-2">
-                  {currentClue.playerName} & {currentClue.contactedByName}
-                </p>
+              <div className="bg-blue-600 py-3 px-6 sm:py-6 sm:px-12 rounded-2xl shadow-xl animate-bounce w-full max-w-md flex items-center justify-between border-2 border-blue-400">
+                <div className="text-left min-w-0">
+                  <h4 className="text-sm sm:text-xl font-black text-white uppercase leading-tight tracking-tighter">Contact!</h4>
+                  <p className="text-white/80 text-[10px] sm:text-xs font-bold uppercase tracking-widest truncate">
+                    {currentClue.playerName} & {currentClue.contactedByName}
+                  </p>
+                </div>
+                <div className="text-5xl sm:text-7xl font-black text-white leading-none ml-4">{currentClue.countdown}</div>
               </div>
             )}
           </div>
