@@ -40,6 +40,7 @@ io.on('connection', (socket) => {
     socket.data.username = username;
     socket.data.roomId = room.id;
     socket.join(room.id);
+    roomManager.emitRoomUpdate(io, room);
     io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
   });
 
