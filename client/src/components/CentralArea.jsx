@@ -17,82 +17,87 @@ function CentralArea({ room, socketId }) {
   };
 
   const boxClass = getBoxSize(displayWord.length);
+  const isCountdownActive = status === 'victory_countdown' || (currentClue && currentClue.contactedBy);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full min-h-0 p-0 sm:p-4 overflow-hidden relative">
-      <div className="flex flex-col items-center justify-center space-y-1 sm:space-y-8 w-full transition-all duration-300 max-h-full py-0 sm:py-2">
+    <div className="flex-1 flex flex-col items-center justify-center w-full h-full p-0 sm:p-4 overflow-hidden relative">
+      <div className="flex flex-col items-center justify-center space-y-2 sm:space-y-8 w-full transition-all duration-300 max-h-full py-1 sm:py-2">
         
-        {/* Revealed Word Prefix / Intro */}
-        <div className="space-y-0.5 sm:space-y-2 w-full flex flex-col items-center shrink-0">
-          <h3 className="text-[8px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 uppercase">
-            {revealedPrefix ? 'Current Prefix' : "Let's Play"}
-          </h3>
-          <div className="flex flex-wrap gap-1 sm:gap-2 justify-center items-center max-w-full px-0.5">
-            {displayWord.split('').map((char, i) => (
-              <div 
-                key={i} 
-                className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-blue-600 text-white shadow-blue-900 transition-all duration-300`}
-              >
-                {char}
+        {isCountdownActive ? (
+          /* Prominent Countdown Display (Replaces Letters) */
+          <div className="flex-1 flex flex-col items-center justify-center w-full animate-in fade-in zoom-in duration-300">
+            {status === 'victory_countdown' ? (
+              <div className="bg-yellow-600 p-6 sm:p-12 rounded-3xl shadow-2xl animate-pulse w-full max-w-sm text-center border-4 border-yellow-400">
+                <h4 className="text-xl sm:text-3xl font-black text-black uppercase mb-2 tracking-tighter">Victory!</h4>
+                <div className="text-7xl sm:text-9xl font-black text-black leading-none">{victoryCountdown}</div>
+                <p className="text-black/80 text-xs sm:text-sm font-bold mt-4 uppercase tracking-widest">Contest Now!</p>
               </div>
-            ))}
-            
-            {status !== 'game_over' && revealedPrefix && (
-              <div className="flex items-center">
-                <div className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-gray-800 text-gray-700`}>
-                  _
-                </div>
-                <div className="text-xl sm:text-4xl font-black text-gray-700 ml-1 leading-none self-end pb-1 sm:pb-2">
-                  ...
-                </div>
+            ) : (
+              <div className="bg-blue-600 p-6 sm:p-12 rounded-3xl shadow-2xl animate-bounce w-full max-w-sm text-center border-4 border-blue-400">
+                <h4 className="text-xl sm:text-3xl font-black text-white uppercase mb-2 tracking-tighter">Contact!</h4>
+                <div className="text-7xl sm:text-9xl font-black text-white leading-none">{currentClue.countdown}</div>
+                <p className="text-white/80 text-xs sm:text-sm font-bold mt-4 uppercase tracking-widest px-2">
+                  {currentClue.playerName} & {currentClue.contactedByName}
+                </p>
               </div>
             )}
           </div>
-        </div>
-
-        {/* Current Clue or Status Overlay */}
-        <div className="flex items-center justify-center w-full px-2 min-h-0 overflow-hidden shrink">
-          {status === 'victory_countdown' ? (
-            <div className="bg-yellow-600 p-3 sm:p-6 rounded-xl sm:rounded-3xl shadow-2xl animate-pulse w-full max-w-sm">
-              <h4 className="text-sm sm:text-lg font-black text-black uppercase mb-1 leading-none">Victory!</h4>
-              <p className="text-black/80 text-[10px] sm:text-sm font-bold mb-1 sm:mb-2 leading-none">Contest within:</p>
-              <div className="text-2xl sm:text-5xl font-black text-black leading-none">{victoryCountdown}s</div>
-            </div>
-          ) : currentClue ? (
-            <div className="bg-gray-800/80 p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-gray-700 shadow-2xl backdrop-blur-sm w-full max-w-lg relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/30 group-hover:bg-blue-500 transition-colors"></div>
-              <p className="text-[9px] sm:text-[11px] font-bold text-blue-400 uppercase tracking-widest mb-1 sm:mb-4 truncate px-2 text-center">Clue from {currentClue.playerName}</p>
-              <h4 className="text-sm sm:text-3xl font-extrabold italic text-white leading-tight break-words px-2 text-center">
-                "{currentClue.hint || 'Waiting for hint...'}"
-              </h4>
-              
-              {currentClue.contactedBy && (
-                <div className="mt-2 sm:mt-6 pt-2 sm:pt-6 border-t border-gray-700 flex flex-col items-center">
-                  <p className="text-[9px] sm:text-xs text-gray-400 mb-1 font-medium">Contact: <span className="text-white font-bold">{currentClue.contactedByName}</span></p>
-                  <div className="flex items-center space-x-3">
-                    <div className="text-xl sm:text-4xl font-black text-blue-500 animate-bounce">{currentClue.countdown}</div>
-                    <div className="h-4 sm:h-8 w-[1px] bg-gray-700"></div>
-                    <div className="text-left">
-                      <p className="text-[8px] sm:text-[10px] uppercase font-bold text-gray-500 tracking-tighter leading-none mb-0.5">Counting Down</p>
+        ) : (
+          <>
+            {/* Revealed Word Prefix / Intro */}
+            <div className="space-y-1 sm:space-y-2 w-full flex flex-col items-center shrink-0">
+              <h3 className="text-[8px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 uppercase">
+                {revealedPrefix ? 'Current Prefix' : "Let's Play"}
+              </h3>
+              <div className="flex flex-wrap gap-1 sm:gap-2 justify-center items-center max-w-full px-0.5">
+                {displayWord.split('').map((char, i) => (
+                  <div 
+                    key={i} 
+                    className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-blue-600 text-white shadow-blue-900 transition-all duration-300`}
+                  >
+                    {char}
+                  </div>
+                ))}
+                
+                {status !== 'game_over' && revealedPrefix && (
+                  <div className="flex items-center">
+                    <div className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-gray-800 text-gray-700`}>
+                      _
+                    </div>
+                    <div className="text-xl sm:text-4xl font-black text-gray-700 ml-1 leading-none self-end pb-1 sm:pb-2">
+                      ...
                     </div>
                   </div>
+                )}
+              </div>
+            </div>
+
+            {/* Current Clue or Status Overlay */}
+            <div className="flex items-center justify-center w-full px-2 min-h-0 overflow-hidden shrink">
+              {currentClue ? (
+                <div className="bg-gray-800/80 p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-gray-700 shadow-2xl backdrop-blur-sm w-full max-w-lg relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/30 group-hover:bg-blue-500 transition-colors"></div>
+                  <p className="text-[9px] sm:text-[11px] font-bold text-blue-400 uppercase tracking-widest mb-1 sm:mb-4 truncate px-2 text-center">Clue from {currentClue.playerName}</p>
+                  <h4 className="text-sm sm:text-3xl font-extrabold italic text-white leading-tight break-words px-2 text-center">
+                    "{currentClue.hint || 'Waiting for hint...'}"
+                  </h4>
+                </div>
+              ) : status === 'setting_word' || status === 'waiting' ? (
+                <div className="text-gray-500 italic flex flex-col items-center py-2">
+                  <p className="text-sm sm:text-base font-bold text-blue-400/60 uppercase tracking-widest animate-pulse text-center px-6 leading-relaxed">
+                    {status === 'waiting' 
+                      ? 'Tap Wordmaster to submit a secret word...' 
+                      : 'Waiting for Wordmaster to pick a secret word...'}
+                  </p>
+                </div>
+              ) : (
+                <div className="text-gray-500 text-sm sm:text-base font-bold italic opacity-40 py-4 text-center px-8 leading-relaxed">
+                  Waiting for players to submit a clue...
                 </div>
               )}
             </div>
-          ) : status === 'setting_word' || status === 'waiting' ? (
-            <div className="text-gray-500 italic flex flex-col items-center py-2">
-              <p className="text-sm sm:text-base font-bold text-blue-400/60 uppercase tracking-widest animate-pulse text-center px-6 leading-relaxed">
-                {status === 'waiting' 
-                  ? 'Tap Wordmaster to submit a secret word...' 
-                  : 'Waiting for Wordmaster to pick a secret word...'}
-              </p>
-            </div>
-          ) : (
-            <div className="text-gray-500 text-sm sm:text-base font-bold italic opacity-40 py-4 text-center px-8 leading-relaxed">
-              Waiting for players to submit a clue...
-            </div>
-          )}
-        </div>
+          </>
+        )}
 
         {/* Typing Indicators */}
         <div className="h-4 sm:h-6 overflow-hidden w-full px-2 shrink-0">
