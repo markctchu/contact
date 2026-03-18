@@ -24,7 +24,7 @@ function App() {
 
   if (!username) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] bg-gray-900 text-white flex items-center justify-center p-4">
         <div className="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md">
           <h1 className="text-4xl font-bold mb-6 text-center text-blue-400">Contact</h1>
           <p className="text-gray-400 mb-8 text-center">Enter a username to start playing.</p>
@@ -54,7 +54,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-[100dvh] bg-gray-900 text-white flex flex-col">
       {!currentRoom ? (
         <Lobby 
           username={username} 

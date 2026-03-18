@@ -39,8 +39,8 @@ function GameRoom({ room, username, socketId }) {
       </header>
 
       {/* Main Area */}
-      <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden">
-        <div className="flex-1 flex items-center justify-center p-1 sm:p-8 bg-gradient-to-b from-gray-900/20 to-transparent overflow-hidden">
+      <main className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
+        <div className="flex-1 flex flex-col items-center justify-center p-0.5 sm:p-8 bg-gradient-to-b from-gray-900/20 to-transparent overflow-hidden">
           <CentralArea room={room} socketId={socketId} />
         </div>
 
