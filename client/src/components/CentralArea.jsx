@@ -19,15 +19,15 @@ function CentralArea({ room, socketId }) {
   const boxClass = getBoxSize(displayWord.length);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full p-2 sm:p-4 overflow-hidden relative">
-      <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-8 w-full transition-all duration-300 max-h-full py-2">
+    <div className="flex flex-col items-center justify-center w-full h-full p-1 sm:p-4 overflow-hidden relative">
+      <div className="flex flex-col items-center justify-center space-y-2 sm:space-y-8 w-full transition-all duration-300 max-h-full py-1 sm:py-2">
         
         {/* Revealed Word Prefix / Intro */}
-        <div className="space-y-2 w-full flex flex-col items-center shrink-0">
-          <h3 className="text-[10px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 uppercase">
+        <div className="space-y-1 sm:space-y-2 w-full flex flex-col items-center shrink-0">
+          <h3 className="text-[9px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 uppercase">
             {revealedPrefix ? 'Current Prefix' : "Let's Play"}
           </h3>
-          <div className="flex flex-wrap gap-1 sm:gap-2 justify-center items-center max-w-full px-2">
+          <div className="flex flex-wrap gap-1 sm:gap-2 justify-center items-center max-w-full px-1">
             {displayWord.split('').map((char, i) => (
               <div 
                 key={i} 
