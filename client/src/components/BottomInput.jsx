@@ -9,6 +9,7 @@ import UnifiedInput from './UnifiedInput';
 function BottomInput({ room, socketId, chat, isWordmaster }) {
   const [inputValue, setInputValue] = useState('');
   const [privateMessages, setPrivateMessages] = useState([]);
+  const [isKeyboardUp, setIsKeyboardUp] = useState(false);
   const { activeAction, setActiveAction, toggleAction } = useGameState(room, socketId, isWordmaster);
 
   useEffect(() => {
@@ -16,6 +17,31 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
       setPrivateMessages(prev => [...prev, msg]);
     });
     return () => socket.off(EVENTS.CHAT_UPDATE_PRIVATE);
+  }, []);
+
+  // Detect keyboard by monitoring viewport height changes
+  useEffect(() => {
+    const handleResize = () => {
+      // If the viewport height is significantly less than the screen height, keyboard is likely up
+      const isUp = window.visualViewport ? 
+        window.visualViewport.height < window.innerHeight * 0.75 : 
+        window.innerHeight < 500;
+      setIsKeyboardUp(isUp);
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+    } else {
+      window.addEventListener('resize', handleResize);
+    }
+    
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+      } else {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
   }, []);
 
   // Combined chat for rendering
@@ -45,7 +71,7 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
 
   return (
     <div className="p-2 sm:p-4 flex flex-col space-y-2 sm:space-y-4 max-w-5xl mx-auto w-full">
-      <ChatWindow messages={allMessages} />
+      {!isKeyboardUp && <ChatWindow messages={allMessages} />}
 
       <div className="flex space-x-2 sm:space-x-3 h-12 sm:h-14">
         <ActionToggleButton 
