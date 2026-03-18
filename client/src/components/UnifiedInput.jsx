@@ -45,10 +45,14 @@ function UnifiedInput({ activeAction, inputValue, setInputValue, onClearAction }
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         placeholder={getPlaceholder()}
-        autoComplete="off"
+        name="game-message"
+        id="game-input"
+        autoComplete="one-time-code"
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck="false"
+        inputMode="text"
+        enterKeyHint="send"
         className={`flex-1 bg-gray-800 border-2 rounded-lg sm:rounded-xl px-3 sm:px-6 py-1 sm:py-2 text-sm sm:text-base text-white focus:outline-none focus:ring-2 sm:focus:ring-4 transition-all font-bold 
           ${activeAction === 'SECRET' || activeAction === 'GUESS' ? 'border-purple-500 focus:ring-purple-900/30' : 
             activeAction === 'CLUE' ? 'border-blue-500 focus:ring-blue-900/30' : 

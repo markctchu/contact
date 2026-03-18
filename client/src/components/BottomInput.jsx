@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { socket } from '../socket';
 import { EVENTS } from '../constants';
 import { useGameState } from '../hooks/useGameState';
@@ -10,6 +10,7 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
   const [inputValue, setInputValue] = useState('');
   const [privateMessages, setPrivateMessages] = useState([]);
   const [isKeyboardUp, setIsKeyboardUp] = useState(false);
+  const maxHeightRef = useRef(0);
   const { activeAction, setActiveAction, toggleAction } = useGameState(room, socketId, isWordmaster);
 
   useEffect(() => {
@@ -19,19 +20,27 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
     return () => socket.off(EVENTS.CHAT_UPDATE_PRIVATE);
   }, []);
 
-  // Detect keyboard by monitoring viewport height changes
+  // Detect keyboard by monitoring viewport height changes relative to max seen height
   useEffect(() => {
     const handleResize = () => {
-      // If the viewport height is significantly less than the screen height, keyboard is likely up
-      const isUp = window.visualViewport ? 
-        window.visualViewport.height < window.innerHeight * 0.75 : 
-        window.innerHeight < 500;
+      const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      
+      // Update max height if we see a larger one (keyboard definitely down)
+      if (currentHeight > maxHeightRef.current) {
+        maxHeightRef.current = currentHeight;
+      }
+
+      // If current height is significantly less than max seen height, keyboard is up
+      // 15% threshold to account for browser UI shifting
+      const isUp = maxHeightRef.current > 0 && currentHeight < maxHeightRef.current * 0.85;
       setIsKeyboardUp(isUp);
     };
 
     if (window.visualViewport) {
+      maxHeightRef.current = window.visualViewport.height;
       window.visualViewport.addEventListener('resize', handleResize);
     } else {
+      maxHeightRef.current = window.innerHeight;
       window.addEventListener('resize', handleResize);
     }
     
