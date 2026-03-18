@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
+const { EVENTS } = require('./constants');
 
 class RoomManager {
   constructor() {
@@ -20,8 +21,6 @@ class RoomManager {
           if (w) this.dictionary.add(w);
         });
         console.log(`[System] Dictionary loaded: ${this.dictionary.size} words.`);
-      } else {
-        console.warn('[Warning] words.txt not found in server directory. Strict validation disabled.');
       }
     } catch (err) {
       console.error('[Error] Failed to load dictionary:', err);
@@ -39,10 +38,8 @@ class RoomManager {
       secretWord: '',
       revealedPrefix: '',
       currentClue: null,
-      victoryTimer: null,
       victoryCountdown: 0,
       typingStatus: new Map(),
-      actionLog: [],
       chat: [],
       usedWords: new Set()
     };
@@ -73,6 +70,8 @@ class RoomManager {
       this.rooms.delete(roomId);
       return null;
     }
+    
+    this.emitRoomUpdate(io, room);
     return room;
   }
 
@@ -92,22 +91,16 @@ class RoomManager {
   addLog(io, roomId, type, message) {
     const room = this.rooms.get(roomId);
     if (room) {
-      const logEntry = { type, message, timestamp: Date.now() };
-      room.actionLog.push(logEntry);
-      
       const chatMsg = { 
         username: 'System', 
         message: message, 
-        timestamp: logEntry.timestamp,
+        timestamp: Date.now(),
         isLog: true,
         logType: type
       };
       
       room.chat.push(chatMsg);
-      
-      if (io) {
-        io.to(roomId).emit('chat_update', room.chat);
-      }
+      if (io) io.to(roomId).emit(EVENTS.CHAT_UPDATE, room.chat);
     }
   }
 
@@ -124,9 +117,9 @@ class RoomManager {
       room.secretWord = '';
       room.revealedPrefix = '';
       room.currentClue = null;
-      room.actionLog = [];
       room.usedWords = new Set();
       this.addLog(io, roomId, 'System', `${player.username} has become the Wordmaster.`);
+      this.emitRoomUpdate(io, room);
       return true;
     }
     return false;
@@ -141,19 +134,14 @@ class RoomManager {
       logType: type,
       isPrivate: true
     };
-    io.to(socketId).emit('chat_update_private', chatMsg);
+    io.to(socketId).emit(EVENTS.CHAT_UPDATE_PRIVATE, chatMsg);
   }
 
   validateWord(word, strict = false) {
     if (!word) return false;
     const normalized = word.trim().toUpperCase();
-    
     if (!/^[A-Z]{2,}$/.test(normalized)) return false;
-
-    if (strict && this.dictionary.size > 0) {
-      return this.dictionary.has(normalized);
-    }
-
+    if (strict && this.dictionary.size > 0) return this.dictionary.has(normalized);
     return true;
   }
 
@@ -169,6 +157,7 @@ class RoomManager {
     room.secretWord = word.trim().toUpperCase();
     room.revealedPrefix = room.secretWord[0];
     room.status = 'playing';
+    this.emitRoomUpdate(io, room);
     return true;
   }
 
@@ -178,21 +167,16 @@ class RoomManager {
     if (room.wordmaster === playerId) return false;
     
     const normalizedWord = hiddenWord.trim().toUpperCase();
-    
     if (!this.validateWord(normalizedWord, true)) {
       this.sendPrivateLog(io, playerId, 'Failure', `"${normalizedWord}" is not a valid English word.`);
       return false;
     }
     if (!normalizedWord.startsWith(room.revealedPrefix)) {
-      this.sendPrivateLog(io, playerId, 'Failure', `Clue must start with the revealed prefix: "${room.revealedPrefix}"`);
+      this.sendPrivateLog(io, playerId, 'Failure', `Clue must start with: "${room.revealedPrefix}"`);
       return false;
     }
-    if (normalizedWord === room.revealedPrefix) {
-      this.sendPrivateLog(io, playerId, 'Failure', 'Clue must be longer than the prefix.');
-      return false;
-    }
-    if (room.usedWords.has(normalizedWord)) {
-      this.sendPrivateLog(io, playerId, 'Failure', `"${normalizedWord}" has already been used this round.`);
+    if (normalizedWord === room.revealedPrefix || room.usedWords.has(normalizedWord)) {
+      this.sendPrivateLog(io, playerId, 'Failure', 'Invalid or already used word.');
       return false;
     }
 
@@ -202,9 +186,9 @@ class RoomManager {
       hint: '',
       contactedBy: null,
       contactGuess: null,
-      countdown: 0,
-      timer: null
+      countdown: 0
     };
+    this.emitRoomUpdate(io, room);
     return true;
   }
 
@@ -214,23 +198,23 @@ class RoomManager {
     
     const normalizedHint = hint.trim();
     if (normalizedHint.length < 2) {
-      this.sendPrivateLog(io, playerId, 'Failure', 'Hint must be at least 2 characters long.');
+      this.sendPrivateLog(io, playerId, 'Failure', 'Hint too short.');
       return false;
     }
 
     room.currentClue.hint = normalizedHint;
+    this.emitRoomUpdate(io, room);
     return true;
   }
 
   callContact(io, roomId, playerId, contactGuess) {
     const room = this.rooms.get(roomId);
-    if (!room || !room.currentClue || !room.currentClue.hint) return false;
+    if (!room || !room.currentClue || !room.currentClue.hint || room.currentClue.contactedBy) return false;
     if (playerId === room.currentClue.player || playerId === room.wordmaster) return false;
-    if (room.currentClue.contactedBy) return false;
 
     const normalizedGuess = contactGuess.trim().toUpperCase();
     if (!this.validateWord(normalizedGuess, false)) {
-      this.sendPrivateLog(io, playerId, 'Failure', 'Contact guess must contain only A-Z.');
+      this.sendPrivateLog(io, playerId, 'Failure', 'Invalid formatting.');
       return false;
     }
 
@@ -238,10 +222,8 @@ class RoomManager {
     room.currentClue.contactGuess = normalizedGuess;
     room.currentClue.countdown = 3;
     
-    const clueGiver = this.getUsername(room, room.currentClue.player);
-    const contacter = this.getUsername(room, playerId);
-    
-    this.addLog(io, roomId, 'Contact', `${clueGiver} and ${contacter} are attempting contact...`);
+    this.addLog(io, roomId, 'Contact', `${this.getUsername(room, room.currentClue.player)} and ${this.getUsername(room, playerId)} are attempting contact...`);
+    this.emitRoomUpdate(io, room);
     return true;
   }
 
@@ -250,30 +232,22 @@ class RoomManager {
     if (!room || !room.currentClue || room.wordmaster !== playerId) return false;
     
     const normalizedDeny = denyGuess.trim().toUpperCase();
-    if (!this.validateWord(normalizedDeny, false)) {
-      this.sendPrivateLog(io, playerId, 'Failure', 'Denial guess must contain only A-Z.');
-      return false;
-    }
-    
+    if (!this.validateWord(normalizedDeny, false)) return false;
     if (normalizedDeny === room.secretWord) {
-      this.sendPrivateLog(io, playerId, 'Failure', 'You cannot deny using your own secret word!');
+      this.sendPrivateLog(io, playerId, 'Failure', 'Cannot deny using secret word!');
       return false;
     }
 
     if (normalizedDeny === room.currentClue.hiddenWord) {
       room.usedWords.add(normalizedDeny);
-      this.addLog(io, roomId, 'Deny', `Wordmaster denied ${this.getUsername(room, room.currentClue.player)}'s guess of ${normalizedDeny}`);
-      this.clearClue(room);
+      this.addLog(io, roomId, 'Deny', `Wordmaster denied the guess of ${normalizedDeny}`);
+      room.currentClue = null;
+      this.emitRoomUpdate(io, room);
       return true;
     } else {
-      this.sendPrivateLog(io, playerId, 'Failure', `Incorrect! The clue was not "${normalizedDeny}".`);
+      this.sendPrivateLog(io, playerId, 'Failure', `Incorrect! It wasn't "${normalizedDeny}".`);
     }
     return false;
-  }
-
-  clearClue(room) {
-    if (room.currentClue && room.currentClue.timer) clearInterval(room.currentClue.timer);
-    room.currentClue = null;
   }
 
   declareVictory(io, roomId, playerId) {
@@ -283,6 +257,7 @@ class RoomManager {
     room.status = 'victory_countdown';
     room.victoryCountdown = 10;
     this.addLog(io, roomId, 'Victory', `Wordmaster declared victory!`);
+    this.emitRoomUpdate(io, room);
     return true;
   }
 
@@ -293,6 +268,7 @@ class RoomManager {
     room.status = 'playing';
     room.victoryCountdown = 0;
     this.addLog(io, roomId, 'Contest', `${this.getUsername(room, playerId)} contested victory!`);
+    this.emitRoomUpdate(io, room);
     return true;
   }
 
@@ -305,28 +281,24 @@ class RoomManager {
 
     if (room.currentClue.player === playerId || (player && clueOwner && player.username === clueOwner.username)) {
       if (!room.currentClue.contactedBy) {
-        const username = player ? player.username : 'A player';
-        this.addLog(io, roomId, 'System', `${username} has retracted their clue.`);
-        this.clearClue(room);
+        this.addLog(io, roomId, 'System', `${player?.username || 'A player'} has retracted their clue.`);
+        room.currentClue = null;
+        this.emitRoomUpdate(io, room);
         return true;
       }
     }
     return false;
   }
 
-  setTypingStatus(roomId, playerId, intent) {
+  setTypingStatus(io, roomId, playerId, intent) {
     const room = this.rooms.get(roomId);
     if (!room) return;
-    if (intent) {
-      room.typingStatus.set(playerId, intent);
-    } else {
-      room.typingStatus.delete(playerId);
-    }
+    intent ? room.typingStatus.set(playerId, intent) : room.typingStatus.delete(playerId);
+    this.emitRoomUpdate(io, room);
   }
 
   getUsername(room, playerId) {
-    const player = room.players.get(playerId);
-    return player ? player.username : 'Unknown';
+    return room.players.get(playerId)?.username || 'Unknown';
   }
 
   tick(io) {
@@ -334,25 +306,20 @@ class RoomManager {
       if (room.currentClue && room.currentClue.contactedBy && room.currentClue.countdown > 0) {
         room.currentClue.countdown--;
         if (room.currentClue.countdown === 0) {
-          const guessedWord = room.currentClue.hiddenWord;
-          
-          if (room.currentClue.hiddenWord === room.currentClue.contactGuess) {
-            // SUCCESSFUL CONTACT
-            const clueGiver = this.getUsername(room, room.currentClue.player);
-            const contacter = this.getUsername(room, room.currentClue.contactedBy);
-            room.usedWords.add(guessedWord);
+          const { hiddenWord, contactGuess, player, contactedBy } = room.currentClue;
 
-            if (guessedWord === room.secretWord) {
+          if (hiddenWord === contactGuess) {
+            // SUCCESSFUL CONTACT: Permanently burn the word
+            room.usedWords.add(hiddenWord);
+
+            if (hiddenWord === room.secretWord) {
               room.revealedPrefix = room.secretWord;
               room.status = 'game_over';
-              this.addLog(io, roomId, 'Success', `VICTORY! ${clueGiver} and ${contacter} successfully contacted the secret word: ${guessedWord}`);
-              this.addLog(io, roomId, 'System', `Game Over! Players win!`);
+              this.addLog(io, roomId, 'Success', `VICTORY! ${this.getUsername(room, player)} and ${this.getUsername(room, contactedBy)} contacted the secret word: ${hiddenWord}`);
             } else {
               const nextChar = room.secretWord[room.revealedPrefix.length];
               room.revealedPrefix += nextChar;
-              
-              this.addLog(io, roomId, 'Success', `Contact! ${clueGiver} and ${contacter} successfully guessed ${guessedWord}`);
-              
+              this.addLog(io, roomId, 'Success', `Contact! ${this.getUsername(room, player)} and ${this.getUsername(room, contactedBy)} successfully guessed ${hiddenWord}`);
               if (room.revealedPrefix === room.secretWord) {
                 room.status = 'game_over';
                 this.addLog(io, roomId, 'System', `Game Over! Players win! The word was ${room.secretWord}`);
@@ -361,7 +328,7 @@ class RoomManager {
           } else {
             this.addLog(io, roomId, 'Failure', `Contact failed! Words did not match.`);
           }
-          this.clearClue(room);
+          room.currentClue = null;
         }
         this.emitRoomUpdate(io, room);
       }
@@ -384,7 +351,7 @@ class RoomManager {
       intent
     }));
 
-    io.to(room.id).emit('room_update', {
+    io.to(room.id).emit(EVENTS.ROOM_UPDATE, {
       id: room.id,
       name: room.name,
       status: room.status,
@@ -400,7 +367,6 @@ class RoomManager {
         countdown: room.currentClue.countdown
       } : null,
       victoryCountdown: room.victoryCountdown,
-      actionLog: room.actionLog,
       typingStatus: typingArr,
       secretWord: room.status === 'game_over' ? room.secretWord : null 
     });

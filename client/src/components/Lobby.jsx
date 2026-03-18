@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { socket } from '../socket';
+import { EVENTS } from '../constants';
 
 function Lobby({ username, onCreateRoom, onJoinRoom }) {
   const [rooms, setRooms] = useState([]);
   const [newRoomName, setNewRoomName] = useState('');
 
   useEffect(() => {
-    socket.emit('get_rooms');
-    socket.on('rooms_list', (roomsList) => {
+    socket.emit(EVENTS.GET_ROOMS);
+    socket.on(EVENTS.ROOMS_LIST, (roomsList) => {
       setRooms(roomsList);
     });
-    return () => socket.off('rooms_list');
+    return () => socket.off(EVENTS.ROOMS_LIST);
   }, []);
 
   return (

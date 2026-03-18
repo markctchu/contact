@@ -1,40 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { socket } from './socket';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
+import { EVENTS } from './constants';
+import { useSocketEvents } from './hooks/useSocketEvents';
 
 function App() {
   const [username, setUsername] = useState('');
-  const [currentRoom, setCurrentRoom] = useState(null);
-  const [isConnected, setIsConnected] = useState(socket.connected);
-  const [socketId, setSocketId] = useState(socket.id);
-
-  useEffect(() => {
-    function onConnect() {
-      setIsConnected(true);
-      setSocketId(socket.id);
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-      setSocketId(null);
-      setCurrentRoom(null);
-    }
-
-    function onRoomUpdate(room) {
-      setCurrentRoom(room);
-    }
-
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('room_update', onRoomUpdate);
-
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      socket.off('room_update', onRoomUpdate);
-    };
-  }, []);
+  const { currentRoom, socketId } = useSocketEvents();
 
   const handleJoin = (name) => {
     setUsername(name);
@@ -42,11 +15,11 @@ function App() {
   };
 
   const handleCreateRoom = (roomName) => {
-    socket.emit('create_room', { name: roomName, username });
+    socket.emit(EVENTS.CREATE_ROOM, { name: roomName, username });
   };
 
   const handleJoinRoom = (roomId) => {
-    socket.emit('join_room', { roomId, username });
+    socket.emit(EVENTS.JOIN_ROOM, { roomId, username });
   };
 
   if (!username) {

@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const roomManager = require('./roomManager');
+const { EVENTS } = require('./constants');
 
 const app = express();
 app.use(cors());
@@ -25,120 +26,97 @@ setInterval(() => {
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  socket.on('get_rooms', () => {
-    socket.emit('rooms_list', roomManager.getAllRooms());
+  socket.on(EVENTS.GET_ROOMS, () => {
+    socket.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
   });
 
-  socket.on('create_room', ({ name, username }) => {
+  socket.on(EVENTS.CREATE_ROOM, ({ name, username }) => {
     const room = roomManager.createRoom(name, socket.id, username);
+    socket.data.username = username;
+    socket.data.roomId = room.id;
     socket.join(room.id);
-    roomManager.emitRoomUpdate(io, room);
-    io.emit('rooms_list', roomManager.getAllRooms());
+    io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
   });
 
-  socket.on('join_room', ({ roomId, username }) => {
+  socket.on(EVENTS.JOIN_ROOM, ({ roomId, username }) => {
     const room = roomManager.joinRoom(roomId, socket.id, username);
     if (room) {
-      socket.join(room.id);
+      socket.data.username = username;
+      socket.data.roomId = roomId;
+      socket.join(roomId);
       roomManager.emitRoomUpdate(io, room);
-      io.emit('rooms_list', roomManager.getAllRooms());
+      io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
     } else {
-      socket.emit('error', 'Room not found');
+      socket.emit(EVENTS.ERROR, 'Room not found');
     }
   });
 
-  socket.on('become_wordmaster', ({ roomId }) => {
-    if (roomManager.setWordmaster(io, roomId, socket.id)) {
+  socket.on(EVENTS.BECOME_WORDMASTER, () => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.setWordmaster(io, roomId, socket.id);
+  });
+
+  socket.on(EVENTS.SET_SECRET_WORD, ({ word }) => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.setSecretWord(io, roomId, socket.id, word);
+  });
+
+  socket.on(EVENTS.SUBMIT_CLUE_WORD, ({ word }) => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.submitClue(io, roomId, socket.id, word);
+  });
+
+  socket.on(EVENTS.SUBMIT_CLUE_HINT, ({ hint }) => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.submitHint(io, roomId, socket.id, hint);
+  });
+
+  socket.on(EVENTS.CALL_CONTACT, ({ guess }) => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.callContact(io, roomId, socket.id, guess);
+  });
+
+  socket.on(EVENTS.DENY_CLUE, ({ guess }) => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.denyClue(io, roomId, socket.id, guess);
+  });
+
+  socket.on(EVENTS.DECLARE_VICTORY, () => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.declareVictory(io, roomId, socket.id);
+  });
+
+  socket.on(EVENTS.CONTEST_VICTORY, () => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.contestVictory(io, roomId, socket.id);
+  });
+
+  socket.on(EVENTS.CANCEL_ACTION, () => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.cancelAction(io, roomId, socket.id);
+  });
+
+  socket.on(EVENTS.TYPING_STATUS, ({ intent }) => {
+    const { roomId } = socket.data;
+    if (roomId) roomManager.setTypingStatus(io, roomId, socket.id, intent);
+  });
+
+  socket.on(EVENTS.CHAT_MESSAGE, ({ message }) => {
+    const { roomId, username } = socket.data;
+    if (roomId && username) {
       const room = roomManager.getRoom(roomId);
-      roomManager.emitRoomUpdate(io, room);
-    }
-  });
-
-  socket.on('set_secret_word', ({ roomId, word }) => {
-    if (roomManager.setSecretWord(io, roomId, socket.id, word)) {
-      const room = roomManager.getRoom(roomId);
-      roomManager.emitRoomUpdate(io, room);
-    }
-  });
-
-  socket.on('submit_clue_word', ({ roomId, word }) => {
-    if (roomManager.submitClue(io, roomId, socket.id, word)) {
-      const room = roomManager.getRoom(roomId);
-      roomManager.emitRoomUpdate(io, room);
-    }
-  });
-
-  socket.on('submit_clue_hint', ({ roomId, hint }) => {
-    if (roomManager.submitHint(io, roomId, socket.id, hint)) {
-      const room = roomManager.getRoom(roomId);
-      roomManager.emitRoomUpdate(io, room);
-    }
-  });
-
-  socket.on('call_contact', ({ roomId, guess }) => {
-    if (roomManager.callContact(io, roomId, socket.id, guess)) {
-      const room = roomManager.getRoom(roomId);
-      roomManager.emitRoomUpdate(io, room);
-    }
-  });
-
-  socket.on('deny_clue', ({ roomId, guess }) => {
-    if (roomManager.denyClue(io, roomId, socket.id, guess)) {
-      const room = roomManager.getRoom(roomId);
-      roomManager.emitRoomUpdate(io, room);
-    }
-  });
-
-  socket.on('declare_victory', ({ roomId }) => {
-    if (roomManager.declareVictory(io, roomId, socket.id)) {
-      const room = roomManager.getRoom(roomId);
-      roomManager.emitRoomUpdate(io, room);
-    }
-  });
-
-  socket.on('contest_victory', ({ roomId }) => {
-    if (roomManager.contestVictory(io, roomId, socket.id)) {
-      const room = roomManager.getRoom(roomId);
-      roomManager.emitRoomUpdate(io, room);
-    }
-  });
-
-  socket.on('cancel_action', ({ roomId }) => {
-    roomManager.cancelAction(io, roomId, socket.id);
-    const updatedRoom = roomManager.getRoom(roomId);
-    if (updatedRoom) {
-      roomManager.emitRoomUpdate(io, updatedRoom);
-    }
-  });
-
-  socket.on('typing_status', ({ roomId, intent }) => {
-    roomManager.setTypingStatus(roomId, socket.id, intent);
-    const room = roomManager.getRoom(roomId);
-    if (room) {
-      roomManager.emitRoomUpdate(io, room);
-    }
-  });
-
-  socket.on('chat_message', ({ roomId, message }) => {
-    const room = roomManager.getRoom(roomId);
-    if (room) {
-      const player = room.players.get(socket.id);
-      if (player) {
-        room.chat.push({ username: player.username, message, timestamp: Date.now() });
-        io.to(roomId).emit('chat_update', room.chat);
+      if (room) {
+        room.chat.push({ username, message, timestamp: Date.now() });
+        io.to(roomId).emit(EVENTS.CHAT_UPDATE, room.chat);
       }
     }
   });
 
   socket.on('disconnecting', () => {
-    for (const roomId of socket.rooms) {
-      if (roomId !== socket.id) {
-        const room = roomManager.leaveRoom(io, roomId, socket.id);
-        if (room) {
-          roomManager.emitRoomUpdate(io, room);
-        }
-        io.emit('rooms_list', roomManager.getAllRooms());
-      }
+    const { roomId } = socket.data;
+    if (roomId) {
+      roomManager.leaveRoom(io, roomId, socket.id);
+      io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
     }
   });
 

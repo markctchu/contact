@@ -3,15 +3,16 @@ import CentralArea from './CentralArea';
 import BottomInput from './BottomInput';
 import { socket } from '../socket';
 import { Users } from 'lucide-react';
+import { EVENTS } from '../constants';
 
 function GameRoom({ room, username, socketId }) {
   const [chat, setChat] = useState([]);
 
   useEffect(() => {
-    socket.on('chat_update', (updatedChat) => {
+    socket.on(EVENTS.CHAT_UPDATE, (updatedChat) => {
       setChat(updatedChat);
     });
-    return () => socket.off('chat_update');
+    return () => socket.off(EVENTS.CHAT_UPDATE);
   }, []);
 
   const isWordmaster = room.wordmaster === socketId;
@@ -47,7 +48,6 @@ function GameRoom({ room, username, socketId }) {
         <section className="bg-gray-900 border-t border-gray-800 shadow-2xl shrink-0">
           <BottomInput 
             room={room} 
-            username={username} 
             socketId={socketId}
             chat={chat}
             isWordmaster={isWordmaster}
