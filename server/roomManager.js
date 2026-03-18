@@ -220,7 +220,7 @@ class RoomManager {
 
     room.currentClue.contactedBy = playerId;
     room.currentClue.contactGuess = normalizedGuess;
-    room.currentClue.countdown = 3;
+    room.currentClue.countdown = 4; // Start at 4 to allow 3 to stay for 2 seconds
     
     this.addLog(io, roomId, 'Contact', `${this.getUsername(room, room.currentClue.player)} and ${this.getUsername(room, playerId)} are attempting contact...`);
     this.emitRoomUpdate(io, room);

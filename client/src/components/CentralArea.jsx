@@ -28,11 +28,11 @@ function CentralArea({ room, socketId }) {
           <div className="flex-1 flex flex-col items-center justify-center w-full animate-in fade-in zoom-in duration-300 px-2">
             {status === 'victory_countdown' ? (
               <div className="bg-yellow-600 py-3 px-6 sm:py-6 sm:px-12 rounded-2xl shadow-xl animate-pulse w-full max-w-md flex items-center justify-between border-2 border-yellow-400">
-                <div className="text-left">
-                  <h4 className="text-sm sm:text-xl font-black text-black uppercase leading-tight tracking-tighter">Victory!</h4>
-                  <p className="text-black/80 text-[10px] sm:text-xs font-bold uppercase tracking-widest">Contest Now!</p>
+                <div className="text-left min-w-0 mr-4">
+                  <h4 className="text-xs sm:text-lg font-black text-black uppercase leading-tight tracking-tighter">Wordmaster is Declaring Victory!</h4>
+                  <p className="text-black/80 text-[9px] sm:text-xs font-bold uppercase tracking-widest mt-1">Contest to stop the countdown</p>
                 </div>
-                <div className="text-5xl sm:text-7xl font-black text-black leading-none ml-4">{victoryCountdown}</div>
+                <div className="text-5xl sm:text-7xl font-black text-black leading-none">{victoryCountdown}</div>
               </div>
             ) : (
               <div className="bg-blue-600 py-3 px-6 sm:py-6 sm:px-12 rounded-2xl shadow-xl animate-bounce w-full max-w-md flex items-center justify-between border-2 border-blue-400">
