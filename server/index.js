@@ -179,7 +179,7 @@ io.on('connection', (socket) => {
 });
 
 // Catch-all to serve index.html for SPA routing
-app.get('/:any*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
