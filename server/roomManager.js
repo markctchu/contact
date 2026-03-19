@@ -50,7 +50,20 @@ class RoomManager {
   joinRoom(roomId, playerId, username) {
     const room = this.rooms.get(roomId);
     if (!room) return null;
-    room.players.set(playerId, { id: playerId, username: username, role: 'player' });
+    
+    let existingRole = 'player';
+    // Session Resumption: If a player with this username already exists, inherit their role and clean up old ID
+    for (const [id, p] of room.players.entries()) {
+      if (p.username === username) {
+        existingRole = p.role;
+        if (room.wordmaster === id) room.wordmaster = playerId;
+        room.players.delete(id);
+        room.typingStatus.delete(id);
+        break;
+      }
+    }
+
+    room.players.set(playerId, { id: playerId, username: username, role: existingRole });
     return room;
   }
 

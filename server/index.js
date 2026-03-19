@@ -20,8 +20,8 @@ const io = new Server(server, {
     skipMiddlewares: true,
   },
   pingTimeout: 60000,
-  pingInterval: 10000, // Shorter interval to keep proxies alive
-  transports: ['websocket', 'polling']
+  pingInterval: 10000,
+  transports: ['websocket'] // Force websocket to bypass polling upgrade issues
 });
 
 const PORT = process.env.PORT || 3001;
@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
 
   // Log all incoming events for this socket
   socket.onAny((eventName, ...args) => {
-    if (eventName === EVENTS.TYPING_STATUS) return; // Silent logs for typing
+    if (eventName === EVENTS.TYPING_STATUS || eventName === EVENTS.TYPING_UPDATE) return; 
     console.log(`[Event] From ${socket.data.username || 'Unknown'} (${socket.id}): ${eventName}`, JSON.stringify(args));
   });
 
@@ -148,11 +148,28 @@ io.on('connection', (socket) => {
   socket.on('disconnecting', (reason) => {
     const { roomId, username } = socket.data;
     console.log(`[Socket] User ${username || 'Unknown'} (${socket.id}) disconnecting. Reason: ${reason}`);
-    // If connection state recovery is enabled, we might not want to leave immediately, 
-    // but for this game's logic, leaving on hard disconnect is still appropriate.
-    if (roomId) {
-      roomManager.leaveRoom(io, roomId, socket.id);
-      io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
+    
+    if (roomId && username) {
+      // Grace Period: Wait 10 seconds before removing the player
+      // This allows them to reconnect without being 'booted' or ending the game
+      setTimeout(() => {
+        const currentRoom = roomManager.getRoom(roomId);
+        if (!currentRoom) return;
+
+        // Check if the user has re-connected since they disconnected
+        const isReconnected = Array.from(io.sockets.adapter.rooms.get(roomId) || []).some(socketId => {
+          const s = io.sockets.sockets.get(socketId);
+          return s && s.data.username === username;
+        });
+
+        if (!isReconnected) {
+          console.log(`[Room] Removing ${username} from ${roomId} after grace period.`);
+          roomManager.leaveRoom(io, roomId, socket.id);
+          io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
+        } else {
+          console.log(`[Room] ${username} re-joined ${roomId}, cancelling removal.`);
+        }
+      }, 10000);
     }
   });
 

@@ -11,6 +11,7 @@ function App() {
 
   const handleJoin = (name) => {
     setUsername(name);
+    sessionStorage.setItem('username', name);
     socket.connect();
   };
 
@@ -21,6 +22,21 @@ function App() {
   const handleJoinRoom = (roomId) => {
     socket.emit(EVENTS.JOIN_ROOM, { roomId, username });
   };
+
+  useEffect(() => {
+    if (currentRoom) {
+      sessionStorage.setItem('lastRoomId', currentRoom.id);
+    }
+  }, [currentRoom]);
+
+  // Initial check for existing session
+  useEffect(() => {
+    const savedName = sessionStorage.getItem('username');
+    if (savedName && !username) {
+      setUsername(savedName);
+      socket.connect();
+    }
+  }, []);
 
   if (!username) {
     return (
