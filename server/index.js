@@ -22,14 +22,14 @@ const io = new Server(server, {
   },
   pingTimeout: 60000,
   pingInterval: 10000,
-  transports: ['websocket', 'polling'] 
+  transports: ['websocket', 'polling']
 });
 
 const PORT = process.env.PORT || 3001;
 
-// Serve static files from the React app
-const distPath = path.join(__dirname, '../client/dist');
-const indexPath = path.join(distPath, 'index.html');
+// Absolute paths for reliability
+const distPath = path.resolve(__dirname, '../client/dist');
+const indexPath = path.resolve(distPath, 'index.html');
 
 console.log(`[System] Serving static files from: ${distPath}`);
 if (fs.existsSync(indexPath)) {
@@ -161,7 +161,6 @@ io.on('connection', (socket) => {
     
     if (roomId && username) {
       // Grace Period: Wait 10 seconds before removing the player
-      // This allows them to reconnect without being 'booted' or ending the game
       setTimeout(() => {
         const currentRoom = roomManager.getRoom(roomId);
         if (!currentRoom) return;
@@ -189,12 +188,14 @@ io.on('connection', (socket) => {
 });
 
 // Catch-all to serve index.html for SPA routing
+// Using app.use with no path is the safest way to bypass Express 5 wildcard issues
 app.use((req, res) => {
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).send('Frontend not found. Please ensure the build completed successfully.');
-  }
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error(`[Error] Failed to send index.html: ${err.message}`);
+      res.status(404).send('Frontend could not be loaded. Please ensure the build completed successfully.');
+    }
+  });
 });
 
 server.listen(PORT, () => {
