@@ -17,9 +17,17 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
     );
   }
 
-  // 2. SETTING WORD (Wordmaster) - Mandatory
+  // 2. SETTING WORD (Wordmaster) - Optional/Cancellable
   if (status === 'setting_word' && isWordmaster) {
-    return <div className="bg-purple-600 text-white font-black px-4 sm:px-6 flex items-center rounded-xl whitespace-nowrap text-xs sm:text-base">SET WORD</div>;
+    return (
+      <button 
+        type="button"
+        onClick={onCancel}
+        className="bg-gray-700 hover:bg-gray-800 text-white font-black px-4 sm:px-6 rounded-xl transition-all whitespace-nowrap text-xs sm:text-base"
+      >
+        CANCEL
+      </button>
+    );
   }
 
   // 3. PLAYING

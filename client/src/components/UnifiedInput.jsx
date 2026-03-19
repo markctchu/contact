@@ -10,7 +10,7 @@ function UnifiedInput({ activeAction, inputValue, setInputValue, onClearAction }
       case 'CLUE': return "Give a public hint for your word...";
       case 'CONTACT': return "What word is it?";
       case 'DENY': return "Is it...";
-      default: return "Type a message...";
+      default: return "Send a chat message...";
     }
   };
 

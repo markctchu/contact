@@ -136,7 +136,18 @@ io.on('connection', (socket) => {
 
   socket.on(EVENTS.CANCEL_ACTION, () => {
     const { roomId } = socket.data;
-    if (roomId) roomManager.cancelAction(io, roomId, socket.id);
+    if (roomId) {
+      const room = roomManager.getRoom(roomId);
+      if (room && room.status === 'setting_word' && room.wordmaster === socket.id) {
+        // Wordmaster is backing out
+        room.status = 'waiting';
+        room.wordmaster = null;
+        roomManager.emitRoomUpdate(io, room);
+        roomManager.addLog(io, roomId, 'System', `${socket.data.username} is no longer the Wordmaster.`);
+      } else {
+        roomManager.cancelAction(io, roomId, socket.id);
+      }
+    }
   });
 
   socket.on(EVENTS.TYPING_STATUS, ({ intent }) => {
