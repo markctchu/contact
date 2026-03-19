@@ -15,8 +15,9 @@ const io = new Server(server, {
     origin: process.env.FRONTEND_URL || "*",
     methods: ["GET", "POST"]
   },
-  pingTimeout: 60000, // 60 seconds
-  pingInterval: 25000 // 25 seconds
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  transports: ['websocket', 'polling']
 });
 
 const PORT = process.env.PORT || 3001;
