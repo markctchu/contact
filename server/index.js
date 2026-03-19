@@ -21,7 +21,7 @@ const io = new Server(server, {
   },
   pingTimeout: 60000,
   pingInterval: 10000,
-  transports: ['websocket'] // Force websocket to bypass polling upgrade issues
+  transports: ['websocket', 'polling'] 
 });
 
 const PORT = process.env.PORT || 3001;
@@ -179,7 +179,7 @@ io.on('connection', (socket) => {
 });
 
 // Catch-all to serve index.html for SPA routing
-app.use((req, res) => {
+app.get('*', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
