@@ -49,7 +49,7 @@ function App() {
 
   if (!username) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+      <div className="h-[100dvh] bg-gray-900 text-white flex items-center justify-center p-4 overflow-hidden">
         <div className="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-700">
           <h1 className="text-4xl font-bold mb-6 text-center text-blue-400">Contact</h1>
           <p className="text-gray-400 mb-8 text-center text-sm uppercase tracking-widest">Enter a username to start</p>
