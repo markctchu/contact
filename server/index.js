@@ -189,7 +189,7 @@ io.on('connection', (socket) => {
 });
 
 // Catch-all to serve index.html for SPA routing
-app.get('*', (req, res) => {
+app.use((req, res) => {
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
