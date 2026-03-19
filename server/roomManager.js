@@ -386,6 +386,7 @@ class RoomManager {
         countdown: room.currentClue.countdown
       } : null,
       victoryCountdown: room.victoryCountdown,
+      chat: room.chat,
       secretWord: room.status === 'game_over' ? room.secretWord : null 
     });
   }

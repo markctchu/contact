@@ -6,7 +6,7 @@ import { Users } from 'lucide-react';
 import { EVENTS } from '../constants';
 
 function GameRoom({ room, typingStatus, username, socketId }) {
-  const [chat, setChat] = useState([]);
+  const [chat, setChat] = useState(room.chat || []);
 
   useEffect(() => {
     socket.on(EVENTS.CHAT_UPDATE, (updatedChat) => {
