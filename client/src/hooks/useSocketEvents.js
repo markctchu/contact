@@ -29,13 +29,23 @@ export function useSocketEvents() {
       console.error('[Socket] Connection error:', error.message);
     }
 
+    function onReconnectAttempt(attempt) {
+      console.log(`[Socket] Reconnection attempt #${attempt}`);
+    }
+
     function onRoomUpdate(room) {
       setCurrentRoom(room);
     }
 
+    // Global listener for all incoming events
+    socket.onAny((eventName, ...args) => {
+      console.log(`[Socket-In] ${eventName}`, args);
+    });
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('connect_error', onConnectError);
+    socket.on('reconnect_attempt', onReconnectAttempt);
     socket.on(EVENTS.ROOM_UPDATE, onRoomUpdate);
 
     // Initial check in case it's already connected
@@ -47,6 +57,7 @@ export function useSocketEvents() {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('connect_error', onConnectError);
+      socket.off('reconnect_attempt', onReconnectAttempt);
       socket.off(EVENTS.ROOM_UPDATE, onRoomUpdate);
     };
   }, []);

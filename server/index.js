@@ -34,6 +34,12 @@ setInterval(() => {
 io.on('connection', (socket) => {
   console.log(`[Socket] User connected: ${socket.id} from ${socket.handshake.address} [Transport: ${socket.conn.transport.name}]`);
 
+  // Log all incoming events for this socket
+  socket.onAny((eventName, ...args) => {
+    console.log(`[Event] From ${socket.data.username || 'Unknown'} (${socket.id}): ${eventName}`, 
+      eventName === EVENTS.TYPING_STATUS ? '' : JSON.stringify(args));
+  });
+
   socket.conn.on('upgrade', (transport) => {
     console.log(`[Socket] Transport upgraded to ${transport.name} for ${socket.id}`);
   });
