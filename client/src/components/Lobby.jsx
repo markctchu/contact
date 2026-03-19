@@ -17,22 +17,24 @@ function Lobby({ username, onCreateRoom, onJoinRoom }) {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto w-full p-4 sm:p-8">
-      <header className="mb-8 text-center">
+    <div className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full p-4 overflow-hidden">
+      <header className="mb-8 text-center shrink-0">
         <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-400 mb-2 tracking-tight">Contact</h1>
         <p className="text-gray-400 text-sm">Welcome, <span className="text-white font-semibold">{username}</span></p>
       </header>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <section className="bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-700">
-          <h2 className="text-xl sm:text-2xl font-bold mb-6">Create a New Room</h2>
+      <div className="grid md:grid-cols-2 gap-6 sm:gap-12 w-full min-h-0 overflow-hidden">
+        <section className="bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-700 flex flex-col shrink-0">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center">
+            Create a New Room
+          </h2>
           <form onSubmit={(e) => {
             e.preventDefault();
             if (newRoomName.trim()) {
               onCreateRoom(newRoomName.trim());
               setNewRoomName('');
             }
-          }}>
+          }} className="mt-auto">
             <input
               type="text"
               value={newRoomName}
@@ -49,28 +51,27 @@ function Lobby({ username, onCreateRoom, onJoinRoom }) {
           </form>
         </section>
 
-        <section className="bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-700">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold">Active Rooms</h2>
+        <section className="bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-700 flex flex-col min-h-0 overflow-hidden">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center justify-between shrink-0">
+            Active Rooms
             <span className="text-sm font-normal text-gray-400 bg-gray-900 px-3 py-1 rounded-full">{rooms.length}</span>
-          </div>
-          
-          <div className="space-y-3">
+          </h2>
+          <div className="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-0">
             {rooms.length === 0 ? (
               <p className="text-gray-500 text-center py-8 italic">No active rooms found. Start one!</p>
             ) : (
               rooms.map((room) => (
                 <div
                   key={room.id}
-                  className="bg-gray-900 p-4 rounded-xl flex items-center justify-between group hover:border-blue-500 border border-transparent transition-all"
+                  className="bg-gray-900 p-3 sm:p-4 rounded-xl flex items-center justify-between group hover:border-blue-500 border border-transparent transition-all shrink-0"
                 >
-                  <div className="min-w-0 flex-1 mr-4">
+                  <div className="min-w-0 flex-1 mr-2">
                     <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors truncate">{room.name}</h3>
-                    <p className="text-xs text-gray-500">{room.playerCount} Players • {room.status}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">{room.playerCount} Players • {room.status}</p>
                   </div>
                   <button
                     onClick={() => onJoinRoom(room.id)}
-                    className="bg-gray-800 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm group-hover:shadow-blue-900 shrink-0"
+                    className="bg-gray-800 hover:bg-blue-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-bold transition-all shadow-sm group-hover:shadow-blue-900 shrink-0"
                   >
                     JOIN
                   </button>
