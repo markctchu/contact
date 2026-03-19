@@ -294,7 +294,13 @@ class RoomManager {
     const room = this.rooms.get(roomId);
     if (!room) return;
     intent ? room.typingStatus.set(playerId, intent) : room.typingStatus.delete(playerId);
-    this.emitRoomUpdate(io, room);
+    
+    const typingArr = Array.from(room.typingStatus.entries()).map(([id, intent]) => ({
+      username: this.getUsername(room, id),
+      intent
+    }));
+    
+    io.to(roomId).emit(EVENTS.TYPING_UPDATE, typingArr);
   }
 
   getUsername(room, playerId) {
@@ -346,11 +352,7 @@ class RoomManager {
 
   emitRoomUpdate(io, room) {
     const playersArr = Array.from(room.players.values());
-    const typingArr = Array.from(room.typingStatus.entries()).map(([id, intent]) => ({
-      username: this.getUsername(room, id),
-      intent
-    }));
-
+    
     io.to(room.id).emit(EVENTS.ROOM_UPDATE, {
       id: room.id,
       name: room.name,
@@ -367,7 +369,6 @@ class RoomManager {
         countdown: room.currentClue.countdown
       } : null,
       victoryCountdown: room.victoryCountdown,
-      typingStatus: typingArr,
       secretWord: room.status === 'game_over' ? room.secretWord : null 
     });
   }

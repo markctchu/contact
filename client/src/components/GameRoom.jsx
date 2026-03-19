@@ -5,7 +5,7 @@ import { socket } from '../socket';
 import { Users } from 'lucide-react';
 import { EVENTS } from '../constants';
 
-function GameRoom({ room, username, socketId }) {
+function GameRoom({ room, typingStatus, username, socketId }) {
   const [chat, setChat] = useState([]);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ function GameRoom({ room, username, socketId }) {
       {/* Main Area */}
       <main className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
         <div className="flex-1 flex flex-col items-center justify-center p-0.5 sm:p-8 bg-gradient-to-b from-gray-900/20 to-transparent overflow-hidden">
-          <CentralArea room={room} socketId={socketId} />
+          <CentralArea room={room} typingStatus={typingStatus} socketId={socketId} />
         </div>
 
         {/* Bottom Section (Includes Chat) */}

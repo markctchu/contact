@@ -15,8 +15,12 @@ const io = new Server(server, {
     origin: process.env.FRONTEND_URL || "*",
     methods: ["GET", "POST"]
   },
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
+  },
   pingTimeout: 60000,
-  pingInterval: 25000,
+  pingInterval: 10000, // Shorter interval to keep proxies alive
   transports: ['websocket', 'polling']
 });
 
@@ -34,10 +38,14 @@ setInterval(() => {
 io.on('connection', (socket) => {
   console.log(`[Socket] User connected: ${socket.id} from ${socket.handshake.address} [Transport: ${socket.conn.transport.name}]`);
 
+  if (socket.recovered) {
+    console.log(`[Socket] Session recovered for ${socket.id}`);
+  }
+
   // Log all incoming events for this socket
   socket.onAny((eventName, ...args) => {
-    console.log(`[Event] From ${socket.data.username || 'Unknown'} (${socket.id}): ${eventName}`, 
-      eventName === EVENTS.TYPING_STATUS ? '' : JSON.stringify(args));
+    if (eventName === EVENTS.TYPING_STATUS) return; // Silent logs for typing
+    console.log(`[Event] From ${socket.data.username || 'Unknown'} (${socket.id}): ${eventName}`, JSON.stringify(args));
   });
 
   socket.conn.on('upgrade', (transport) => {
@@ -140,6 +148,8 @@ io.on('connection', (socket) => {
   socket.on('disconnecting', (reason) => {
     const { roomId, username } = socket.data;
     console.log(`[Socket] User ${username || 'Unknown'} (${socket.id}) disconnecting. Reason: ${reason}`);
+    // If connection state recovery is enabled, we might not want to leave immediately, 
+    // but for this game's logic, leaving on hard disconnect is still appropriate.
     if (roomId) {
       roomManager.leaveRoom(io, roomId, socket.id);
       io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());

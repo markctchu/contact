@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-function CentralArea({ room, socketId }) {
-  const { revealedPrefix, currentClue, status, victoryCountdown, typingStatus, secretWord } = room;
+function CentralArea({ room, typingStatus, socketId }) {
+  const { revealedPrefix, currentClue, status, victoryCountdown, secretWord } = room;
 
   const displayWord = useMemo(() => {
     if (status === 'game_over' && secretWord) return secretWord;

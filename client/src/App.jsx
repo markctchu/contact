@@ -7,7 +7,7 @@ import { useSocketEvents } from './hooks/useSocketEvents';
 
 function App() {
   const [username, setUsername] = useState('');
-  const { currentRoom, socketId } = useSocketEvents();
+  const { currentRoom, typingStatus, socketId } = useSocketEvents();
 
   const handleJoin = (name) => {
     setUsername(name);
@@ -64,6 +64,7 @@ function App() {
       ) : (
         <GameRoom 
           room={currentRoom} 
+          typingStatus={typingStatus}
           username={username} 
           socketId={socketId}
         />

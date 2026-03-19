@@ -4,6 +4,7 @@ import { EVENTS } from '../constants';
 
 export function useSocketEvents() {
   const [currentRoom, setCurrentRoom] = useState(null);
+  const [typingStatus, setTypingStatus] = useState([]);
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [socketId, setSocketId] = useState(socket.id);
 
@@ -23,6 +24,7 @@ export function useSocketEvents() {
       setIsConnected(false);
       setSocketId(null);
       setCurrentRoom(null);
+      setTypingStatus([]);
     }
 
     function onConnectError(error) {
@@ -37,8 +39,13 @@ export function useSocketEvents() {
       setCurrentRoom(room);
     }
 
+    function onTypingUpdate(typingArr) {
+      setTypingStatus(typingArr);
+    }
+
     // Global listener for all incoming events
     socket.onAny((eventName, ...args) => {
+      if (eventName === EVENTS.TYPING_UPDATE) return; // Silent typing updates
       console.log(`[Socket-In] ${eventName}`, args);
     });
 
@@ -47,6 +54,7 @@ export function useSocketEvents() {
     socket.on('connect_error', onConnectError);
     socket.on('reconnect_attempt', onReconnectAttempt);
     socket.on(EVENTS.ROOM_UPDATE, onRoomUpdate);
+    socket.on(EVENTS.TYPING_UPDATE, onTypingUpdate);
 
     // Initial check in case it's already connected
     if (socket.connected) {
@@ -59,8 +67,9 @@ export function useSocketEvents() {
       socket.off('connect_error', onConnectError);
       socket.off('reconnect_attempt', onReconnectAttempt);
       socket.off(EVENTS.ROOM_UPDATE, onRoomUpdate);
+      socket.off(EVENTS.TYPING_UPDATE, onTypingUpdate);
     };
   }, []);
 
-  return { currentRoom, isConnected, socketId };
+  return { currentRoom, typingStatus, isConnected, socketId };
 }

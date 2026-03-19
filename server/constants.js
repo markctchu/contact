@@ -21,6 +21,7 @@ const EVENTS = {
   
   // Status & Communication
   TYPING_STATUS: 'typing_status',
+  TYPING_UPDATE: 'typing_update',
   CHAT_MESSAGE: 'chat_message',
   CHAT_UPDATE: 'chat_update',
   CHAT_UPDATE_PRIVATE: 'chat_update_private',
