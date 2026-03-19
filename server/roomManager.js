@@ -344,10 +344,14 @@ class RoomManager {
                 this.addLog(io, roomId, 'System', `Game Over! Players win! The word was ${room.secretWord}`);
               }
             }
+            room.currentClue = null;
           } else {
             this.addLog(io, roomId, 'Failure', `Contact failed! Words did not match.`);
+            // RESET CLUE: Keep it active but allow new contacts
+            room.currentClue.contactedBy = null;
+            room.currentClue.contactGuess = null;
+            room.currentClue.countdown = 0;
           }
-          room.currentClue = null;
         }
         this.emitRoomUpdate(io, room);
       }
