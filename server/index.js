@@ -14,7 +14,9 @@ const io = new Server(server, {
   cors: {
     origin: process.env.FRONTEND_URL || "*",
     methods: ["GET", "POST"]
-  }
+  },
+  pingTimeout: 60000, // 60 seconds
+  pingInterval: 25000 // 25 seconds
 });
 
 const PORT = process.env.PORT || 3001;
@@ -29,13 +31,18 @@ setInterval(() => {
 }, 1000);
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  console.log(`[Socket] User connected: ${socket.id} from ${socket.handshake.address} [Transport: ${socket.conn.transport.name}]`);
+
+  socket.conn.on('upgrade', (transport) => {
+    console.log(`[Socket] Transport upgraded to ${transport.name} for ${socket.id}`);
+  });
 
   socket.on(EVENTS.GET_ROOMS, () => {
     socket.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
   });
 
   socket.on(EVENTS.CREATE_ROOM, ({ name, username }) => {
+    console.log(`[Room] User ${username} (${socket.id}) creating room: ${name}`);
     const room = roomManager.createRoom(name, socket.id, username);
     socket.data.username = username;
     socket.data.roomId = room.id;
@@ -45,6 +52,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on(EVENTS.JOIN_ROOM, ({ roomId, username }) => {
+    console.log(`[Room] User ${username} (${socket.id}) joining room: ${roomId}`);
     const room = roomManager.joinRoom(roomId, socket.id, username);
     if (room) {
       socket.data.username = username;
@@ -53,13 +61,17 @@ io.on('connection', (socket) => {
       roomManager.emitRoomUpdate(io, room);
       io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
     } else {
+      console.warn(`[Room] Join failed: Room ${roomId} not found for user ${username}`);
       socket.emit(EVENTS.ERROR, 'Room not found');
     }
   });
 
   socket.on(EVENTS.BECOME_WORDMASTER, () => {
     const { roomId } = socket.data;
-    if (roomId) roomManager.setWordmaster(io, roomId, socket.id);
+    if (roomId) {
+      console.log(`[Game] User ${socket.data.username} becoming wordmaster in room ${roomId}`);
+      roomManager.setWordmaster(io, roomId, socket.id);
+    }
   });
 
   socket.on(EVENTS.SET_SECRET_WORD, ({ word }) => {
@@ -118,16 +130,17 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('disconnecting', () => {
-    const { roomId } = socket.data;
+  socket.on('disconnecting', (reason) => {
+    const { roomId, username } = socket.data;
+    console.log(`[Socket] User ${username || 'Unknown'} (${socket.id}) disconnecting. Reason: ${reason}`);
     if (roomId) {
       roomManager.leaveRoom(io, roomId, socket.id);
       io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
     }
   });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+  socket.on('disconnect', (reason) => {
+    console.log(`[Socket] User disconnected: ${socket.id}. Reason: ${reason}`);
   });
 });
 
