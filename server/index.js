@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const roomManager = require('./roomManager');
 const { EVENTS } = require('./constants');
 
@@ -27,7 +28,16 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 3001;
 
 // Serve static files from the React app
-const distPath = path.resolve(__dirname, '..', 'client', 'dist');
+const distPath = path.join(__dirname, '../client/dist');
+const indexPath = path.join(distPath, 'index.html');
+
+console.log(`[System] Serving static files from: ${distPath}`);
+if (fs.existsSync(indexPath)) {
+  console.log(`[System] Found index.html at: ${indexPath}`);
+} else {
+  console.error(`[Error] index.html NOT FOUND at: ${indexPath}`);
+}
+
 app.use(express.static(distPath));
 
 // Global interval for game ticks (countdowns)
@@ -179,8 +189,12 @@ io.on('connection', (socket) => {
 });
 
 // Catch-all to serve index.html for SPA routing
-app.use((req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+app.get('*', (req, res) => {
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('Frontend not found. Please ensure the build completed successfully.');
+  }
 });
 
 server.listen(PORT, () => {
