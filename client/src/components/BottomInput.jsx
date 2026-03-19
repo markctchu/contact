@@ -66,7 +66,9 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
   }, [inputValue, activeAction]);
 
   const handleCancel = () => {
-    if (room.currentClue && room.currentClue.player === socketId) {
+    if (room.status === 'setting_word' && isWordmaster) {
+      socket.emit(EVENTS.CANCEL_ACTION);
+    } else if (room.currentClue && room.currentClue.player === socketId) {
       socket.emit(EVENTS.CANCEL_ACTION);
     }
     setActiveAction(null);
