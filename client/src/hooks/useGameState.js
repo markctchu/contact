@@ -8,15 +8,16 @@ export function useGameState(room, socketId, isWordmaster) {
     
     // 1. MANDATORY states (User is forced into these modes)
     if (status === 'setting_word' && isWordmaster) {
-      setActiveAction('SECRET');
+      if (activeAction !== 'SECRET') setActiveAction('SECRET');
       return;
     }
     if (status === 'playing' && currentClue?.player === socketId && !currentClue.hint) {
-      setActiveAction('CLUE');
+      if (activeAction !== 'CLUE') setActiveAction('CLUE');
       return;
     }
 
     // 2. AUTO-CLEAR (If user was in an optional mode that is no longer valid)
+    // Also clear if status shifted away from mandatory modes
     const isValid = (
       (activeAction === 'DENY' && currentClue && isWordmaster) ||
       (activeAction === 'GUESS' && !currentClue && !isWordmaster) ||

@@ -142,8 +142,12 @@ io.on('connection', (socket) => {
         // Wordmaster is backing out
         room.status = 'waiting';
         room.wordmaster = null;
+        // Reset player role in room object
+        const player = room.players.get(socket.id);
+        if (player) player.role = 'player';
+        
         roomManager.emitRoomUpdate(io, room);
-        roomManager.addLog(io, roomId, 'System', `${socket.data.username} is no longer the Wordmaster.`);
+        roomManager.addLog(io, roomId, 'System', `${socket.data.username} has relinquished Wordmaster.`);
       } else {
         roomManager.cancelAction(io, roomId, socket.id);
       }
