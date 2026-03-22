@@ -20,8 +20,8 @@ function CentralArea({ room, typingStatus, socketId }) {
   const isCountdownActive = status === 'victory_countdown' || (currentClue && currentClue.contactedBy);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full h-full p-0 sm:p-4 overflow-hidden relative">
-      <div className="flex flex-col items-center justify-center space-y-2 sm:space-y-8 w-full transition-all duration-300 max-h-full py-1 sm:py-2">
+    <div className="flex-1 flex flex-col items-center justify-center w-full h-full p-0 sm:p-2 overflow-hidden relative">
+      <div className="flex flex-col items-center justify-center space-y-1 sm:space-y-4 w-full transition-all duration-300 max-h-full py-0 sm:py-1">
         
         {isCountdownActive ? (
           /* Squat Horizontal Countdown Display */

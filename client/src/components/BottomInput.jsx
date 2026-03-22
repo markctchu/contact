@@ -10,6 +10,7 @@ import VirtualKeyboard from './VirtualKeyboard';
 function BottomInput({ room, socketId, chat, isWordmaster }) {
   const [inputValue, setInputValue] = useState('');
   const [privateMessages, setPrivateMessages] = useState([]);
+  const [showKeyboard, setShowKeyboard] = useState(true);
   const { activeAction, setActiveAction, toggleAction } = useGameState(room, socketId, isWordmaster);
 
   useEffect(() => {
@@ -57,6 +58,8 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
           e.preventDefault();
           handleKeyPress(e.key.toUpperCase());
         }
+      } else if (e.key === 'Escape') {
+        setShowKeyboard(prev => !prev);
       }
     };
 
@@ -104,10 +107,17 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
   };
 
   return (
-    <div className="p-2 sm:p-4 flex flex-col space-y-2 sm:space-y-4 max-w-2xl mx-auto w-full">
+    <div className="p-2 sm:p-3 flex flex-col space-y-2 sm:space-y-3 max-w-2xl mx-auto w-full relative">
+      <button 
+        onClick={() => setShowKeyboard(!showKeyboard)}
+        className="hidden sm:block absolute -top-8 right-2 text-[10px] font-black text-gray-500 hover:text-blue-400 uppercase tracking-tighter transition-colors"
+      >
+        {showKeyboard ? '[ Hide Keyboard ]' : '[ Show Keyboard ]'}
+      </button>
+
       <ChatWindow messages={allMessages} />
 
-      <div className="flex space-x-2 sm:space-x-3 h-12 sm:h-14">
+      <div className="flex space-x-2 sm:space-x-3 h-10 sm:h-12">
         <ActionToggleButton 
           room={room}
           socketId={socketId}
@@ -122,11 +132,13 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
         />
       </div>
 
-      <VirtualKeyboard 
-        onKeyPress={handleKeyPress}
-        onEnter={handleEnter}
-        onBackspace={handleBackspace}
-      />
+      {showKeyboard && (
+        <VirtualKeyboard 
+          onKeyPress={handleKeyPress}
+          onEnter={handleEnter}
+          onBackspace={handleBackspace}
+        />
+      )}
     </div>
   );
 }

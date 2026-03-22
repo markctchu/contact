@@ -33,9 +33,9 @@ function VirtualKeyboard({ onKeyPress, onEnter, onBackspace }) {
                     else onKeyPress(key);
                   }}
                   className={`
-                    ${key === 'SPACE' ? 'flex-[4] h-10 sm:h-12' : 
-                      key === 'ENTER' || key === 'BACKSPACE' ? 'flex-[1.5] h-10 sm:h-12' : 
-                      'flex-1 h-10 sm:h-12 max-w-[40px] sm:max-w-none'}
+                    ${key === 'SPACE' ? 'flex-[4] h-10 sm:h-10' : 
+                      key === 'ENTER' || key === 'BACKSPACE' ? 'flex-[1.5] h-10 sm:h-10' : 
+                      'flex-1 h-10 sm:h-10 max-w-[40px] sm:max-w-none'}
                     flex items-center justify-center rounded-md sm:rounded-lg font-bold text-xs sm:text-base transition-all active:scale-95 shadow-lg
                     ${isSpecial ? 'bg-gray-600 text-white' : 'bg-gray-700 text-gray-100 hover:bg-gray-600'}
                   `}
