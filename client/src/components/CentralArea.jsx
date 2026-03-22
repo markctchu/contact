@@ -20,8 +20,8 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
       return prefixLen + inputLen + 1; // +1 for the cursor tile
     }
     if (!revealedPrefix && status !== 'game_over') return 7; // 'CONTACT'
-    return revealedPrefix ? revealedPrefix.length : 7;
-  }, [isWordInput, showPrefixInInput, revealedPrefix, inputValue, status]);
+    return displayWord ? displayWord.length : 7;
+  }, [isWordInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord]);
 
   const getBoxSize = (wordLength) => {
     const baseClasses = "flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow transition-all duration-300";
@@ -35,6 +35,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
   };
 
   const boxClass = getBoxSize(totalVisibleCount);
+  const isCountdownActive = status === 'victory_countdown' || (currentGuess && currentGuess.contactedBy);
 
   return (
     <div className="flex flex-col items-center w-full transition-all duration-500">
@@ -55,10 +56,10 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
               <div className="text-left min-w-0 mr-4">
                 <h4 className="text-lg sm:text-2xl font-extrabold text-white uppercase leading-tight tracking-tighter">Contact</h4>
                 <p className="text-white/60 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-1 truncate">
-                  {currentGuess.playerName} & {currentGuess.contactedByName}
+                  {currentGuess?.playerName} & {currentGuess?.contactedByName}
                 </p>
               </div>
-              <div className="text-5xl sm:text-8xl font-black text-white leading-none tabular-nums">{currentGuess.countdown}</div>
+              <div className="text-5xl sm:text-8xl font-black text-white leading-none tabular-nums">{currentGuess?.countdown}</div>
             </div>
           )}
         </div>
@@ -70,7 +71,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
               {isWordInput ? "THEY'LL NEVER GUESS" : (revealedPrefix ? 'IT STARTS WITH' : "PREPARE TO MAKE")}
             </h3>
             
-            <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-0.5">
+            <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2">
               {!revealedPrefix && !isWordInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
                 <div key={`init-${i}`} className={`${boxClass} bg-surface-lowest text-on-surface`}>
                   {char}
@@ -83,7 +84,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                 </div>
               ))}
 
-              {(isWordInput ? (showPrefixInInput ? inputValue : inputValue || '') : displayWord).split('').map((char, i) => (
+              {(isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || '')).split('').map((char, i) => (
                 <div 
                   key={`input-${i}`} 
                   className={`${boxClass} bg-surface-lowest text-on-surface animate-in zoom-in-90 slide-in-from-bottom-2`}
@@ -111,23 +112,23 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
           {/* Prompt/Clue Block Section */}
           <div className="w-full flex items-center justify-center px-4">
             {activeAction === 'GUESS_CLUE' ? (
-              <div className="bg-tertiary/5 p-4 sm:p-8 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
-                <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-2 sm:mb-4 opacity-60">THE PERFECT CLUE: {currentGuess?.hiddenWord}</p>
+              <div className="bg-tertiary/5 p-4 sm:p-10 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
+                <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-3 sm:mb-6 opacity-60">THE PERFECT CLUE: {currentGuess?.hiddenWord}</p>
                 <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                   {inputValue}
                   <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
                 </h4>
               </div>
             ) : currentGuess ? (
-              <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
+              <div className="bg-surface-lowest p-4 sm:p-10 rounded-2xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
                 <div className="absolute top-0 left-0 w-full h-1 bg-tertiary/20"></div>
-                <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center">Clue from {currentGuess.playerName}</p>
+                <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-3 sm:mb-6 text-center">Clue from {currentGuess.playerName}</p>
                 <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
                   "{currentGuess.clue || 'Pending...'}"
                 </h4>
               </div>
             ) : status === 'setting_word' || status === 'waiting' ? (
-              <div className="text-on-surface/40 flex flex-col items-center py-2 sm:py-4">
+              <div className="text-on-surface/40 flex flex-col items-center py-4">
                 <p className="text-xs sm:text-base font-bold uppercase tracking-[0.3em] animate-pulse text-center px-12 leading-loose italic">
                   {status === 'waiting' 
                     ? 'Tap Wordmaster to Begin' 
@@ -135,7 +136,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                 </p>
               </div>
             ) : (
-              <div className="text-on-surface/20 text-xs sm:text-base font-black uppercase tracking-[0.4em] py-4 sm:py-8 text-center px-12 italic">
+              <div className="text-on-surface/20 text-xs sm:text-base font-black uppercase tracking-[0.4em] py-6 text-center px-12 italic">
                 AWAITING GUESS SUBMISSION
               </div>
             )}
