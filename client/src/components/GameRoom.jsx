@@ -63,7 +63,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
       </header>
 
       {/* Main Area */}
-      <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-gradient-to-b from-surface-low/20 to-surface transition-colors duration-300">
+      <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-surface transition-colors duration-300">
         <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-12 overflow-hidden">
           <CentralArea 
             room={room} 

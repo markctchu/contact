@@ -16,10 +16,10 @@ function App() {
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
-      if (metaThemeColor) metaThemeColor.setAttribute('content', '#1a1a1a'); // surface-low in dark mode
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#161616'); // Darker for deep dark blending
     } else {
       document.documentElement.classList.remove('dark');
-      if (metaThemeColor) metaThemeColor.setAttribute('content', '#f1f1ec'); // surface-low in light mode
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#efeee9'); // Slightly darker off-white for light mode
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
