@@ -64,7 +64,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
 
       {/* Main Area */}
       <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-surface transition-colors duration-300">
-        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-12 overflow-hidden bg-gradient-to-b from-surface-low/40 to-transparent">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-12 overflow-hidden bg-gradient-to-t from-surface-low/40 to-transparent">
           <CentralArea 
             room={room} 
             typingStatus={typingStatus} 
@@ -75,7 +75,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
         </div>
 
         {/* Bottom Section (Includes Chat & Keyboard) */}
-        <section className="bg-surface-low border-t border-outline-variant ambient-shadow shrink-0 transition-colors duration-300 no-gradient">
+        <section className="bg-surface-low border-t border-outline-variant ambient-shadow shrink-0 transition-colors duration-300">
           <BottomInput 
             room={room} 
             socketId={socketId}
