@@ -9,11 +9,23 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
     return revealedPrefix || '';
   }, [revealedPrefix, status, secretWord]);
 
+  const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
+  const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
+
+  // Calculate total visible tiles to ensure accurate scaling
+  const totalVisibleCount = useMemo(() => {
+    if (isWordInput) {
+      const prefixLen = showPrefixInInput ? (revealedPrefix?.length || 0) : 0;
+      return prefixLen + (inputValue?.length || 0) + 1; // +1 for the cursor tile
+    }
+    if (!revealedPrefix && status !== 'game_over') return 7; // 'CONTACT'
+    return displayWord.length;
+  }, [isWordInput, showPrefixInInput, revealedPrefix, inputValue, displayWord, status]);
+
   const getBoxSize = (wordLength) => {
-    // Desktop sizes remain large and consistent
     const baseClasses = "flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow transition-all duration-300";
     
-    // Mobile dynamic scaling
+    // Mobile dynamic scaling based on total visible tiles
     if (wordLength > 14) return `${baseClasses} w-5 h-8 text-[10px] sm:w-14 sm:h-20 sm:text-4xl`;
     if (wordLength > 12) return `${baseClasses} w-6 h-9 text-xs sm:w-14 sm:h-20 sm:text-4xl`;
     if (wordLength > 10) return `${baseClasses} w-7 h-10 text-sm sm:w-14 sm:h-20 sm:text-4xl`;
@@ -21,11 +33,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
     return `${baseClasses} w-9 h-14 text-xl sm:w-14 sm:h-20 sm:text-4xl`;
   };
 
-  const boxClass = getBoxSize(displayWord.length || 7);
-  const isCountdownActive = status === 'victory_countdown' || (currentGuess && currentGuess.contactedBy);
-
-  const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
-  const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
+  const boxClass = getBoxSize(totalVisibleCount);
 
   return (
     <div className="flex flex-col items-center w-full transition-all duration-500">
