@@ -9,10 +9,12 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
     return revealedPrefix || '';
   }, [revealedPrefix, status, secretWord]);
 
+  // Updated scaling logic to fit up to 14 letters in a row on mobile
   const getBoxSize = (wordLength) => {
-    if (wordLength > 12) return 'w-6 h-9 sm:w-12 sm:h-16 text-base sm:text-3xl';
-    if (wordLength > 8) return 'w-8 h-12 sm:w-12 sm:h-16 text-xl sm:text-3xl';
-    return 'w-10 h-14 sm:w-14 sm:h-20 text-2xl sm:text-4xl';
+    if (wordLength > 12) return 'w-5 h-8 sm:w-12 sm:h-16 text-sm sm:text-3xl';
+    if (wordLength > 10) return 'w-6 h-10 sm:w-12 sm:h-16 text-base sm:text-3xl';
+    if (wordLength > 8) return 'w-7 h-11 sm:w-12 sm:h-16 text-lg sm:text-3xl';
+    return 'w-8 h-12 sm:w-14 sm:h-20 text-xl sm:text-4xl';
   };
 
   const boxClass = getBoxSize(displayWord.length || 7);
@@ -54,7 +56,8 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                 {isWordInput ? 'Composition' : (revealedPrefix ? 'Lexicon' : "Genesis")}
               </h3>
               
-              <div className="flex flex-wrap gap-2 sm:gap-4 justify-center items-center max-w-full px-2">
+              {/* Reduced gap from gap-2 to gap-1.5 on mobile */}
+              <div className="flex flex-wrap gap-1 sm:gap-4 justify-center items-center max-w-full px-1">
                 {!revealedPrefix && !isWordInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
                   <div key={`init-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow`}>
                     {char}
@@ -83,8 +86,8 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                 )}
 
                 {!isWordInput && status !== 'game_over' && revealedPrefix && (
-                  <div className="flex items-center ml-2">
-                    <div className="text-4xl sm:text-6xl font-black text-on-surface opacity-10 tracking-widest italic">
+                  <div className="flex items-center ml-1">
+                    <div className="text-3xl sm:text-6xl font-black text-on-surface opacity-10 tracking-widest italic">
                       ...
                     </div>
                   </div>
