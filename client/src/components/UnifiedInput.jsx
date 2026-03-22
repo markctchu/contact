@@ -22,12 +22,15 @@ function UnifiedInput({ activeAction, inputValue }) {
         {inputValue ? (
           <span className="text-on-surface font-bold text-sm sm:text-base uppercase tracking-widest animate-in fade-in slide-in-from-left-1 duration-200">
             {inputValue}
-            <span className="inline-block w-1 h-4 ml-1 bg-tertiary/40 animate-pulse align-middle rounded-full"></span>
+            <span className="inline-block w-1 h-4 ml-1 bg-tertiary/40 animate-[pulse_1.5s_infinite] align-middle rounded-full"></span>
           </span>
         ) : (
-          <span className="text-on-surface/20 font-black text-[10px] sm:text-xs uppercase tracking-[0.3em]">
-            {getPlaceholder()}
-          </span>
+          <div className="flex items-center">
+            <span className="inline-block w-1 h-4 bg-tertiary/20 animate-[pulse_1.5s_infinite] rounded-full mr-2"></span>
+            <span className="text-on-surface/20 font-black text-[10px] sm:text-xs uppercase tracking-[0.3em]">
+              {getPlaceholder()}
+            </span>
+          </div>
         )}
       </div>
     </div>

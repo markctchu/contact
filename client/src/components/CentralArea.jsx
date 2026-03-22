@@ -78,10 +78,10 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                     {char}
                   </div>
                 ))}
-                
+                {/* 4. ACTIVE TYPING CURSOR */}
                 {isWordInput && (
-                  <div className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20 animate-pulse`}>
-                    <span className="w-1 h-1/2 bg-tertiary rounded-full"></span>
+                  <div className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20`}>
+                    <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
                   </div>
                 )}
 
@@ -101,7 +101,8 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                 <div className="bg-tertiary/5 p-4 sm:p-10 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
                   <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-3 sm:mb-6 opacity-60">THE PERFECT CLUE: {currentGuess?.hiddenWord}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
-                    {inputValue || 'Enter Clue here...'}
+                    {inputValue}
+                    <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
                   </h4>
                 </div>
               ) : currentGuess ? (
