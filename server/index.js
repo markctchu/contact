@@ -78,7 +78,11 @@ io.on('connection', (socket) => {
 
   socket.on(EVENTS.JOIN_ROOM, ({ roomId, username }) => {
     console.log(`[Room] User ${username} (${socket.id}) joining room: ${roomId}`);
+    
+    // Immediate Cleanup: If another socket with this username is in a grace period for this room, 
+    // we don't need to wait for the timeout.
     const room = roomManager.joinRoom(roomId, socket.id, username);
+    
     if (room) {
       socket.data.username = username;
       socket.data.roomId = roomId;
