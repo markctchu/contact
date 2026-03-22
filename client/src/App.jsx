@@ -11,6 +11,44 @@ function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const { currentRoom, typingStatus, socketId, isConnected } = useSocketEvents();
 
+  // Screen Wake Lock
+  useEffect(() => {
+    let wakeLock = null;
+
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('[App] Screen Wake Lock acquired');
+        }
+      } catch (err) {
+        console.warn(`[App] Wake Lock error: ${err.name}, ${err.message}`);
+      }
+    };
+
+    // Only request if user has a name (active session)
+    if (username) {
+      requestWakeLock();
+    }
+
+    // Re-acquire when tab becomes visible again
+    const handleVisibilityChange = () => {
+      if (wakeLock !== null && document.visibilityState === 'visible') {
+        requestWakeLock();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (wakeLock) wakeLock.release().then(() => {
+        wakeLock = null;
+        console.log('[App] Screen Wake Lock released');
+      });
+    };
+  }, [username]);
+
   // Apply theme to document
   useEffect(() => {
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
