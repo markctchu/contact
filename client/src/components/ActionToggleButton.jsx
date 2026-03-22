@@ -10,9 +10,9 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
       <button 
         type="button"
         onClick={() => socket.emit(EVENTS.BECOME_WORDMASTER)}
-        className="bg-purple-600 hover:bg-purple-700 text-white font-black px-4 sm:px-6 rounded-xl transition-all whitespace-nowrap uppercase tracking-tight text-xs sm:text-base"
+        className="cta-gradient text-on-primary-container font-black px-6 rounded-full transition-all active:scale-95 whitespace-nowrap uppercase tracking-widest text-xs sm:text-sm shadow-md"
       >
-        WORDMASTER
+        Wordmaster
       </button>
     );
   }
@@ -23,9 +23,9 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
       <button 
         type="button"
         onClick={onCancel}
-        className="bg-gray-700 hover:bg-gray-800 text-white font-black px-4 sm:px-6 rounded-xl transition-all whitespace-nowrap text-xs sm:text-base"
+        className="bg-on-surface/5 hover:bg-on-surface/10 text-on-surface font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
       >
-        CANCEL
+        Relinquish
       </button>
     );
   }
@@ -38,9 +38,9 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
           <button 
             type="button"
             onClick={() => socket.emit(EVENTS.DECLARE_VICTORY)}
-            className="bg-yellow-600 hover:bg-yellow-700 text-black font-black px-4 sm:px-6 rounded-xl transition-all whitespace-nowrap text-xs sm:text-base"
+            className="cta-gradient text-on-primary-container font-black px-6 rounded-full transition-all active:scale-95 whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest shadow-md"
           >
-            DECLARE VICTORY
+            Declare Victory
           </button>
         );
       }
@@ -48,9 +48,9 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
         <button 
           type="button"
           onClick={() => onToggleAction('DENY')}
-          className={`${activeAction === 'DENY' ? 'bg-gray-700' : 'bg-red-600 hover:bg-red-700'} text-white font-black px-4 sm:px-6 rounded-xl transition-all whitespace-nowrap text-xs sm:text-base`}
+          className={`${activeAction === 'DENY' ? 'bg-tertiary text-white shadow-lg' : 'bg-on-surface/5 text-on-surface'} font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest`}
         >
-          {activeAction === 'DENY' ? 'CANCEL' : 'DENY'}
+          {activeAction === 'DENY' ? 'Cancel' : 'Deny'}
         </button>
       );
     } else {
@@ -60,9 +60,9 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
           <button 
             type="button"
             onClick={() => onToggleAction('GUESS')}
-            className={`${activeAction === 'GUESS' ? 'bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'} text-white font-black px-4 sm:px-6 rounded-xl transition-all whitespace-nowrap text-xs sm:text-base`}
+            className={`${activeAction === 'GUESS' ? 'bg-tertiary text-white shadow-lg' : 'bg-on-surface/5 text-on-surface'} font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest`}
           >
-            {activeAction === 'GUESS' ? 'CANCEL' : 'GUESS'}
+            {activeAction === 'GUESS' ? 'Cancel' : 'Guess'}
           </button>
         );
       } else if (currentClue.player === socketId) {
@@ -71,9 +71,9 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
             <button 
               type="button"
               onClick={onCancel}
-              className="bg-gray-700 text-white font-black px-4 sm:px-6 rounded-xl transition-all whitespace-nowrap text-xs sm:text-base"
+              className="bg-on-surface/5 text-on-surface font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
             >
-              CANCEL CLUE
+              Cancel
             </button>
           );
         } else if (!currentClue.contactedBy) {
@@ -81,9 +81,9 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
             <button 
               type="button"
               onClick={onCancel}
-              className="bg-red-600 hover:bg-red-700 text-white font-black px-4 sm:px-6 rounded-xl transition-all whitespace-nowrap text-xs sm:text-base"
+              className="bg-tertiary/10 text-tertiary font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
             >
-              RETRACT CLUE
+              Retract
             </button>
           );
         }
@@ -92,9 +92,9 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
           <button 
             type="button"
             onClick={() => onToggleAction('CONTACT')}
-            className={`${activeAction === 'CONTACT' ? 'bg-gray-700' : 'bg-green-600 hover:bg-green-700'} text-white font-black px-4 sm:px-6 rounded-xl transition-all whitespace-nowrap animate-pulse text-xs sm:text-base`}
+            className={`${activeAction === 'CONTACT' ? 'bg-tertiary text-white shadow-lg' : 'bg-on-surface/5 text-on-surface'} font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest`}
           >
-            {activeAction === 'CONTACT' ? 'CANCEL' : 'CONTACT!'}
+            {activeAction === 'CONTACT' ? 'Cancel' : 'Contact!'}
           </button>
         );
       }
@@ -107,14 +107,14 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
       <button 
         type="button"
         onClick={() => socket.emit(EVENTS.CONTEST_VICTORY)}
-        className="bg-red-600 hover:bg-red-700 text-white font-black px-4 sm:px-6 rounded-xl transition-all animate-bounce whitespace-nowrap text-xs sm:text-base"
+        className="bg-tertiary text-white font-black px-6 rounded-full transition-all animate-bounce whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest shadow-xl"
       >
-        CONTEST!
+        Contest
       </button>
     );
   }
 
-  return <div className="bg-gray-800 text-gray-500 font-black px-4 sm:px-6 flex items-center rounded-xl whitespace-nowrap uppercase tracking-tighter text-xs sm:text-base">Chat Mode</div>;
+  return <div className="bg-on-surface/5 text-on-surface/20 font-black px-6 flex items-center rounded-full whitespace-nowrap uppercase tracking-widest text-[10px] sm:text-xs">Dialogue</div>;
 }
 
 export default ActionToggleButton;

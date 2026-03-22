@@ -28,15 +28,12 @@ function BottomInput({
     return () => socket.off(EVENTS.CHAT_UPDATE_PRIVATE);
   }, []);
 
-  // Combined chat for rendering
   const allMessages = [...chat, ...privateMessages].sort((a, b) => a.timestamp - b.timestamp);
 
-  // Handle debounced typing status
   useEffect(() => {
     const timeout = setTimeout(() => {
       socket.emit(EVENTS.TYPING_STATUS, { intent: inputValue ? (activeAction || 'chat') : null });
     }, 300);
-
     return () => clearTimeout(timeout);
   }, [inputValue, activeAction]);
 
@@ -48,11 +45,9 @@ function BottomInput({
     setInputValue(prev => prev.slice(0, -1));
   };
 
-  // Physical Keyboard Support
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey || e.key === 'Escape') return;
-
       if (e.key === 'Enter') {
         e.preventDefault();
         handleEnter();
@@ -66,29 +61,24 @@ function BottomInput({
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [inputValue, activeAction, room.revealedPrefix]); // Re-bind when room or input changes
+  }, [inputValue, activeAction, room.revealedPrefix]);
 
   const handleEnter = () => {
     const val = inputValue.trim();
     const prefix = room.revealedPrefix || '';
-    
     if (!val && !activeAction) return;
 
     if (activeAction === 'SECRET') {
       socket.emit(EVENTS.SET_SECRET_WORD, { word: val });
     } else if (activeAction === 'GUESS') {
-      // PREPEND PREFIX: User only typed the suffix
       socket.emit(EVENTS.SUBMIT_CLUE_WORD, { word: prefix + val });
     } else if (activeAction === 'CLUE') {
       socket.emit(EVENTS.SUBMIT_CLUE_HINT, { hint: val });
     } else if (activeAction === 'CONTACT') {
-      // PREPEND PREFIX: User only typed the suffix
       socket.emit(EVENTS.CALL_CONTACT, { guess: prefix + val });
     } else if (activeAction === 'DENY') {
-      // PREPEND PREFIX: User only typed the suffix
       socket.emit(EVENTS.DENY_CLUE, { guess: prefix + val });
     } else if (val) {
       socket.emit(EVENTS.CHAT_MESSAGE, { message: val });
@@ -101,11 +91,8 @@ function BottomInput({
   };
 
   const handleCancel = () => {
-    // Optimistically clear local state to prevent flicker
-    const prevAction = activeAction;
     setActiveAction(null);
     setInputValue('');
-
     if (room.status === 'setting_word' && isWordmaster) {
       socket.emit(EVENTS.CANCEL_ACTION);
     } else if (room.currentClue && room.currentClue.player === socketId) {
@@ -119,17 +106,24 @@ function BottomInput({
   };
 
   return (
-    <div className="p-2 sm:p-3 flex flex-col space-y-2 sm:space-y-3 max-w-2xl mx-auto w-full relative">
-      <button 
-        onClick={() => setShowKeyboard(!showKeyboard)}
-        className="hidden sm:block absolute -top-8 right-2 text-[10px] font-black text-gray-500 hover:text-blue-400 uppercase tracking-tighter transition-colors"
-      >
-        {showKeyboard ? '[ Hide Keyboard ]' : '[ Show Keyboard ]'}
-      </button>
+    <div className="p-4 sm:p-6 flex flex-col space-y-4 max-w-2xl mx-auto w-full relative">
+      <div className="flex items-center justify-between px-1">
+        <button 
+          onClick={() => setShowKeyboard(!showKeyboard)}
+          className="text-[10px] font-black text-on-surface/20 hover:text-tertiary uppercase tracking-[0.2em] transition-colors"
+        >
+          {showKeyboard ? 'Collapse Keys' : 'Expand Keys'}
+        </button>
+        {activeAction && (
+          <span className="text-[10px] font-black text-tertiary uppercase tracking-[0.2em] animate-pulse">
+            {activeAction} Mode Active
+          </span>
+        )}
+      </div>
 
       <ChatWindow messages={allMessages} />
 
-      <div className="flex space-x-2 sm:space-x-3 h-10 sm:h-12">
+      <div className="flex space-x-3 h-12">
         <ActionToggleButton 
           room={room}
           socketId={socketId}

@@ -4,40 +4,39 @@ import { Delete, CornerDownLeft } from 'lucide-react';
 const ROWS = [
   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
   ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-  ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE'],
+  ['DONE', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'DEL'],
   ['SPACE']
 ];
 
 function VirtualKeyboard({ onKeyPress, onEnter, onBackspace }) {
   return (
-    <div className="w-full p-1 sm:p-2 bg-gray-900/50 rounded-xl">
-      <div className="flex flex-col gap-1 sm:gap-1.5">
+    <div className="w-full p-1 sm:p-2 bg-surface-low rounded-2xl">
+      <div className="flex flex-col gap-1.5 sm:gap-2">
         {ROWS.map((row, i) => (
-          <div key={i} className="flex justify-center gap-1 w-full">
+          <div key={i} className="flex justify-center gap-1.5 w-full">
             {row.map((key) => {
-              const isSpecial = ['ENTER', 'BACKSPACE', 'SPACE'].includes(key);
+              const isSpecial = ['DONE', 'DEL', 'SPACE'].includes(key);
               
               let content = key;
-              if (key === 'BACKSPACE') content = <Delete size={18} />;
-              if (key === 'ENTER') content = <CornerDownLeft size={18} />;
-              if (key === 'SPACE') content = 'SPACE';
+              if (key === 'DEL') content = <Delete size={16} strokeWidth={2.5} />;
+              if (key === 'DONE') content = <CornerDownLeft size={16} strokeWidth={2.5} />;
 
               return (
                 <button
                   key={key}
                   type="button"
                   onClick={() => {
-                    if (key === 'ENTER') onEnter();
-                    else if (key === 'BACKSPACE') onBackspace();
+                    if (key === 'DONE') onEnter();
+                    else if (key === 'DEL') onBackspace();
                     else if (key === 'SPACE') onKeyPress(' ');
                     else onKeyPress(key);
                   }}
                   className={`
-                    ${key === 'SPACE' ? 'flex-[4] h-10 sm:h-10' : 
-                      key === 'ENTER' || key === 'BACKSPACE' ? 'flex-[1.5] h-10 sm:h-10' : 
-                      'flex-1 h-10 sm:h-10 max-w-[40px] sm:max-w-none'}
-                    flex items-center justify-center rounded-md sm:rounded-lg font-bold text-xs sm:text-base transition-all active:scale-95 shadow-lg
-                    ${isSpecial ? 'bg-gray-600 text-white' : 'bg-gray-700 text-gray-100 hover:bg-gray-600'}
+                    ${key === 'SPACE' ? 'flex-[4] h-10 sm:h-12' : 
+                      key === 'DONE' || key === 'DEL' ? 'flex-[1.5] h-10 sm:h-12' : 
+                      'flex-1 h-10 sm:h-12 max-w-[44px] sm:max-w-none'}
+                    flex items-center justify-center rounded-lg font-bold text-[10px] sm:text-sm transition-all active:scale-[0.92] ambient-shadow
+                    ${isSpecial ? 'bg-surface-high text-on-surface' : 'bg-surface-lowest text-on-surface hover:bg-surface-low'}
                   `}
                 >
                   {content}

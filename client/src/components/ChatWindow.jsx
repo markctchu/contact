@@ -13,21 +13,21 @@ function ChatWindow({ messages }) {
   }, [messages]);
 
   return (
-    <div className="bg-black/20 rounded-xl sm:rounded-2xl p-2 sm:p-3 shrink-0 overflow-hidden border border-white/5">
-      <div className="h-32 sm:h-32 overflow-y-auto space-y-1.5 mb-1 custom-scrollbar pr-2">
+    <div className="bg-surface-low rounded-2xl p-4 shrink-0 overflow-hidden border border-outline-variant">
+      <div className="h-32 overflow-y-auto space-y-3 mb-1 custom-scrollbar pr-2">
         {messages.map((msg, i) => (
           <div key={i} className="text-xs sm:text-sm">
             {msg.isLog ? (
-              <div className={`py-0.5 px-2 bg-gray-800/30 rounded border-l-2 ${msg.isPrivate ? 'border-dashed opacity-80' : ''} ${getLogBorderColor(msg.logType)}`}>
-                <span className={getLogStyle(msg.logType)}>
-                  {msg.isPrivate && <span className="text-[10px] uppercase mr-2 opacity-50">[Private]</span>}
+              <div className={`py-1 px-3 bg-surface rounded border-l-2 ${msg.isPrivate ? 'border-dashed opacity-60' : ''} ${getLogBorderColor(msg.logType)}`}>
+                <span className={`${getLogStyle(msg.logType)} font-medium`}>
+                  {msg.isPrivate && <span className="text-[9px] uppercase mr-2 opacity-40 font-black">[Confidential]</span>}
                   {msg.message}
                 </span>
               </div>
             ) : (
-              <div className="flex items-baseline space-x-2">
-                <span className="font-black text-blue-400 shrink-0 uppercase text-[10px] sm:text-xs tracking-tighter">{msg.username}</span>
-                <span className="text-gray-300 break-words">{msg.message}</span>
+              <div className="flex items-baseline space-x-3 px-1">
+                <span className="font-black text-tertiary shrink-0 uppercase text-[9px] tracking-widest opacity-50">{msg.username}</span>
+                <span className="text-on-surface/80 leading-relaxed">{msg.message}</span>
               </div>
             )}
           </div>

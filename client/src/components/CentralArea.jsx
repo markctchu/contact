@@ -9,94 +9,82 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
     return revealedPrefix || '';
   }, [revealedPrefix, status, secretWord]);
 
-  // Dynamic sizing based on word length to ensure it fits the screen
   const getBoxSize = (wordLength) => {
     if (wordLength > 12) return 'w-6 h-9 sm:w-12 sm:h-16 text-base sm:text-3xl';
     if (wordLength > 8) return 'w-8 h-12 sm:w-12 sm:h-16 text-xl sm:text-3xl';
-    return 'w-10 h-14 sm:w-12 sm:h-16 text-2xl sm:text-3xl';
+    return 'w-10 h-14 sm:w-14 sm:h-20 text-2xl sm:text-4xl';
   };
 
-  const boxClass = getBoxSize(displayWord.length || 7); // Default to length of 'CONTACT'
+  const boxClass = getBoxSize(displayWord.length || 7);
   const isCountdownActive = status === 'victory_countdown' || (currentClue && currentClue.contactedBy);
 
-  // Check if we should show input tiles instead of revealed tiles
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full h-full p-0 sm:p-2 overflow-hidden relative">
-      <div className="flex flex-col items-center justify-center space-y-1 sm:space-y-4 w-full transition-all duration-300 max-h-full py-0 sm:py-1">
+    <div className="flex-1 flex flex-col items-center justify-center w-full h-full p-4 overflow-hidden relative">
+      <div className="flex flex-col items-center justify-center space-y-8 sm:space-y-12 w-full transition-all duration-500 max-h-full">
         
         {isCountdownActive ? (
-          /* Countdown Display */
-          <div className="flex-1 flex flex-col items-center justify-center w-full animate-in fade-in zoom-in duration-300 px-2">
+          <div className="flex-1 flex flex-col items-center justify-center w-full animate-in fade-in zoom-in duration-500 px-2">
             {status === 'victory_countdown' ? (
-              <div className="bg-yellow-600 py-3 px-6 sm:py-6 sm:px-12 rounded-2xl shadow-xl animate-pulse w-full max-md flex items-center justify-between border-2 border-yellow-400">
-                <div className="text-left min-w-0 mr-4">
-                  <h4 className="text-xs sm:text-lg font-black text-black uppercase leading-tight tracking-tighter">Wordmaster is Declaring Victory!</h4>
-                  <p className="text-black/80 text-[9px] sm:text-xs font-bold uppercase tracking-widest mt-1">Contest to stop the countdown</p>
+              <div className="cta-gradient py-8 px-10 sm:py-12 sm:px-16 rounded-3xl ambient-shadow w-full max-w-xl flex items-center justify-between">
+                <div className="text-left min-w-0 mr-8">
+                  <h4 className="text-xl sm:text-3xl font-extrabold text-on-primary-container uppercase leading-tight tracking-tighter">Victory Pending</h4>
+                  <p className="text-on-primary-container/60 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mt-2">Contest to Intercept</p>
                 </div>
-                <div className="text-5xl sm:text-7xl font-black text-black leading-none">{victoryCountdown}</div>
+                <div className="text-7xl sm:text-9xl font-black text-on-primary-container leading-none tabular-nums">{victoryCountdown}</div>
               </div>
             ) : (
-              <div className="bg-blue-600 py-3 px-6 sm:py-6 sm:px-12 rounded-2xl shadow-xl animate-bounce w-full max-w-md flex items-center justify-between border-2 border-blue-400">
-                <div className="text-left min-w-0">
-                  <h4 className="text-sm sm:text-xl font-black text-white uppercase leading-tight tracking-tighter">Contact!</h4>
-                  <p className="text-white/80 text-[10px] sm:text-xs font-bold uppercase tracking-widest truncate">
+              <div className="bg-tertiary py-8 px-10 sm:py-12 sm:px-16 rounded-3xl ambient-shadow w-full max-w-xl flex items-center justify-between">
+                <div className="text-left min-w-0 mr-8">
+                  <h4 className="text-xl sm:text-3xl font-extrabold text-white uppercase leading-tight tracking-tighter">Contact</h4>
+                  <p className="text-white/60 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mt-2 truncate">
                     {currentClue.playerName} & {currentClue.contactedByName}
                   </p>
                 </div>
-                <div className="text-5xl sm:text-7xl font-black text-white leading-none ml-4">{currentClue.countdown}</div>
+                <div className="text-7xl sm:text-9xl font-black text-white leading-none tabular-nums">{currentClue.countdown}</div>
               </div>
             )}
           </div>
         ) : (
           <>
-            {/* Word Display (Either revealed prefix or current user typing) */}
-            <div className="space-y-1 sm:space-y-2 w-full flex flex-col items-center shrink-0">
-              <h3 className="text-[8px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 uppercase">
-                {isWordInput ? 'Typing Word...' : (revealedPrefix ? 'Current Prefix' : "Let's Play")}
+            <div className="space-y-4 sm:space-y-6 w-full flex flex-col items-center shrink-0">
+              <h3 className="text-[10px] sm:text-xs font-black tracking-[0.4em] text-on-surface/30 uppercase">
+                {isWordInput ? 'Composition' : (revealedPrefix ? 'Lexicon' : "Genesis")}
               </h3>
               
-              <div className="flex flex-wrap gap-1 sm:gap-2 justify-center items-center max-w-full px-0.5">
-                {/* 1. INITIAL "CONTACT" TILES (If no word set yet) */}
+              <div className="flex flex-wrap gap-2 sm:gap-4 justify-center items-center max-w-full px-2">
                 {!revealedPrefix && !isWordInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
-                  <div key={`init-${i}`} className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-blue-600 text-white shadow-blue-900`}>
+                  <div key={`init-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow`}>
                     {char}
                   </div>
                 ))}
 
-                {/* 2. PERSISTENT REVEALED PREFIX (Only if in guessing mode) */}
                 {showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
-                  <div key={`prefix-${i}`} className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black bg-blue-800 text-white/50 border-t border-white/5 shadow-inner`}>
+                  <div key={`prefix-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30`}>
                     {char}
                   </div>
                 ))}
 
-                {/* 3. CURRENT INPUT (If typing a word) or REVEALED WORD (Normal state) */}
                 {(isWordInput ? (showPrefixInInput ? inputValue : inputValue || '') : displayWord).split('').map((char, i) => (
                   <div 
                     key={`input-${i}`} 
-                    className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-blue-600 text-white shadow-blue-900 transition-all duration-200 animate-in zoom-in-75`}
+                    className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}
                   >
                     {char}
                   </div>
                 ))}
                 
-                {/* 4. ACTIVE TYPING CURSOR */}
                 {isWordInput && (
-                  <div className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black bg-blue-500/20 border-2 border-blue-500 animate-pulse`}>
-                    
+                  <div className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20 animate-pulse`}>
+                    <span className="w-1 h-1/2 bg-tertiary rounded-full"></span>
                   </div>
                 )}
 
-                {/* 5. ELLIPSIS (Normal State Only) */}
                 {!isWordInput && status !== 'game_over' && revealedPrefix && (
-                  <div className="flex items-center">
-                    <div className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-gray-800 text-gray-700`}>
-                      _
-                    </div>
-                    <div className="text-xl sm:text-4xl font-black text-gray-700 ml-1 leading-none self-end pb-1 sm:pb-2">
+                  <div className="flex items-center ml-2">
+                    <div className="text-4xl sm:text-6xl font-black text-on-surface opacity-10 tracking-widest italic">
                       ...
                     </div>
                   </div>
@@ -104,52 +92,44 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
               </div>
             </div>
 
-            {/* Current Clue or Status Overlay */}
-            <div className="flex items-center justify-center w-full px-2 min-h-0 overflow-hidden shrink">
+            <div className="flex items-center justify-center w-full px-4 min-h-0 overflow-hidden shrink">
               {activeAction === 'CLUE' ? (
-                <div className="bg-blue-600/20 p-4 sm:p-8 rounded-3xl border-2 border-blue-500/50 shadow-2xl backdrop-blur-sm w-full max-w-lg text-center">
-                  <p className="text-[10px] sm:text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">Setting public hint for "{room.currentClue?.hiddenWord}"</p>
-                  <h4 className="text-lg sm:text-4xl font-extrabold italic text-white leading-tight break-words px-2">
-                    {inputValue || 'Type your hint...'}
-                    <span className="inline-block w-1 h-6 ml-1 bg-blue-500 animate-pulse align-middle"></span>
+                <div className="bg-tertiary/5 p-8 sm:p-12 rounded-3xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
+                  <p className="text-[10px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-6 opacity-60">Providing Hint for {room.currentClue?.hiddenWord}</p>
+                  <h4 className="text-2xl sm:text-5xl font-extrabold italic text-on-surface leading-tight break-words px-4">
+                    {inputValue || 'Awaiting Input...'}
                   </h4>
                 </div>
               ) : currentClue ? (
-                <div className="bg-gray-800/80 p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-gray-700 shadow-2xl backdrop-blur-sm w-full max-w-lg relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/30 group-hover:bg-blue-500 transition-colors"></div>
-                  <p className="text-[9px] sm:text-[11px] font-bold text-blue-400 uppercase tracking-widest mb-1 sm:mb-4 truncate px-2 text-center">Clue from {currentClue.playerName}</p>
-                  <h4 className="text-sm sm:text-3xl font-extrabold italic text-white leading-tight break-words px-2 text-center">
-                    "{currentClue.hint || 'Waiting for hint...'}"
+                <div className="bg-surface-lowest p-8 sm:p-12 rounded-3xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-tertiary/20"></div>
+                  <p className="text-[10px] sm:text-xs font-black text-on-surface/30 uppercase tracking-[0.3em] mb-6 text-center">Clue from {currentClue.playerName}</p>
+                  <h4 className="text-2xl sm:text-5xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
+                    "{currentClue.hint || 'Pending...'}"
                   </h4>
                 </div>
               ) : status === 'setting_word' || status === 'waiting' ? (
-                <div className="text-gray-500 italic flex flex-col items-center py-2">
-                  <p className="text-sm sm:text-base font-bold text-blue-400/60 uppercase tracking-widest animate-pulse text-center px-6 leading-relaxed">
+                <div className="text-on-surface/40 flex flex-col items-center py-6">
+                  <p className="text-sm sm:text-base font-bold uppercase tracking-[0.3em] animate-pulse text-center px-12 leading-loose italic">
                     {status === 'waiting' 
-                      ? 'Tap Wordmaster to submit a secret word...' 
-                      : (isWordmaster ? 'Enter your secret word above' : 'Waiting for Wordmaster to pick a secret word...')}
+                      ? 'Tap Wordmaster to Begin' 
+                      : (isWordmaster ? 'Define the Secret Lexicon Above' : 'Awaiting Wordmaster Submission')}
                   </p>
                 </div>
               ) : (
-                <div className="text-gray-500 text-sm sm:text-base font-bold italic opacity-40 py-4 text-center px-8 leading-relaxed">
-                  Waiting for players to submit a clue...
+                <div className="text-on-surface/20 text-sm sm:text-base font-black uppercase tracking-[0.4em] py-8 text-center px-12 italic">
+                  Awaiting Player Coordination
                 </div>
               )}
             </div>
           </>
         )}
 
-        {/* Typing Indicators */}
-        <div className="h-4 sm:h-6 overflow-hidden w-full px-2 shrink-0">
+        <div className="h-6 overflow-hidden w-full px-4 shrink-0">
           {typingStatus.length > 0 && (
-            <div className="flex items-center justify-center space-x-2 text-blue-400/80 text-[9px] sm:text-xs animate-pulse truncate font-bold uppercase tracking-wider">
-              <div className="flex space-x-1 shrink-0">
-                <span className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-current rounded-full animate-bounce"></span>
-                <span className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-current rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                <span className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-current rounded-full animate-bounce [animation-delay:0.4s]"></span>
-              </div>
-              <p className="truncate max-w-[200px] sm:max-w-none">
-                {typingStatus.map(t => t.username).join(', ')} typing...
+            <div className="flex items-center justify-center space-x-3 text-tertiary/60 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] animate-in fade-in duration-500">
+              <p className="truncate max-w-[300px] sm:max-w-none italic">
+                {typingStatus.map(t => t.username).join(', ')} composing...
               </p>
             </div>
           )}

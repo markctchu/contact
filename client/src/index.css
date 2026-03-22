@@ -1,26 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Work+Sans:wght@400;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #0f172a; /* Slate 900 */
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Color Palette: Editorial Play */
+  --surface: #f7f6f1;
+  --surface-container-low: #f1f1ec;
+  --surface-container: #e9e8e3;
+  --surface-container-high: #deddd8;
+  --surface-container-lowest: #ffffff;
+  
+  --on-surface: #2e2f2c;
+  --on-surface-variant: #474844;
+  
+  --primary: #695b00;
+  --primary-container: #fadd30;
+  --on-primary-container: #211b00;
+  --primary-dim: #d1b92a;
+  
+  --secondary-container: #e9e8e3;
+  --on-secondary-container: #1d1d1a;
+  
+  --tertiary: #004ddc;
+  --tertiary-fixed: #96adff;
+  
+  --outline-variant: rgba(173, 173, 169, 0.15);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100dvh;
+  background-color: var(--surface);
+  color: var(--on-surface);
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -28,8 +47,12 @@ body {
   min-height: 100dvh;
 }
 
+h1, h2, h3, h4, .display-font {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -37,10 +60,21 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--surface-container-high);
   border-radius: 10px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+.cta-gradient {
+  background: linear-gradient(135deg, #fadd30 0%, #f7e671 100%);
+}
+
+/* Elevation: Ambient Shadow */
+.ambient-shadow {
+  box-shadow: 0 0 32px 0 rgba(46, 47, 44, 0.06);
+}
+
+.glass-morphism {
+  background: rgba(241, 241, 236, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
