@@ -8,7 +8,22 @@ import { useSocketEvents } from './hooks/useSocketEvents';
 function App() {
   const [username, setUsername] = useState('');
   const [loginInput, setLoginInput] = useState('');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const { currentRoom, typingStatus, socketId, isConnected } = useSocketEvents();
+
+  // Apply theme to document
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     const savedName = sessionStorage.getItem('username');
@@ -84,6 +99,8 @@ function App() {
           username={username} 
           onCreateRoom={handleCreateRoom} 
           onJoinRoom={handleJoinRoom} 
+          toggleTheme={toggleTheme}
+          theme={theme}
         />
       ) : (
         <GameRoom 
@@ -91,6 +108,8 @@ function App() {
           typingStatus={typingStatus}
           username={username} 
           socketId={socketId}
+          toggleTheme={toggleTheme}
+          theme={theme}
         />
       )}
     </div>

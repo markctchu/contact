@@ -5,12 +5,12 @@
 @tailwind utilities;
 
 :root {
-  /* Color Palette: Editorial Play */
+  /* Light Mode Palette: Editorial Play */
   --surface: #f7f6f1;
-  --surface-container-low: #f1f1ec;
+  --surface-low: #f1f1ec;
   --surface-container: #e9e8e3;
-  --surface-container-high: #deddd8;
-  --surface-container-lowest: #ffffff;
+  --surface-high: #deddd8;
+  --surface-lowest: #ffffff;
   
   --on-surface: #2e2f2c;
   --on-surface-variant: #474844;
@@ -27,6 +27,33 @@
   --tertiary-fixed: #96adff;
   
   --outline-variant: rgba(173, 173, 169, 0.15);
+  --shadow-color: rgba(46, 47, 44, 0.06);
+}
+
+.dark {
+  /* Dark Mode Palette: Vibrant Dark */
+  --surface: #121212;
+  --surface-low: #1a1a1a;
+  --surface-container: #242424;
+  --surface-high: #2d2d2d;
+  --surface-lowest: #0a0a0a;
+  
+  --on-surface: #e2e2e2;
+  --on-surface-variant: #a1a1aa;
+  
+  --primary: #a78bfa;
+  --primary-container: #8b5cf6;
+  --on-primary-container: #ffffff;
+  --primary-dim: #7c3aed;
+  
+  --secondary-container: #242424;
+  --on-secondary-container: #2dd4bf;
+  
+  --tertiary: #fde047;
+  --tertiary-fixed: #fef08a;
+  
+  --outline-variant: rgba(255, 255, 255, 0.05);
+  --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 body {
@@ -40,6 +67,7 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
@@ -48,6 +76,11 @@ body {
 }
 
 h1, h2, h3, h4, .display-font {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark .display-font {
+  /* Use Plus Jakarta Sans for everything in dark mode as per DESIGNDARK */
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -65,16 +98,16 @@ h1, h2, h3, h4, .display-font {
 }
 
 .cta-gradient {
-  background: linear-gradient(135deg, #fadd30 0%, #f7e671 100%);
+  background: linear-gradient(135deg, var(--primary-container) 0%, var(--primary-dim) 100%);
 }
 
 /* Elevation: Ambient Shadow */
 .ambient-shadow {
-  box-shadow: 0 0 32px 0 rgba(46, 47, 44, 0.06);
+  box-shadow: 0 0 32px 0 var(--shadow-color);
 }
 
 .glass-morphism {
-  background: rgba(241, 241, 236, 0.8);
+  background: rgba(var(--surface-low-rgb), 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }

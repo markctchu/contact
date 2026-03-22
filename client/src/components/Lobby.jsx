@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { socket } from '../socket';
 import { EVENTS } from '../constants';
+import { Sun, Moon } from 'lucide-react';
 
-function Lobby({ username, onCreateRoom, onJoinRoom }) {
+function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
   const [rooms, setRooms] = useState([]);
   const [newRoomName, setNewRoomName] = useState('');
 
@@ -16,11 +17,20 @@ function Lobby({ username, onCreateRoom, onJoinRoom }) {
 
   return (
     <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full p-6 sm:p-12 overflow-hidden">
-      <header className="mb-12 text-left shrink-0">
-        <h1 className="text-6xl sm:text-7xl font-extrabold text-on-surface tracking-tighter mb-2">Lobby</h1>
-        <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold opacity-40 ml-1">
-          Active Sessions for <span className="text-on-surface opacity-100 italic">{username}</span>
-        </p>
+      <header className="mb-12 flex justify-between items-start shrink-0">
+        <div className="text-left">
+          <h1 className="text-6xl sm:text-7xl font-extrabold text-on-surface tracking-tighter mb-2">Lobby</h1>
+          <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold opacity-40 ml-1">
+            Active Sessions for <span className="text-on-surface opacity-100 italic">{username}</span>
+          </p>
+        </div>
+        <button 
+          onClick={toggleTheme}
+          className="p-3 rounded-full bg-surface-low hover:bg-surface-container transition-all ambient-shadow"
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          {theme === 'light' ? <Moon size={24} /> : <Sun size={24} />}
+        </button>
       </header>
 
       <div className="grid md:grid-cols-12 gap-8 sm:gap-16 w-full min-h-0 overflow-hidden flex-1">

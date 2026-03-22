@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import CentralArea from './CentralArea';
 import BottomInput from './BottomInput';
 import { socket } from '../socket';
-import { Users } from 'lucide-react';
+import { Users, Sun, Moon } from 'lucide-react';
 import { EVENTS } from '../constants';
 import { useGameState } from '../hooks/useGameState';
 
-function GameRoom({ room, typingStatus, username, socketId }) {
+function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }) {
   const [chat, setChat] = useState(room.chat || []);
   const [inputValue, setInputValue] = useState('');
   const [showKeyboard, setShowKeyboard] = useState(true);
@@ -33,29 +33,38 @@ function GameRoom({ room, typingStatus, username, socketId }) {
   }, []);
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-gray-950 text-white overflow-hidden">
+    <div className="flex flex-col h-[100dvh] bg-surface text-on-surface overflow-hidden">
       {/* Top Bar */}
-      <header className="bg-gray-900 border-b border-gray-800 px-3 sm:px-6 py-2 sm:py-4 flex justify-between items-center shadow-lg z-10 shrink-0">
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          <div className="bg-blue-600 p-1.5 sm:p-2 rounded-lg">
-            <h1 className="text-lg sm:text-xl font-black leading-none">C</h1>
+      <header className="bg-surface-low border-b border-outline-variant px-4 sm:px-8 py-3 sm:py-5 flex justify-between items-center z-10 shrink-0 transition-colors duration-300">
+        <div className="flex items-center space-x-4 sm:space-x-6">
+          <div className="bg-tertiary p-2 rounded-lg ambient-shadow">
+            <h1 className="text-xl sm:text-2xl font-black text-white leading-none">C</h1>
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-white leading-tight">{room.name}</h2>
-            <p className="text-[8px] sm:text-[10px] text-gray-500 uppercase tracking-widest font-bold">Active Room</p>
+            <h2 className="text-lg sm:text-xl font-extrabold text-on-surface leading-tight tracking-tight">{room.name}</h2>
+            <p className="text-[9px] sm:text-[10px] text-on-surface-variant uppercase tracking-[0.2em] font-black opacity-40">Active Session</p>
           </div>
         </div>
         
-        <div className="flex items-center bg-gray-800 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-gray-700">
-          <Users size={16} className="text-blue-400 mr-2" />
-          <span className="text-xs sm:text-sm font-black">{room.players.length}</span>
-          <span className="hidden sm:inline text-xs text-gray-400 ml-2 font-bold uppercase tracking-tighter">Players</span>
+        <div className="flex items-center space-x-3">
+          <button 
+            onClick={toggleTheme}
+            className="p-2 rounded-full hover:bg-surface-container transition-all mr-2"
+            title="Toggle Theme"
+          >
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
+          <div className="flex items-center bg-surface-container px-4 py-2 rounded-full border border-outline-variant ambient-shadow">
+            <Users size={16} className="text-tertiary mr-2" />
+            <span className="text-xs sm:text-sm font-black">{room.players.length}</span>
+            <span className="hidden sm:inline text-[10px] text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-40">Entities</span>
+          </div>
         </div>
       </header>
 
       {/* Main Area */}
-      <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden">
-        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-gradient-to-b from-gray-900/20 to-transparent overflow-hidden">
+      <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-gradient-to-b from-surface-low/20 to-surface transition-colors duration-300">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-12 overflow-hidden">
           <CentralArea 
             room={room} 
             typingStatus={typingStatus} 
@@ -66,7 +75,7 @@ function GameRoom({ room, typingStatus, username, socketId }) {
         </div>
 
         {/* Bottom Section (Includes Chat & Keyboard) */}
-        <section className="bg-gray-900 border-t border-gray-800 shadow-2xl shrink-0">
+        <section className="bg-surface-low border-t border-outline-variant ambient-shadow shrink-0 transition-colors duration-300">
           <BottomInput 
             room={room} 
             socketId={socketId}
