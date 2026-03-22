@@ -75,7 +75,7 @@ function App() {
       <div className="h-[100dvh] bg-surface flex items-center justify-center p-6 overflow-hidden">
         <div className="bg-surface-lowest p-10 rounded-xl ambient-shadow w-full max-w-md">
           <h1 className="text-5xl font-extrabold mb-2 text-on-surface tracking-tighter">Contact</h1>
-          <p className="text-on-surface-variant mb-10 text-sm uppercase tracking-[0.2em] font-bold opacity-60">The Human Lexicon</p>
+          <p className="text-on-surface-variant mb-10 text-sm uppercase tracking-[0.2em] font-bold opacity-60">A GAME ABOUT HAVING THE LAST WORD</p>
           <form onSubmit={(e) => {
             e.preventDefault();
             if (loginInput.trim()) handleJoin(loginInput.trim());
@@ -86,7 +86,7 @@ function App() {
                 type="text"
                 value={loginInput}
                 onChange={(e) => setLoginInput(e.target.value)}
-                placeholder="Identity"
+                placeholder="Choose your name"
                 autoComplete="off"
                 role="presentation"
                 data-form-type="other"

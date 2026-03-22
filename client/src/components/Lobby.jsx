@@ -37,7 +37,7 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
         {/* Active Rooms List - The Hero */}
         <section className="md:col-span-7 flex flex-col min-h-0 overflow-hidden">
           <div className="flex items-center justify-between mb-8 shrink-0">
-            <h2 className="text-2xl font-bold tracking-tight">Open Games</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Current Games</h2>
             <span className="text-xs font-black text-on-surface-variant bg-surface-low px-4 py-1.5 rounded-full uppercase tracking-tighter">
               {rooms.length} Total
             </span>
@@ -89,7 +89,7 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
                 type="text"
                 value={newRoomName}
                 onChange={(e) => setNewRoomName(e.target.value)}
-                placeholder="Room Designation"
+                placeholder="Room Name"
                 name="room_designation_field"
                 autoComplete="off"
                 role="presentation"
