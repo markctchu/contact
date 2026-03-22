@@ -59,13 +59,17 @@ function App() {
             if (loginInput.trim()) handleJoin(loginInput.trim());
           }} autoComplete="off">
             <input
-              name={`username_${Math.random().toString(36).substring(7)}`}
+              name={`f_${Math.random().toString(36).substring(7)}`}
               type="text"
               value={loginInput}
               onChange={(e) => setLoginInput(e.target.value)}
               placeholder="Your Name"
               autoComplete="off"
+              role="presentation"
               data-form-type="other"
+              readOnly
+              onFocus={(e) => e.target.readOnly = false}
+              onBlur={(e) => e.target.readOnly = true}
               className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white font-bold"
               autoFocus
               required

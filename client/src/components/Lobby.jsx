@@ -40,9 +40,13 @@ function Lobby({ username, onCreateRoom, onJoinRoom }) {
               value={newRoomName}
               onChange={(e) => setNewRoomName(e.target.value)}
               placeholder="Room Name"
-              name={`room_name_${Math.random().toString(36).substring(7)}`}
+              name={`f_${Math.random().toString(36).substring(7)}`}
               autoComplete="off"
+              role="presentation"
               data-form-type="other"
+              readOnly
+              onFocus={(e) => e.target.readOnly = false}
+              onBlur={(e) => e.target.readOnly = true}
               className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white font-bold"
             />
             <button
