@@ -40,14 +40,15 @@ function UnifiedInput({ activeAction, inputValue, setInputValue, onClearAction }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex-1 flex h-full">
+    <form onSubmit={handleSubmit} className="flex-1 flex h-full" autoComplete="off">
       <input 
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         placeholder={getPlaceholder()}
-        name="game-message"
-        id="game-input"
-        autoComplete="one-time-code"
+        name={`game_input_${Math.random().toString(36).substring(7)}`}
+        id="game_input_field"
+        autoComplete="off"
+        data-form-type="other"
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck="false"

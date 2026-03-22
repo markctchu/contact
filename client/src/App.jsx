@@ -57,11 +57,13 @@ function App() {
             e.preventDefault();
             const val = e.target.username.value.trim();
             if (val) handleJoin(val);
-          }}>
+          }} autoComplete="off">
             <input
-              name="username"
+              name={`username_${Math.random().toString(36).substring(7)}`}
               type="text"
               placeholder="Your Name"
+              autoComplete="off"
+              data-form-type="other"
               className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white font-bold"
               autoFocus
               required

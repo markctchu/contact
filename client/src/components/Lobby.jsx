@@ -34,12 +34,15 @@ function Lobby({ username, onCreateRoom, onJoinRoom }) {
               onCreateRoom(newRoomName.trim());
               setNewRoomName('');
             }
-          }} className="mt-auto">
+          }} className="mt-auto" autoComplete="off">
             <input
               type="text"
               value={newRoomName}
               onChange={(e) => setNewRoomName(e.target.value)}
               placeholder="Room Name"
+              name={`room_name_${Math.random().toString(36).substring(7)}`}
+              autoComplete="off"
+              data-form-type="other"
               className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white font-bold"
             />
             <button
