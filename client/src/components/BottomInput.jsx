@@ -101,13 +101,16 @@ function BottomInput({
   };
 
   const handleCancel = () => {
+    // Optimistically clear local state to prevent flicker
+    const prevAction = activeAction;
+    setActiveAction(null);
+    setInputValue('');
+
     if (room.status === 'setting_word' && isWordmaster) {
       socket.emit(EVENTS.CANCEL_ACTION);
     } else if (room.currentClue && room.currentClue.player === socketId) {
       socket.emit(EVENTS.CANCEL_ACTION);
     }
-    setActiveAction(null);
-    setInputValue('');
   };
 
   const onToggleAction = (action) => {
