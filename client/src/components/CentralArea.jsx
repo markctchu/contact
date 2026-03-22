@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 
 function CentralArea({ room, typingStatus, socketId, inputValue, activeAction }) {
-  const { revealedPrefix, currentClue, status, victoryCountdown, secretWord } = room;
+  const { revealedPrefix, currentClue, status, victoryCountdown, secretWord, wordmaster } = room;
+  const isWordmaster = wordmaster === socketId;
 
   const displayWord = useMemo(() => {
     if (status === 'game_over' && secretWord) return secretWord;
-    if (!revealedPrefix) return 'CONTACT';
-    return revealedPrefix;
+    return revealedPrefix || '';
   }, [revealedPrefix, status, secretWord]);
 
   // Dynamic sizing based on word length to ensure it fits the screen
@@ -16,7 +16,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
     return 'w-10 h-14 sm:w-12 sm:h-16 text-2xl sm:text-3xl';
   };
 
-  const boxClass = getBoxSize(displayWord.length);
+  const boxClass = getBoxSize(displayWord.length || 7); // Default to length of 'CONTACT'
   const isCountdownActive = status === 'victory_countdown' || (currentClue && currentClue.contactedBy);
 
   // Check if we should show input tiles instead of revealed tiles
@@ -31,7 +31,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
           /* Countdown Display */
           <div className="flex-1 flex flex-col items-center justify-center w-full animate-in fade-in zoom-in duration-300 px-2">
             {status === 'victory_countdown' ? (
-              <div className="bg-yellow-600 py-3 px-6 sm:py-6 sm:px-12 rounded-2xl shadow-xl animate-pulse w-full max-w-md flex items-center justify-between border-2 border-yellow-400">
+              <div className="bg-yellow-600 py-3 px-6 sm:py-6 sm:px-12 rounded-2xl shadow-xl animate-pulse w-full max-md flex items-center justify-between border-2 border-yellow-400">
                 <div className="text-left min-w-0 mr-4">
                   <h4 className="text-xs sm:text-lg font-black text-black uppercase leading-tight tracking-tighter">Wordmaster is Declaring Victory!</h4>
                   <p className="text-black/80 text-[9px] sm:text-xs font-bold uppercase tracking-widest mt-1">Contest to stop the countdown</p>
@@ -59,15 +59,22 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
               </h3>
               
               <div className="flex flex-wrap gap-1 sm:gap-2 justify-center items-center max-w-full px-0.5">
-                {/* 1. PERSISTENT REVEALED PREFIX (Only if in guessing mode) */}
-                {showPrefixInInput && revealedPrefix.split('').map((char, i) => (
+                {/* 1. INITIAL "CONTACT" TILES (If no word set yet) */}
+                {!revealedPrefix && !isWordInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
+                  <div key={`init-${i}`} className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-blue-600 text-white shadow-blue-900`}>
+                    {char}
+                  </div>
+                ))}
+
+                {/* 2. PERSISTENT REVEALED PREFIX (Only if in guessing mode) */}
+                {showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
                   <div key={`prefix-${i}`} className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black bg-blue-800 text-white/50 border-t border-white/5 shadow-inner`}>
                     {char}
                   </div>
                 ))}
 
-                {/* 2. CURRENT INPUT (If typing a word) or REVEALED WORD (Normal state) */}
-                {(isWordInput ? (showPrefixInInput ? inputValue : inputValue || '?') : displayWord).split('').map((char, i) => (
+                {/* 3. CURRENT INPUT (If typing a word) or REVEALED WORD (Normal state) */}
+                {(isWordInput ? (showPrefixInInput ? inputValue : inputValue || '') : displayWord).split('').map((char, i) => (
                   <div 
                     key={`input-${i}`} 
                     className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-blue-600 text-white shadow-blue-900 transition-all duration-200 animate-in zoom-in-75`}
@@ -76,8 +83,15 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                   </div>
                 ))}
                 
-                {/* 3. CURSOR / ELLIPSIS */}
-                {!isCountdownActive && !isWordInput && status !== 'game_over' && revealedPrefix && (
+                {/* 4. ACTIVE TYPING CURSOR */}
+                {isWordInput && (
+                  <div className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black bg-blue-500/20 border-2 border-blue-500 animate-pulse`}>
+                    
+                  </div>
+                )}
+
+                {/* 5. ELLIPSIS (Normal State Only) */}
+                {!isWordInput && status !== 'game_over' && revealedPrefix && (
                   <div className="flex items-center">
                     <div className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black shadow-inner border-t border-white/5 bg-gray-800 text-gray-700`}>
                       _
@@ -85,13 +99,6 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                     <div className="text-xl sm:text-4xl font-black text-gray-700 ml-1 leading-none self-end pb-1 sm:pb-2">
                       ...
                     </div>
-                  </div>
-                )}
-
-                {/* 4. ACTIVE TYPING CURSOR */}
-                {isWordInput && (
-                  <div className={`${boxClass} flex items-center justify-center rounded-md sm:rounded-xl font-black bg-blue-500/20 border-2 border-blue-500 animate-pulse`}>
-                    
                   </div>
                 )}
               </div>
