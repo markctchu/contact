@@ -64,7 +64,7 @@ function App() {
           }} autoComplete="off">
             <div className="mb-6">
               <input
-                name={`f_${Math.random().toString(36).substring(7)}`}
+                name="identity_entry_field"
                 type="text"
                 value={loginInput}
                 onChange={(e) => setLoginInput(e.target.value)}

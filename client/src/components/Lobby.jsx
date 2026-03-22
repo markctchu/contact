@@ -90,7 +90,7 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
                 value={newRoomName}
                 onChange={(e) => setNewRoomName(e.target.value)}
                 placeholder="Room Designation"
-                name={`f_${Math.random().toString(36).substring(7)}`}
+                name="room_designation_field"
                 autoComplete="off"
                 role="presentation"
                 data-form-type="other"
