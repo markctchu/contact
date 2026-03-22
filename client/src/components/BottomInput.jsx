@@ -106,7 +106,7 @@ function BottomInput({
   };
 
   return (
-    <div className="p-4 sm:p-6 flex flex-col space-y-4 max-w-2xl mx-auto w-full relative">
+    <div className="p-4 pb-2 sm:p-6 flex flex-col space-y-4 max-w-2xl mx-auto w-full relative">
       <div className="flex items-center justify-between px-1">
         <button 
           onClick={() => setShowKeyboard(!showKeyboard)}

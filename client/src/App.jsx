@@ -13,10 +13,13 @@ function App() {
 
   // Apply theme to document
   useEffect(() => {
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#121212');
     } else {
       document.documentElement.classList.remove('dark');
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#f7f6f1');
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
