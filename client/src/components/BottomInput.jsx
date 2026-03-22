@@ -106,16 +106,16 @@ function BottomInput({
   };
 
   return (
-    <div className="p-4 pb-2 sm:p-6 flex flex-col space-y-4 max-w-2xl mx-auto w-full relative">
-      <div className="flex items-center justify-between px-1">
+    <div className="p-2 sm:p-4 pb-0.5 sm:pb-3 flex flex-col space-y-2 sm:space-y-4 max-w-2xl mx-auto w-full relative">
+      <div className="flex items-center justify-between px-1 shrink-0">
         <button 
           onClick={() => setShowKeyboard(!showKeyboard)}
-          className="text-[10px] font-black text-on-surface/20 hover:text-tertiary uppercase tracking-[0.2em] transition-colors"
+          className="hidden sm:block text-[10px] font-black text-on-surface/20 hover:text-tertiary uppercase tracking-[0.2em] transition-colors"
         >
           {showKeyboard ? 'Collapse Keys' : 'Expand Keys'}
         </button>
         {activeAction && (
-          <span className="text-[10px] font-black text-tertiary uppercase tracking-[0.2em] animate-pulse">
+          <span className="text-[10px] font-black text-tertiary uppercase tracking-[0.2em] animate-pulse ml-auto">
             {activeAction} Mode Active
           </span>
         )}
@@ -123,7 +123,7 @@ function BottomInput({
 
       <ChatWindow messages={allMessages} />
 
-      <div className="flex space-x-3 h-12">
+      <div className="flex space-x-2 sm:space-x-3 h-10 sm:h-12 shrink-0">
         <ActionToggleButton 
           room={room}
           socketId={socketId}

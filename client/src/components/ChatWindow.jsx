@@ -13,8 +13,8 @@ function ChatWindow({ messages }) {
   }, [messages]);
 
   return (
-    <div className="bg-surface-low rounded-2xl p-4 shrink-0 overflow-hidden border border-outline-variant">
-      <div className="h-32 overflow-y-auto space-y-3 mb-1 custom-scrollbar pr-2">
+    <div className="bg-surface-low rounded-xl p-2 sm:p-3 shrink-0 overflow-hidden border border-outline-variant">
+      <div className="h-24 sm:h-32 overflow-y-auto space-y-1.5 mb-0.5 custom-scrollbar pr-2">
         {messages.map((msg, i) => (
           <div key={i} className="text-xs sm:text-sm">
             {msg.isLog ? (
