@@ -39,6 +39,31 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
     setInputValue(prev => prev.slice(0, -1));
   };
 
+  // Physical Keyboard Support
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't intercept if no user is set or we're not in a room (though BottomInput is only in a room)
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleEnter();
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        handleBackspace();
+      } else if (e.key.length === 1) {
+        // Alphanumeric and space only
+        if (/^[a-zA-Z0-9 ]$/.test(e.key)) {
+          e.preventDefault();
+          handleKeyPress(e.key.toUpperCase());
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [inputValue, activeAction]); // Re-bind when state used in handleEnter changes
+
   const handleEnter = () => {
     const val = inputValue.trim();
     if (!val && !activeAction) return;
