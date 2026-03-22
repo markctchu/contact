@@ -15,12 +15,13 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
   // Calculate total visible tiles to ensure accurate scaling
   const totalVisibleCount = useMemo(() => {
     if (isWordInput) {
-      const prefixLen = showPrefixInInput ? (revealedPrefix?.length || 0) : 0;
-      return prefixLen + (inputValue?.length || 0) + 1; // +1 for the cursor tile
+      const prefixLen = (showPrefixInInput && revealedPrefix) ? revealedPrefix.length : 0;
+      const inputLen = inputValue ? inputValue.length : 0;
+      return prefixLen + inputLen + 1; // +1 for the cursor tile
     }
     if (!revealedPrefix && status !== 'game_over') return 7; // 'CONTACT'
-    return displayWord.length;
-  }, [isWordInput, showPrefixInInput, revealedPrefix, inputValue, displayWord, status]);
+    return revealedPrefix ? revealedPrefix.length : 7;
+  }, [isWordInput, showPrefixInInput, revealedPrefix, inputValue, status]);
 
   const getBoxSize = (wordLength) => {
     const baseClasses = "flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow transition-all duration-300";
