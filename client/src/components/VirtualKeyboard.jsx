@@ -10,7 +10,7 @@ const ROWS = [
 
 function VirtualKeyboard({ onKeyPress, onEnter, onBackspace }) {
   return (
-    <div className="w-full max-w-2xl mx-auto p-1 sm:p-2 bg-gray-900/50 rounded-xl">
+    <div className="w-full p-1 sm:p-2 bg-gray-900/50 rounded-xl">
       <div className="flex flex-col gap-1 sm:gap-1.5">
         {ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 w-full">

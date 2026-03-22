@@ -104,7 +104,7 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
   };
 
   return (
-    <div className="p-2 sm:p-4 flex flex-col space-y-2 sm:space-y-4 max-w-5xl mx-auto w-full">
+    <div className="p-2 sm:p-4 flex flex-col space-y-2 sm:space-y-4 max-w-2xl mx-auto w-full">
       <ChatWindow messages={allMessages} />
 
       <div className="flex space-x-2 sm:space-x-3 h-12 sm:h-14">
