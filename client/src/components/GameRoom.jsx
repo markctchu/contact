@@ -75,7 +75,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
         </div>
 
         {/* Bottom Section (Includes Chat & Keyboard) */}
-        <section className="bg-surface-low border-t border-outline-variant ambient-shadow shrink-0 transition-colors duration-300">
+        <section className="bg-surface-low border-t border-outline-variant ambient-shadow shrink-0 transition-colors duration-300 no-gradient">
           <BottomInput 
             room={room} 
             socketId={socketId}
