@@ -107,7 +107,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
               ) : currentGuess ? (
                 <div className="bg-surface-lowest p-4 sm:p-10 rounded-2xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
                   <div className="absolute top-0 left-0 w-full h-1 bg-tertiary/20"></div>
-                  <p className="text-[9px] sm:text-xs font-black text-on-surface/30 uppercase tracking-[0.3em] mb-3 sm:mb-6 text-center">Guess from {currentGuess.playerName}</p>
+                  <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-3 sm:mb-6 text-center">Clue from {currentGuess.playerName}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
                     "{currentGuess.clue || 'Pending...'}"
                   </h4>

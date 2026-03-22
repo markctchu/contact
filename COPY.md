@@ -83,10 +83,32 @@ This document serves as the master record for all player-facing text in the Cont
 | Key | Default Value | Location | Function |
 | :--- | :--- | :--- | :--- |
 | LOG_PRIVATE_PREFIX | Private | ChatWindow.jsx | Tag for messages only the user sees |
-| LOG_CLUE_HEADER | Guess from | CentralArea.jsx | Identification above an active clue |
+| LOG_CLUE_HEADER | Clue from | CentralArea.jsx | Identification above an active clue |
 | LOG_HINT_PENDING | Pending... | CentralArea.jsx | Displayed while clue owner types hint |
 
-## 9. Virtual Keyboard
+## 9. Automated Chat Messages (Server-side)
+| Key | Value Pattern | Logic |
+| :--- | :--- | :--- |
+| MSG_JOINED | [User] joined the room. | roomManager.js |
+| MSG_LEFT | [User] left the room. | roomManager.js |
+| MSG_WM_LEFT | [User] (Wordmaster) left. Game reset. | roomManager.js |
+| MSG_GUESS_LEFT | [User]'s guess was removed as they left. | roomManager.js |
+| MSG_WM_ASSIGNED | [User] is now the Wordmaster. | roomManager.js |
+| MSG_WM_RELINQUISHED | [User] has relinquished Wordmaster. | index.js |
+| MSG_GAME_STARTED | Game Started! Revealed: [Prefix] | roomManager.js |
+| MSG_GUESS_SUBMITTED | [User] submitted a new guess: "[Clue]" | roomManager.js |
+| MSG_CONTACT_ATTEMPT | [User1] and [User2] are attempting contact... | roomManager.js |
+| MSG_INTERCEPTED | Wordmaster intercepted! The word was [Word] | roomManager.js |
+| MSG_VICTORY_DECLARED | Wordmaster is declaring victory! | roomManager.js |
+| MSG_VICTORY_CONTESTED | [User] contested the victory! | roomManager.js |
+| MSG_GUESS_RETRACTED | [User] retracted their guess. | roomManager.js |
+| MSG_CONTACT_SUCCESS_GAME | VICTORY! [User1] and [User2] contacted the secret word: [Word] | roomManager.js |
+| MSG_CONTACT_SUCCESS_CHAR | Contact! [User1] and [User2] successfully guessed [Word] | roomManager.js |
+| MSG_CONTACT_FAILED | Contact failed! Words did not match. | roomManager.js |
+| MSG_PLAYERS_WIN | Game Over! Players win! The word was [Word] | roomManager.js |
+| MSG_WM_WINS | Game Over! Wordmaster wins! The word was [Word] | roomManager.js |
+
+## 10. Virtual Keyboard
 | Key | Default Value | Location | Function |
 | :--- | :--- | :--- | :--- |
 | KEY_ENTER | DONE | VirtualKeyboard.jsx | Label for the action/submit key |
