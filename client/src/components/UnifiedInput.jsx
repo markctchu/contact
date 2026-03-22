@@ -1,72 +1,40 @@
-import { EVENTS } from '../constants';
-import { socket } from '../socket';
+import React from 'react';
 
-function UnifiedInput({ activeAction, inputValue, setInputValue, onClearAction }) {
+function UnifiedInput({ activeAction, inputValue }) {
   
   const getPlaceholder = () => {
     switch (activeAction) {
-      case 'SECRET': return "Enter your secret word...";
-      case 'GUESS': return "What word are you thinking of?";
-      case 'CLUE': return "Give a public hint for your word...";
-      case 'CONTACT': return "What word is it?";
-      case 'DENY': return "Is it...";
-      default: return "Send a chat message...";
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const val = inputValue.trim();
-    if (!val && !activeAction) return;
-
-    if (activeAction === 'SECRET') {
-      socket.emit(EVENTS.SET_SECRET_WORD, { word: val });
-    } else if (activeAction === 'GUESS') {
-      socket.emit(EVENTS.SUBMIT_CLUE_WORD, { word: val });
-    } else if (activeAction === 'CLUE') {
-      socket.emit(EVENTS.SUBMIT_CLUE_HINT, { hint: val });
-    } else if (activeAction === 'CONTACT') {
-      socket.emit(EVENTS.CALL_CONTACT, { guess: val });
-    } else if (activeAction === 'DENY') {
-      socket.emit(EVENTS.DENY_CLUE, { guess: val });
-    } else if (val) {
-      socket.emit(EVENTS.CHAT_MESSAGE, { message: val });
-    }
-
-    setInputValue('');
-    if (['CONTACT', 'GUESS', 'DENY'].includes(activeAction)) {
-      onClearAction();
+      case 'SECRET': return "ENTER YOUR SECRET WORD...";
+      case 'GUESS': return "WHAT WORD ARE YOU THINKING OF?";
+      case 'CLUE': return "GIVE A PUBLIC HINT...";
+      case 'CONTACT': return "WHAT WORD IS IT?";
+      case 'DENY': return "IS IT...";
+      default: return "SEND A CHAT MESSAGE...";
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex-1 flex h-full" autoComplete="off">
-      <input 
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder={getPlaceholder()}
-        name={`field_${Math.random().toString(36).substring(7)}`}
-        id="game_field"
-        autoComplete="off"
-        role="presentation"
-        data-form-type="other"
-        autoCorrect="off"
-        autoCapitalize="off"
-        spellCheck="false"
-        inputMode="text"
-        enterKeyHint="send"
-        readOnly
-        onFocus={(e) => e.target.readOnly = false}
-        onBlur={(e) => e.target.readOnly = true}
-        className={`flex-1 bg-gray-800 border-2 rounded-lg sm:rounded-xl px-3 sm:px-6 py-1 sm:py-2 text-sm sm:text-base text-white focus:outline-none focus:ring-2 sm:focus:ring-4 transition-all font-bold 
-          ${activeAction === 'SECRET' || activeAction === 'GUESS' ? 'border-purple-500 focus:ring-purple-900/30' : 
-            activeAction === 'CLUE' ? 'border-blue-500 focus:ring-blue-900/30' : 
-            activeAction === 'CONTACT' ? 'border-green-500 focus:ring-green-900/30' : 
-            activeAction === 'DENY' ? 'border-red-500 focus:ring-red-900/30' : 
-            'border-gray-700 focus:ring-blue-500/30'}`}
-        autoFocus
-      />
-    </form>
+    <div className="flex-1 flex h-full items-center">
+      <div 
+        className={`flex-1 bg-gray-800 border-2 rounded-lg sm:rounded-xl px-3 sm:px-6 h-full flex items-center transition-all 
+          ${activeAction === 'SECRET' || activeAction === 'GUESS' ? 'border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 
+            activeAction === 'CLUE' ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 
+            activeAction === 'CONTACT' ? 'border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.2)]' : 
+            activeAction === 'DENY' ? 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 
+            'border-gray-700'}`}
+      >
+        {inputValue ? (
+          <span className="text-white font-bold text-sm sm:text-lg uppercase tracking-wider animate-in fade-in slide-in-from-left-1 duration-200">
+            {inputValue}
+            <span className="inline-block w-0.5 h-5 ml-1 bg-blue-500 animate-pulse align-middle"></span>
+          </span>
+        ) : (
+          <span className="text-gray-500 font-bold text-xs sm:text-base uppercase tracking-widest opacity-50">
+            {getPlaceholder()}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 

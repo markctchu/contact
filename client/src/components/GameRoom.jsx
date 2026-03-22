@@ -18,9 +18,9 @@ function GameRoom({ room, typingStatus, username, socketId }) {
   const isWordmaster = room.wordmaster === socketId;
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-gray-950 text-white overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gray-950 text-white overflow-y-auto">
       {/* Top Bar */}
-      <header className="bg-gray-900 border-b border-gray-800 px-3 sm:px-6 py-2 sm:py-4 flex justify-between items-center shadow-lg z-10 shrink-0">
+      <header className="bg-gray-900 border-b border-gray-800 px-3 sm:px-6 py-2 sm:py-4 flex justify-between items-center shadow-lg z-10 shrink-0 sticky top-0">
         <div className="flex items-center space-x-2 sm:space-x-4">
           <div className="bg-blue-600 p-1.5 sm:p-2 rounded-lg">
             <h1 className="text-lg sm:text-xl font-black leading-none">C</h1>
@@ -39,13 +39,13 @@ function GameRoom({ room, typingStatus, username, socketId }) {
       </header>
 
       {/* Main Area */}
-      <main className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
-        <div className="flex-1 flex flex-col items-center justify-center p-0.5 sm:p-8 bg-gradient-to-b from-gray-900/20 to-transparent overflow-hidden">
+      <main className="flex-1 flex flex-col min-h-0 relative">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-gradient-to-b from-gray-900/20 to-transparent">
           <CentralArea room={room} typingStatus={typingStatus} socketId={socketId} />
         </div>
 
-        {/* Bottom Section (Includes Chat) */}
-        <section className="bg-gray-900 border-t border-gray-800 shadow-2xl shrink-0">
+        {/* Bottom Section (Includes Chat & Keyboard) */}
+        <section className="bg-gray-900 border-t border-gray-800 shadow-2xl shrink-0 sticky bottom-0">
           <BottomInput 
             room={room} 
             socketId={socketId}
