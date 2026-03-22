@@ -10,10 +10,15 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
   }, [revealedPrefix, status, secretWord]);
 
   const getBoxSize = (wordLength) => {
-    if (wordLength > 12) return 'w-5 h-8 sm:w-12 sm:h-16 text-sm sm:text-3xl';
-    if (wordLength > 10) return 'w-6 h-10 sm:w-12 sm:h-16 text-base sm:text-3xl';
-    if (wordLength > 8) return 'w-7 h-11 sm:w-12 sm:h-16 text-lg sm:text-3xl';
-    return 'w-8 h-12 sm:w-14 sm:h-20 text-xl sm:text-4xl';
+    // Desktop sizes remain large and consistent
+    const baseClasses = "flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow transition-all duration-300";
+    
+    // Mobile dynamic scaling
+    if (wordLength > 14) return `${baseClasses} w-5 h-8 text-[10px] sm:w-14 sm:h-20 sm:text-4xl`;
+    if (wordLength > 12) return `${baseClasses} w-6 h-9 text-xs sm:w-14 sm:h-20 sm:text-4xl`;
+    if (wordLength > 10) return `${baseClasses} w-7 h-10 text-sm sm:w-14 sm:h-20 sm:text-4xl`;
+    if (wordLength > 8) return `${baseClasses} w-8 h-12 text-lg sm:w-14 sm:h-20 sm:text-4xl`;
+    return `${baseClasses} w-9 h-14 text-xl sm:w-14 sm:h-20 sm:text-4xl`;
   };
 
   const boxClass = getBoxSize(displayWord.length || 7);
@@ -56,15 +61,15 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
               {isWordInput ? "THEY'LL NEVER GUESS" : (revealedPrefix ? 'IT STARTS WITH' : "PREPARE TO MAKE")}
             </h3>
             
-            <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2">
+            <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-0.5">
               {!revealedPrefix && !isWordInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
-                <div key={`init-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow`}>
+                <div key={`init-${i}`} className={`${boxClass} bg-surface-lowest text-on-surface`}>
                   {char}
                 </div>
               ))}
 
               {showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
-                <div key={`prefix-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30`}>
+                <div key={`prefix-${i}`} className={`${boxClass} bg-surface-container text-on-surface opacity-30`}>
                   {char}
                 </div>
               ))}
@@ -72,14 +77,14 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
               {(isWordInput ? (showPrefixInInput ? inputValue : inputValue || '') : displayWord).split('').map((char, i) => (
                 <div 
                   key={`input-${i}`} 
-                  className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}
+                  className={`${boxClass} bg-surface-lowest text-on-surface animate-in zoom-in-90 slide-in-from-bottom-2`}
                 >
                   {char}
                 </div>
               ))}
               
               {isWordInput && (
-                <div className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20`}>
+                <div className={`${boxClass} bg-tertiary/10 border-2 border-tertiary/20`}>
                   <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
                 </div>
               )}
