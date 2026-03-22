@@ -108,14 +108,14 @@ io.on('connection', (socket) => {
     if (roomId) roomManager.setSecretWord(io, roomId, socket.id, word);
   });
 
-  socket.on(EVENTS.SUBMIT_CLUE_WORD, ({ word }) => {
+  socket.on(EVENTS.SUBMIT_GUESS_WORD, ({ word }) => {
     const { roomId } = socket.data;
-    if (roomId) roomManager.submitClue(io, roomId, socket.id, word);
+    if (roomId) roomManager.submitGuess(io, roomId, socket.id, word);
   });
 
-  socket.on(EVENTS.SUBMIT_CLUE_HINT, ({ hint }) => {
+  socket.on(EVENTS.SUBMIT_GUESS_CLUE, ({ clue }) => {
     const { roomId } = socket.data;
-    if (roomId) roomManager.submitHint(io, roomId, socket.id, hint);
+    if (roomId) roomManager.submitClue(io, roomId, socket.id, clue);
   });
 
   socket.on(EVENTS.CALL_CONTACT, ({ guess }) => {
@@ -123,9 +123,9 @@ io.on('connection', (socket) => {
     if (roomId) roomManager.callContact(io, roomId, socket.id, guess);
   });
 
-  socket.on(EVENTS.DENY_CLUE, ({ guess }) => {
+  socket.on(EVENTS.DENY_GUESS, ({ guess }) => {
     const { roomId } = socket.data;
-    if (roomId) roomManager.denyClue(io, roomId, socket.id, guess);
+    if (roomId) roomManager.denyGuess(io, roomId, socket.id, guess);
   });
 
   socket.on(EVENTS.DECLARE_VICTORY, () => {

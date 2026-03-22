@@ -11,10 +11,10 @@ export const EVENTS = {
   SET_SECRET_WORD: 'set_secret_word',
   
   // Gameplay Actions
-  SUBMIT_CLUE_WORD: 'submit_clue_word',
-  SUBMIT_CLUE_HINT: 'submit_clue_hint',
+  SUBMIT_GUESS_WORD: 'submit_guess_word',
+  SUBMIT_GUESS_CLUE: 'submit_guess_clue',
   CALL_CONTACT: 'call_contact',
-  DENY_CLUE: 'deny_clue',
+  DENY_GUESS: 'deny_guess',
   DECLARE_VICTORY: 'declare_victory',
   CONTEST_VICTORY: 'contest_victory',
   CANCEL_ACTION: 'cancel_action',

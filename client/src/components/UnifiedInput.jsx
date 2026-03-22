@@ -4,12 +4,12 @@ function UnifiedInput({ activeAction, inputValue }) {
   
   const getPlaceholder = () => {
     switch (activeAction) {
-      case 'SECRET': return "Compose Secret Word";
-      case 'GUESS': return "Coordinate Clue";
-      case 'CLUE': return "Public Description";
-      case 'CONTACT': return "Confirm Match";
-      case 'DENY': return "Intercept Clue";
-      default: return "Message Room";
+      case 'SECRET': return "SUBMIT SECRET WORD";
+      case 'GUESS': return "SUBMIT GUESS WORD";
+      case 'GUESS_CLUE': return "PROVIDE HINT FOR CONTACT";
+      case 'CONTACT': return "SOLVE THE CLUE";
+      case 'DENY': return "INTERCEPT CONTACT";
+      default: return "SEND CHAT MESSAGE";
     }
   };
 

@@ -2,7 +2,7 @@ import { EVENTS } from '../constants';
 import { socket } from '../socket';
 
 function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onToggleAction, onCancel }) {
-  const { status, currentClue } = room;
+  const { status, currentGuess } = room;
 
   // 1. END OF GAME / LOBBY
   if (status === 'game_over' || status === 'waiting') {
@@ -25,7 +25,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
         onClick={onCancel}
         className="bg-on-surface/5 hover:bg-on-surface/10 text-on-surface font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
       >
-        Relinquish
+        Cancel
       </button>
     );
   }
@@ -33,7 +33,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
   // 3. PLAYING
   if (status === 'playing') {
     if (isWordmaster) {
-      if (!currentClue) {
+      if (!currentGuess) {
         return (
           <button 
             type="button"
@@ -55,7 +55,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
       );
     } else {
       // Player
-      if (!currentClue) {
+      if (!currentGuess) {
         return (
           <button 
             type="button"
@@ -65,8 +65,8 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
             {activeAction === 'GUESS' ? 'Cancel' : 'Guess'}
           </button>
         );
-      } else if (currentClue.player === socketId) {
-        if (!currentClue.hint) {
+      } else if (currentGuess.player === socketId) {
+        if (!currentGuess.clue) {
           return (
             <button 
               type="button"
@@ -76,7 +76,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
               Cancel
             </button>
           );
-        } else if (!currentClue.contactedBy) {
+        } else if (!currentGuess.contactedBy) {
           return (
             <button 
               type="button"
@@ -87,7 +87,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
             </button>
           );
         }
-      } else if (currentClue.hint && !currentClue.contactedBy) {
+      } else if (currentGuess.clue && !currentGuess.contactedBy) {
         return (
           <button 
             type="button"
@@ -114,7 +114,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
     );
   }
 
-  return <div className="bg-on-surface/5 text-on-surface/20 font-black px-6 flex items-center rounded-full whitespace-nowrap uppercase tracking-widest text-[10px] sm:text-xs">Dialogue</div>;
+  return <div className="bg-on-surface/5 text-on-surface/20 font-black px-6 flex items-center rounded-full whitespace-nowrap uppercase tracking-widest text-[10px] sm:text-xs">Chat</div>;
 }
 
 export default ActionToggleButton;

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 function CentralArea({ room, typingStatus, socketId, inputValue, activeAction }) {
-  const { revealedPrefix, currentClue, status, victoryCountdown, secretWord, wordmaster } = room;
+  const { revealedPrefix, currentGuess, status, victoryCountdown, secretWord, wordmaster } = room;
   const isWordmaster = wordmaster === socketId;
 
   const displayWord = useMemo(() => {
@@ -9,7 +9,6 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
     return revealedPrefix || '';
   }, [revealedPrefix, status, secretWord]);
 
-  // Updated scaling logic to fit up to 14 letters in a row on mobile
   const getBoxSize = (wordLength) => {
     if (wordLength > 12) return 'w-5 h-8 sm:w-12 sm:h-16 text-sm sm:text-3xl';
     if (wordLength > 10) return 'w-6 h-10 sm:w-12 sm:h-16 text-base sm:text-3xl';
@@ -18,7 +17,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
   };
 
   const boxClass = getBoxSize(displayWord.length || 7);
-  const isCountdownActive = status === 'victory_countdown' || (currentClue && currentClue.contactedBy);
+  const isCountdownActive = status === 'victory_countdown' || (currentGuess && currentGuess.contactedBy);
 
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
@@ -32,8 +31,8 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
             {status === 'victory_countdown' ? (
               <div className="cta-gradient py-8 px-10 sm:py-12 sm:px-16 rounded-3xl ambient-shadow w-full max-w-xl flex items-center justify-between">
                 <div className="text-left min-w-0 mr-8">
-                  <h4 className="text-xl sm:text-3xl font-extrabold text-on-primary-container uppercase leading-tight tracking-tighter">Victory Pending</h4>
-                  <p className="text-on-primary-container/60 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mt-2">Contest to Intercept</p>
+                  <h4 className="text-xl sm:text-3xl font-extrabold text-on-primary-container uppercase leading-tight tracking-tighter">Wordmaster has Declared Victory!</h4>
+                  <p className="text-on-primary-container/60 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mt-2">Contest to stop the countdown</p>
                 </div>
                 <div className="text-7xl sm:text-9xl font-black text-on-primary-container leading-none tabular-nums">{victoryCountdown}</div>
               </div>
@@ -42,10 +41,10 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                 <div className="text-left min-w-0 mr-8">
                   <h4 className="text-xl sm:text-3xl font-extrabold text-white uppercase leading-tight tracking-tighter">Contact</h4>
                   <p className="text-white/60 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mt-2 truncate">
-                    {currentClue.playerName} & {currentClue.contactedByName}
+                    {currentGuess.playerName} & {currentGuess.contactedByName}
                   </p>
                 </div>
-                <div className="text-7xl sm:text-9xl font-black text-white leading-none tabular-nums">{currentClue.countdown}</div>
+                <div className="text-7xl sm:text-9xl font-black text-white leading-none tabular-nums">{currentGuess.countdown}</div>
               </div>
             )}
           </div>
@@ -53,10 +52,9 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
           <>
             <div className="space-y-4 sm:space-y-6 w-full flex flex-col items-center shrink-0">
               <h3 className="text-[10px] sm:text-xs font-black tracking-[0.4em] text-on-surface/30 uppercase">
-                {isWordInput ? 'Composition' : (revealedPrefix ? 'Lexicon' : "Genesis")}
+                {isWordInput ? "THEY'LL NEVER GUESS" : (revealedPrefix ? 'IT STARTS WITH' : "PREPARE TO MAKE")}
               </h3>
               
-              {/* Reduced gap from gap-2 to gap-1.5 on mobile */}
               <div className="flex flex-wrap gap-1 sm:gap-4 justify-center items-center max-w-full px-1">
                 {!revealedPrefix && !isWordInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
                   <div key={`init-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow`}>
@@ -96,19 +94,19 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
             </div>
 
             <div className="flex items-center justify-center w-full px-4 min-h-0 overflow-hidden shrink">
-              {activeAction === 'CLUE' ? (
+              {activeAction === 'GUESS_CLUE' ? (
                 <div className="bg-tertiary/5 p-8 sm:p-12 rounded-3xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
-                  <p className="text-[10px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-6 opacity-60">Providing Hint for {room.currentClue?.hiddenWord}</p>
+                  <p className="text-[10px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-6 opacity-60">THE PERFECT CLUE: {currentGuess?.hiddenWord}</p>
                   <h4 className="text-2xl sm:text-5xl font-extrabold italic text-on-surface leading-tight break-words px-4">
-                    {inputValue || 'Awaiting Input...'}
+                    {inputValue || 'Enter Clue here...'}
                   </h4>
                 </div>
-              ) : currentClue ? (
+              ) : currentGuess ? (
                 <div className="bg-surface-lowest p-8 sm:p-12 rounded-3xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-tertiary/20"></div>
-                  <p className="text-[10px] sm:text-xs font-black text-on-surface/30 uppercase tracking-[0.3em] mb-6 text-center">Clue from {currentClue.playerName}</p>
+                  <p className="text-[10px] sm:text-xs font-black text-on-surface/30 uppercase tracking-[0.3em] mb-6 text-center">Guess from {currentGuess.playerName}</p>
                   <h4 className="text-2xl sm:text-5xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
-                    "{currentClue.hint || 'Pending...'}"
+                    "{currentGuess.clue || 'Pending...'}"
                   </h4>
                 </div>
               ) : status === 'setting_word' || status === 'waiting' ? (
@@ -116,12 +114,12 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
                   <p className="text-sm sm:text-base font-bold uppercase tracking-[0.3em] animate-pulse text-center px-12 leading-loose italic">
                     {status === 'waiting' 
                       ? 'Tap Wordmaster to Begin' 
-                      : (isWordmaster ? 'Define the Secret Lexicon Above' : 'Awaiting Wordmaster Submission')}
+                      : (isWordmaster ? 'ENTER YOUR SECRET WORD ABOVE' : 'Wordmaster is thinking...')}
                   </p>
                 </div>
               ) : (
                 <div className="text-on-surface/20 text-sm sm:text-base font-black uppercase tracking-[0.4em] py-8 text-center px-12 italic">
-                  Awaiting Player Coordination
+                  AWAITING GUESS SUBMISSION
                 </div>
               )}
             </div>
@@ -132,7 +130,7 @@ function CentralArea({ room, typingStatus, socketId, inputValue, activeAction })
           {typingStatus.length > 0 && (
             <div className="flex items-center justify-center space-x-3 text-tertiary/60 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] animate-in fade-in duration-500">
               <p className="truncate max-w-[300px] sm:max-w-none italic">
-                {typingStatus.map(t => t.username).join(', ')} composing...
+                {typingStatus.map(t => t.username).join(', ')} is typing...
               </p>
             </div>
           )}

@@ -4,26 +4,26 @@ export function useGameState(room, socketId, isWordmaster) {
   const [activeAction, setActiveAction] = useState(null);
 
   useEffect(() => {
-    const { status, currentClue } = room;
-    
+    const { status, currentGuess } = room;
+
     // 1. MANDATORY states (User is forced into these modes)
     if (status === 'setting_word' && isWordmaster) {
       if (activeAction !== 'SECRET') setActiveAction('SECRET');
       return;
     }
-    if (status === 'playing' && currentClue?.player === socketId && !currentClue.hint) {
-      if (activeAction !== 'CLUE') setActiveAction('CLUE');
+    if (status === 'playing' && currentGuess?.player === socketId && !currentGuess.clue) {
+      if (activeAction !== 'GUESS_CLUE') setActiveAction('GUESS_CLUE');
       return;
     }
 
     // 2. AUTO-CLEAR (If user was in an optional mode that is no longer valid)
     // Also clear if status shifted away from mandatory modes
     const isValid = (
-      (activeAction === 'DENY' && currentClue && isWordmaster) ||
-      (activeAction === 'GUESS' && !currentClue && !isWordmaster) ||
-      (activeAction === 'CONTACT' && currentClue?.hint && !currentClue.contactedBy && !isWordmaster && currentClue.player !== socketId) ||
+      (activeAction === 'DENY' && currentGuess && isWordmaster) ||
+      (activeAction === 'GUESS' && !currentGuess && !isWordmaster) ||
+      (activeAction === 'CONTACT' && currentGuess?.clue && !currentGuess.contactedBy && !isWordmaster && currentGuess.player !== socketId) ||
       (activeAction === 'SECRET' && status === 'setting_word' && isWordmaster) ||
-      (activeAction === 'CLUE' && currentClue?.player === socketId && !currentClue.hint)
+      (activeAction === 'GUESS_CLUE' && currentGuess?.player === socketId && !currentGuess.clue)
     );
 
     if (activeAction && !isValid) {

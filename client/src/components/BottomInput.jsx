@@ -73,13 +73,13 @@ function BottomInput({
     if (activeAction === 'SECRET') {
       socket.emit(EVENTS.SET_SECRET_WORD, { word: val });
     } else if (activeAction === 'GUESS') {
-      socket.emit(EVENTS.SUBMIT_CLUE_WORD, { word: prefix + val });
-    } else if (activeAction === 'CLUE') {
-      socket.emit(EVENTS.SUBMIT_CLUE_HINT, { hint: val });
+      socket.emit(EVENTS.SUBMIT_GUESS_WORD, { word: prefix + val });
+    } else if (activeAction === 'GUESS_CLUE') {
+      socket.emit(EVENTS.SUBMIT_GUESS_CLUE, { clue: val });
     } else if (activeAction === 'CONTACT') {
       socket.emit(EVENTS.CALL_CONTACT, { guess: prefix + val });
     } else if (activeAction === 'DENY') {
-      socket.emit(EVENTS.DENY_CLUE, { guess: prefix + val });
+      socket.emit(EVENTS.DENY_GUESS, { guess: prefix + val });
     } else if (val) {
       socket.emit(EVENTS.CHAT_MESSAGE, { message: val });
     }
@@ -95,7 +95,7 @@ function BottomInput({
     setInputValue('');
     if (room.status === 'setting_word' && isWordmaster) {
       socket.emit(EVENTS.CANCEL_ACTION);
-    } else if (room.currentClue && room.currentClue.player === socketId) {
+    } else if (room.currentGuess && room.currentGuess.player === socketId) {
       socket.emit(EVENTS.CANCEL_ACTION);
     }
   };
@@ -116,7 +116,7 @@ function BottomInput({
         </button>
         {activeAction && (
           <span className="text-[10px] font-black text-tertiary uppercase tracking-[0.2em] animate-pulse ml-auto">
-            {activeAction} Mode Active
+            {activeAction === 'GUESS_CLUE' ? 'CLUE' : activeAction} Mode Active
           </span>
         )}
       </div>

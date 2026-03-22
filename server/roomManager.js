@@ -12,79 +12,37 @@ class RoomManager {
 
   loadDictionary() {
     try {
-      const filePath = path.join(__dirname, 'words.txt');
-      if (fs.existsSync(filePath)) {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        const words = content.split(/\r?\n/);
-        words.forEach(word => {
-          const w = word.trim().toUpperCase();
-          if (w) this.dictionary.add(w);
-        });
-        console.log(`[System] Dictionary loaded: ${this.dictionary.size} words.`);
-      }
+      const data = fs.readFileSync(path.join(__dirname, 'words.txt'), 'utf8');
+      const words = data.split('\n').map(w => w.trim().toUpperCase()).filter(w => w.length > 0);
+      this.dictionary = new Set(words);
+      console.log(`[System] Dictionary loaded: ${this.dictionary.size} words.`);
     } catch (err) {
-      console.error('[Error] Failed to load dictionary:', err);
+      console.error('[Error] Failed to load dictionary:', err.message);
     }
   }
 
-  createRoom(name, creatorId, creatorUsername) {
+  isValidWord(word) {
+    return this.dictionary.has(word.toUpperCase());
+  }
+
+  createRoom(name, creatorId, username) {
     const roomId = uuidv4();
     const room = {
       id: roomId,
       name: name,
-      players: new Map([[creatorId, { id: creatorId, username: creatorUsername, role: 'player' }]]),
-      wordmaster: null,
       status: 'waiting',
-      secretWord: '',
+      players: new Map(),
+      wordmaster: null,
+      secretWord: null,
       revealedPrefix: '',
-      currentClue: null,
+      currentGuess: null, // Unified term for hidden word attempt
       victoryCountdown: 0,
-      typingStatus: new Map(),
       chat: [],
+      typingStatus: new Map(),
       usedWords: new Set()
     };
+    room.players.set(creatorId, { id: creatorId, username: username, role: 'player' });
     this.rooms.set(roomId, room);
-    return room;
-  }
-
-  joinRoom(roomId, playerId, username) {
-    const room = this.rooms.get(roomId);
-    if (!room) return null;
-    
-    let existingRole = 'player';
-    // Session Resumption: If a player with this username already exists, inherit their role and clean up old ID
-    for (const [id, p] of room.players.entries()) {
-      if (p.username === username) {
-        existingRole = p.role;
-        if (room.wordmaster === id) room.wordmaster = playerId;
-        room.players.delete(id);
-        room.typingStatus.delete(id);
-        break;
-      }
-    }
-
-    room.players.set(playerId, { id: playerId, username: username, role: existingRole });
-    return room;
-  }
-
-  leaveRoom(io, roomId, playerId) {
-    const room = this.rooms.get(roomId);
-    if (!room) return null;
-    room.players.delete(playerId);
-    room.typingStatus.delete(playerId);
-    
-    if (room.wordmaster === playerId) {
-      room.wordmaster = null;
-      room.status = 'game_over';
-      this.addLog(io, roomId, 'System', 'Wordmaster left. Game Over.');
-    }
-
-    if (room.players.size === 0) {
-      this.rooms.delete(roomId);
-      return null;
-    }
-    
-    this.emitRoomUpdate(io, room);
     return room;
   }
 
@@ -101,206 +59,192 @@ class RoomManager {
     }));
   }
 
-  addLog(io, roomId, type, message) {
+  joinRoom(roomId, playerId, username) {
     const room = this.rooms.get(roomId);
-    if (room) {
-      const chatMsg = { 
-        username: 'System', 
-        message: message, 
-        timestamp: Date.now(),
-        isLog: true,
-        logType: type
-      };
-      
-      room.chat.push(chatMsg);
-      if (io) io.to(roomId).emit(EVENTS.CHAT_UPDATE, room.chat);
+    if (!room) return null;
+    
+    let existingRole = 'player';
+    // Session Resumption
+    for (const [id, p] of room.players.entries()) {
+      if (p.username === username) {
+        existingRole = p.role;
+        if (room.wordmaster === id) room.wordmaster = playerId;
+        room.players.delete(id);
+        room.typingStatus.delete(id);
+        break;
+      }
+    }
+
+    room.players.set(playerId, { id: playerId, username: username, role: existingRole });
+    return room;
+  }
+
+  leaveRoom(io, roomId, playerId) {
+    const room = this.rooms.get(roomId);
+    if (!room) return;
+
+    const player = room.players.get(playerId);
+    const username = player ? player.username : 'Unknown';
+    
+    room.players.delete(playerId);
+    room.typingStatus.delete(playerId);
+
+    if (room.wordmaster === playerId) {
+      room.wordmaster = null;
+      room.status = 'waiting';
+      room.secretWord = null;
+      room.revealedPrefix = '';
+      room.currentGuess = null;
+      this.addLog(io, roomId, 'System', `${username} (Wordmaster) left. Game reset.`);
+    } else if (room.currentGuess && room.currentGuess.player === playerId) {
+      room.currentGuess = null;
+      this.addLog(io, roomId, 'System', `${username}'s guess was removed as they left.`);
+    } else {
+      this.addLog(io, roomId, 'System', `${username} left the room.`);
+    }
+
+    if (room.players.size === 0) {
+      this.rooms.delete(roomId);
+    } else {
+      this.emitRoomUpdate(io, room);
     }
   }
 
   setWordmaster(io, roomId, playerId) {
     const room = this.rooms.get(roomId);
-    if (!room) return false;
-    
-    room.players.forEach(p => p.role = 'player');
-    const player = room.players.get(playerId);
-    if (player) {
-      player.role = 'wordmaster';
-      room.wordmaster = playerId;
-      room.status = 'setting_word';
-      room.secretWord = '';
-      room.revealedPrefix = '';
-      room.currentClue = null;
-      room.usedWords = new Set();
-      this.addLog(io, roomId, 'System', `${player.username} has become the Wordmaster.`);
-      this.emitRoomUpdate(io, room);
-      return true;
-    }
-    return false;
-  }
+    if (!room || room.wordmaster) return;
 
-  sendPrivateLog(io, socketId, type, message) {
-    const chatMsg = { 
-      username: 'System', 
-      message: message, 
-      timestamp: Date.now(),
-      isLog: true,
-      logType: type,
-      isPrivate: true
-    };
-    io.to(socketId).emit(EVENTS.CHAT_UPDATE_PRIVATE, chatMsg);
-  }
-
-  validateWord(word, strict = false) {
-    if (!word) return false;
-    const normalized = word.trim().toUpperCase();
-    if (!/^[A-Z]{2,}$/.test(normalized)) return false;
-    if (strict && this.dictionary.size > 0) return this.dictionary.has(normalized);
-    return true;
+    room.wordmaster = playerId;
+    room.status = 'setting_word';
+    room.players.get(playerId).role = 'wordmaster';
+    this.addLog(io, roomId, 'System', `${this.getUsername(room, playerId)} is now the Wordmaster.`);
+    this.emitRoomUpdate(io, room);
   }
 
   setSecretWord(io, roomId, playerId, word) {
     const room = this.rooms.get(roomId);
-    if (!room || room.wordmaster !== playerId) return false;
-    
-    if (!this.validateWord(word, true)) {
-      this.sendPrivateLog(io, playerId, 'Failure', `"${word.toUpperCase()}" is not a valid English word.`);
-      return false;
+    if (!room || room.wordmaster !== playerId) return;
+
+    const upperWord = word.toUpperCase();
+    if (!this.isValidWord(upperWord)) {
+      this.addPrivateLog(io, playerId, 'Error', 'Word not in dictionary.');
+      return;
     }
-    
-    room.secretWord = word.trim().toUpperCase();
-    room.revealedPrefix = room.secretWord[0];
+
+    room.secretWord = upperWord;
+    room.revealedPrefix = upperWord[0];
     room.status = 'playing';
+    room.usedWords.clear();
+    room.usedWords.add(upperWord);
+    this.addLog(io, roomId, 'System', `Game Started! Revealed: ${room.revealedPrefix}`);
     this.emitRoomUpdate(io, room);
-    return true;
   }
 
-  submitClue(io, roomId, playerId, hiddenWord) {
+  submitGuess(io, roomId, playerId, word) {
     const room = this.rooms.get(roomId);
-    if (!room || room.status !== 'playing' || room.currentClue) return false;
-    if (room.wordmaster === playerId) return false;
-    
-    const normalizedWord = hiddenWord.trim().toUpperCase();
-    if (!this.validateWord(normalizedWord, true)) {
-      this.sendPrivateLog(io, playerId, 'Failure', `"${normalizedWord}" is not a valid English word.`);
-      return false;
+    if (!room || room.status !== 'playing' || room.wordmaster === playerId || room.currentGuess) return;
+
+    const upperWord = word.toUpperCase();
+    if (!upperWord.startsWith(room.revealedPrefix)) {
+      this.addPrivateLog(io, playerId, 'Error', `Word must start with ${room.revealedPrefix}`);
+      return;
     }
-    if (!normalizedWord.startsWith(room.revealedPrefix)) {
-      this.sendPrivateLog(io, playerId, 'Failure', `Clue must start with: "${room.revealedPrefix}"`);
-      return false;
+    if (!this.isValidWord(upperWord)) {
+      this.addPrivateLog(io, playerId, 'Error', 'Word not in dictionary.');
+      return;
     }
-    if (normalizedWord === room.revealedPrefix || room.usedWords.has(normalizedWord)) {
-      this.sendPrivateLog(io, playerId, 'Failure', 'Invalid or already used word.');
-      return false;
+    if (room.usedWords.has(upperWord)) {
+      this.addPrivateLog(io, playerId, 'Error', 'Word has already been used.');
+      return;
     }
 
-    room.currentClue = {
+    room.currentGuess = {
       player: playerId,
-      hiddenWord: normalizedWord,
-      hint: '',
+      hiddenWord: upperWord,
+      clue: null, // The public description
       contactedBy: null,
       contactGuess: null,
       countdown: 0
     };
     this.emitRoomUpdate(io, room);
-    return true;
   }
 
-  submitHint(io, roomId, playerId, hint) {
+  submitClue(io, roomId, playerId, clue) {
     const room = this.rooms.get(roomId);
-    if (!room || !room.currentClue || room.currentClue.player !== playerId) return false;
-    
-    const normalizedHint = hint.trim();
-    if (normalizedHint.length < 2) {
-      this.sendPrivateLog(io, playerId, 'Failure', 'Hint too short.');
-      return false;
-    }
+    if (!room || !room.currentGuess || room.currentGuess.player !== playerId) return;
 
-    room.currentClue.hint = normalizedHint;
+    room.currentGuess.clue = clue;
+    this.addLog(io, roomId, 'Action', `${this.getUsername(room, playerId)} submitted a new guess: "${clue}"`);
     this.emitRoomUpdate(io, room);
-    return true;
   }
 
-  callContact(io, roomId, playerId, contactGuess) {
+  callContact(io, roomId, playerId, guess) {
     const room = this.rooms.get(roomId);
-    if (!room || !room.currentClue || !room.currentClue.hint || room.currentClue.contactedBy) return false;
-    if (playerId === room.currentClue.player || playerId === room.wordmaster) return false;
+    if (!room || !room.currentGuess || room.wordmaster === playerId || room.currentGuess.player === playerId || room.currentGuess.contactedBy) return;
 
-    const normalizedGuess = contactGuess.trim().toUpperCase();
-    if (!this.validateWord(normalizedGuess, false)) {
-      this.sendPrivateLog(io, playerId, 'Failure', 'Invalid formatting.');
-      return false;
+    const normalizedGuess = guess.toUpperCase();
+    if (!this.isValidWord(normalizedGuess)) {
+      this.addPrivateLog(io, playerId, 'Error', 'Invalid word.');
+      return;
     }
 
-    room.currentClue.contactedBy = playerId;
-    room.currentClue.contactGuess = normalizedGuess;
-    room.currentClue.countdown = 4; // Start at 4 to allow 3 to stay for 2 seconds
+    room.currentGuess.contactedBy = playerId;
+    room.currentGuess.contactGuess = normalizedGuess;
+    room.currentGuess.countdown = 4;
     
-    this.addLog(io, roomId, 'Contact', `${this.getUsername(room, room.currentClue.player)} and ${this.getUsername(room, playerId)} are attempting contact...`);
+    this.addLog(io, roomId, 'Contact', `${this.getUsername(room, room.currentGuess.player)} and ${this.getUsername(room, playerId)} are attempting contact...`);
     this.emitRoomUpdate(io, room);
-    return true;
   }
 
-  denyClue(io, roomId, playerId, denyGuess) {
+  denyGuess(io, roomId, playerId, guess) {
     const room = this.rooms.get(roomId);
-    if (!room || !room.currentClue || room.wordmaster !== playerId) return false;
-    
-    const normalizedDeny = denyGuess.trim().toUpperCase();
-    if (!this.validateWord(normalizedDeny, false)) return false;
-    if (normalizedDeny === room.secretWord) {
-      this.sendPrivateLog(io, playerId, 'Failure', 'Cannot deny using secret word!');
-      return false;
+    if (!room || room.wordmaster !== playerId || !room.currentGuess) return;
+
+    const upperGuess = guess.toUpperCase();
+    if (upperGuess === room.secretWord) {
+      this.addPrivateLog(io, playerId, 'Error', 'Cannot use the secret word.');
+      return;
     }
 
-    if (normalizedDeny === room.currentClue.hiddenWord) {
-      room.usedWords.add(normalizedDeny);
-      this.addLog(io, roomId, 'Deny', `Wordmaster denied the guess of ${normalizedDeny}`);
-      room.currentClue = null;
-      this.emitRoomUpdate(io, room);
-      return true;
+    if (upperGuess === room.currentGuess.hiddenWord) {
+      room.usedWords.add(upperGuess);
+      this.addLog(io, roomId, 'Failure', `Wordmaster intercepted! The word was ${upperGuess}`);
+      room.currentGuess = null;
     } else {
-      this.sendPrivateLog(io, playerId, 'Failure', `Incorrect! It wasn't "${normalizedDeny}".`);
+      this.addPrivateLog(io, playerId, 'Error', 'Incorrect intercept attempt.');
     }
-    return false;
+    this.emitRoomUpdate(io, room);
   }
 
   declareVictory(io, roomId, playerId) {
     const room = this.rooms.get(roomId);
-    if (!room || room.wordmaster !== playerId || room.currentClue || room.status !== 'playing') return false;
-    
+    if (!room || room.wordmaster !== playerId || room.currentGuess) return;
+
     room.status = 'victory_countdown';
     room.victoryCountdown = 10;
-    this.addLog(io, roomId, 'Victory', `Wordmaster declared victory!`);
+    this.addLog(io, roomId, 'System', `Wordmaster is declaring victory!`);
     this.emitRoomUpdate(io, room);
-    return true;
   }
 
   contestVictory(io, roomId, playerId) {
     const room = this.rooms.get(roomId);
-    if (!room || room.status !== 'victory_countdown' || room.wordmaster === playerId) return false;
-    
+    if (!room || room.status !== 'victory_countdown' || room.wordmaster === playerId) return;
+
     room.status = 'playing';
     room.victoryCountdown = 0;
-    this.addLog(io, roomId, 'Contest', `${this.getUsername(room, playerId)} contested victory!`);
+    this.addLog(io, roomId, 'System', `${this.getUsername(room, playerId)} contested the victory!`);
     this.emitRoomUpdate(io, room);
-    return true;
   }
 
   cancelAction(io, roomId, playerId) {
     const room = this.rooms.get(roomId);
-    if (!room || !room.currentClue) return false;
-    
-    const player = room.players.get(playerId);
-    const clueOwner = room.players.get(room.currentClue.player);
+    if (!room) return;
 
-    if (room.currentClue.player === playerId || (player && clueOwner && player.username === clueOwner.username)) {
-      if (!room.currentClue.contactedBy) {
-        this.addLog(io, roomId, 'System', `${player?.username || 'A player'} has retracted their clue.`);
-        room.currentClue = null;
-        this.emitRoomUpdate(io, room);
-        return true;
-      }
+    if (room.currentGuess && room.currentGuess.player === playerId) {
+      room.currentGuess = null;
+      this.addLog(io, roomId, 'System', `${this.getUsername(room, playerId)} retracted their guess.`);
+      this.emitRoomUpdate(io, room);
     }
-    return false;
   }
 
   setTypingStatus(io, roomId, playerId, intent) {
@@ -320,15 +264,28 @@ class RoomManager {
     return room.players.get(playerId)?.username || 'Unknown';
   }
 
+  addLog(io, roomId, type, message) {
+    const room = this.rooms.get(roomId);
+    if (room) {
+      const log = { isLog: true, logType: type, message, timestamp: Date.now() };
+      room.chat.push(log);
+      io.to(roomId).emit(EVENTS.CHAT_UPDATE, room.chat);
+    }
+  }
+
+  addPrivateLog(io, playerId, type, message) {
+    const log = { isLog: true, logType: type, message, timestamp: Date.now(), isPrivate: true };
+    io.to(playerId).emit(EVENTS.CHAT_UPDATE_PRIVATE, log);
+  }
+
   tick(io) {
     this.rooms.forEach((room, roomId) => {
-      if (room.currentClue && room.currentClue.contactedBy && room.currentClue.countdown > 0) {
-        room.currentClue.countdown--;
-        if (room.currentClue.countdown === 0) {
-          const { hiddenWord, contactGuess, player, contactedBy } = room.currentClue;
+      if (room.currentGuess && room.currentGuess.contactedBy && room.currentGuess.countdown > 0) {
+        room.currentGuess.countdown--;
+        if (room.currentGuess.countdown === 0) {
+          const { hiddenWord, contactGuess, player, contactedBy } = room.currentGuess;
 
           if (hiddenWord === contactGuess) {
-            // SUCCESSFUL CONTACT: Permanently burn the word
             room.usedWords.add(hiddenWord);
 
             if (hiddenWord === room.secretWord) {
@@ -344,13 +301,12 @@ class RoomManager {
                 this.addLog(io, roomId, 'System', `Game Over! Players win! The word was ${room.secretWord}`);
               }
             }
-            room.currentClue = null;
+            room.currentGuess = null;
           } else {
             this.addLog(io, roomId, 'Failure', `Contact failed! Words did not match.`);
-            // RESET CLUE: Keep it active but allow new contacts
-            room.currentClue.contactedBy = null;
-            room.currentClue.contactGuess = null;
-            room.currentClue.countdown = 0;
+            room.currentGuess.contactedBy = null;
+            room.currentGuess.contactGuess = null;
+            room.currentGuess.countdown = 0;
           }
         }
         this.emitRoomUpdate(io, room);
@@ -377,13 +333,13 @@ class RoomManager {
       players: playersArr,
       wordmaster: room.wordmaster,
       revealedPrefix: room.revealedPrefix,
-      currentClue: room.currentClue ? {
-        player: room.currentClue.player,
-        playerName: this.getUsername(room, room.currentClue.player),
-        hint: room.currentClue.hint,
-        contactedBy: room.currentClue.contactedBy,
-        contactedByName: this.getUsername(room, room.currentClue.contactedBy),
-        countdown: room.currentClue.countdown
+      currentGuess: room.currentGuess ? {
+        player: room.currentGuess.player,
+        playerName: this.getUsername(room, room.currentGuess.player),
+        clue: room.currentGuess.clue,
+        contactedBy: room.currentGuess.contactedBy,
+        contactedByName: this.getUsername(room, room.currentGuess.contactedBy),
+        countdown: room.currentGuess.countdown
       } : null,
       victoryCountdown: room.victoryCountdown,
       chat: room.chat,

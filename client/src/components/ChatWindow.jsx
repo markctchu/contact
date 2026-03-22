@@ -20,7 +20,7 @@ function ChatWindow({ messages }) {
             {msg.isLog ? (
               <div className={`py-1 px-3 bg-surface rounded border-l-2 ${msg.isPrivate ? 'border-dashed opacity-60' : ''} ${getLogBorderColor(msg.logType)}`}>
                 <span className={`${getLogStyle(msg.logType)} font-medium`}>
-                  {msg.isPrivate && <span className="text-[9px] uppercase mr-2 opacity-40 font-black">[Confidential]</span>}
+                  {msg.isPrivate && <span className="text-[9px] uppercase mr-2 opacity-40 font-black">Private</span>}
                   {msg.message}
                 </span>
               </div>
