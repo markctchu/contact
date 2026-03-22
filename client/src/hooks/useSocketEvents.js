@@ -17,16 +17,6 @@ export function useSocketEvents() {
       socket.io.engine.on('upgrade', (transport) => {
         console.log(`[Socket] Transport upgraded to ${transport.name}`);
       });
-
-      // Auto re-join if we were in a room
-      const savedRoomId = sessionStorage.getItem('lastRoomId');
-      const savedUsername = sessionStorage.getItem('username');
-      
-      // Only emit join if we aren't already in a room state (prevents loops)
-      if (savedRoomId && savedUsername && !currentRoom) {
-        console.log(`[Socket] Attempting auto-rejoin for ${savedUsername} in ${savedRoomId}`);
-        socket.emit(EVENTS.JOIN_ROOM, { roomId: savedRoomId, username: savedUsername });
-      }
     }
 
     function onDisconnect(reason) {

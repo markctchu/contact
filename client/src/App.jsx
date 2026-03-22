@@ -30,28 +30,43 @@ function App() {
 
   useEffect(() => {
     const savedName = sessionStorage.getItem('username');
+    const savedRoomId = sessionStorage.getItem('lastRoomId');
     if (savedName) {
+      console.log('[App] Restoring session for:', savedName);
       setUsername(savedName);
+      socket.connect();
+      
+      // If we have a saved room, proactively join it immediately on mount/restore
+      if (savedRoomId) {
+        console.log('[App] Proactive re-join for room:', savedRoomId);
+        socket.emit(EVENTS.JOIN_ROOM, { roomId: savedRoomId, username: savedName });
+      }
     }
   }, []);
 
   const handleJoin = (name) => {
+    console.log('[App] Joining as:', name);
     setUsername(name);
     sessionStorage.setItem('username', name);
     socket.connect();
   };
 
   const handleCreateRoom = (roomName) => {
+    console.log('[App] Creating room:', roomName);
     socket.emit(EVENTS.CREATE_ROOM, { name: roomName, username });
   };
 
   const handleJoinRoom = (roomId) => {
+    console.log('[App] Joining room:', roomId);
     socket.emit(EVENTS.JOIN_ROOM, { roomId, username });
   };
 
   useEffect(() => {
     if (currentRoom) {
       sessionStorage.setItem('lastRoomId', currentRoom.id);
+    } else {
+      // If we are back in the lobby, clear the last room so we don't loop back in
+      sessionStorage.removeItem('lastRoomId');
     }
   }, [currentRoom]);
 
