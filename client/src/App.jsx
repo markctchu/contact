@@ -7,6 +7,7 @@ import { useSocketEvents } from './hooks/useSocketEvents';
 
 function App() {
   const [username, setUsername] = useState('');
+  const [loginInput, setLoginInput] = useState('');
   const { currentRoom, typingStatus, socketId, isConnected } = useSocketEvents();
 
   // Debug logging
@@ -55,12 +56,13 @@ function App() {
           <p className="text-gray-400 mb-8 text-center text-sm uppercase tracking-widest">Enter a username to start</p>
           <form onSubmit={(e) => {
             e.preventDefault();
-            const val = e.target.username.value.trim();
-            if (val) handleJoin(val);
+            if (loginInput.trim()) handleJoin(loginInput.trim());
           }} autoComplete="off">
             <input
               name={`username_${Math.random().toString(36).substring(7)}`}
               type="text"
+              value={loginInput}
+              onChange={(e) => setLoginInput(e.target.value)}
               placeholder="Your Name"
               autoComplete="off"
               data-form-type="other"
