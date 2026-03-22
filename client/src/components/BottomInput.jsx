@@ -1,17 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import { socket } from '../socket';
 import { EVENTS } from '../constants';
-import { useGameState } from '../hooks/useGameState';
 import ChatWindow from './ChatWindow';
 import ActionToggleButton from './ActionToggleButton';
 import UnifiedInput from './UnifiedInput';
 import VirtualKeyboard from './VirtualKeyboard';
 
-function BottomInput({ room, socketId, chat, isWordmaster }) {
-  const [inputValue, setInputValue] = useState('');
+function BottomInput({ 
+  room, 
+  socketId, 
+  chat, 
+  isWordmaster, 
+  inputValue, 
+  setInputValue, 
+  activeAction, 
+  setActiveAction, 
+  toggleAction,
+  showKeyboard,
+  setShowKeyboard
+}) {
   const [privateMessages, setPrivateMessages] = useState([]);
-  const [showKeyboard, setShowKeyboard] = useState(true);
-  const { activeAction, setActiveAction, toggleAction } = useGameState(room, socketId, isWordmaster);
 
   useEffect(() => {
     socket.on(EVENTS.CHAT_UPDATE_PRIVATE, (msg) => {
@@ -43,8 +51,7 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
   // Physical Keyboard Support
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Don't intercept if no user is set or we're not in a room (though BottomInput is only in a room)
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.key === 'Escape') return;
 
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -53,34 +60,36 @@ function BottomInput({ room, socketId, chat, isWordmaster }) {
         e.preventDefault();
         handleBackspace();
       } else if (e.key.length === 1) {
-        // Alphanumeric and space only
         if (/^[a-zA-Z0-9 ]$/.test(e.key)) {
           e.preventDefault();
           handleKeyPress(e.key.toUpperCase());
         }
-      } else if (e.key === 'Escape') {
-        setShowKeyboard(prev => !prev);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [inputValue, activeAction]); // Re-bind when state used in handleEnter changes
+  }, [inputValue, activeAction, room.revealedPrefix]); // Re-bind when room or input changes
 
   const handleEnter = () => {
     const val = inputValue.trim();
+    const prefix = room.revealedPrefix || '';
+    
     if (!val && !activeAction) return;
 
     if (activeAction === 'SECRET') {
       socket.emit(EVENTS.SET_SECRET_WORD, { word: val });
     } else if (activeAction === 'GUESS') {
-      socket.emit(EVENTS.SUBMIT_CLUE_WORD, { word: val });
+      // PREPEND PREFIX: User only typed the suffix
+      socket.emit(EVENTS.SUBMIT_CLUE_WORD, { word: prefix + val });
     } else if (activeAction === 'CLUE') {
       socket.emit(EVENTS.SUBMIT_CLUE_HINT, { hint: val });
     } else if (activeAction === 'CONTACT') {
-      socket.emit(EVENTS.CALL_CONTACT, { guess: val });
+      // PREPEND PREFIX: User only typed the suffix
+      socket.emit(EVENTS.CALL_CONTACT, { guess: prefix + val });
     } else if (activeAction === 'DENY') {
-      socket.emit(EVENTS.DENY_CLUE, { guess: val });
+      // PREPEND PREFIX: User only typed the suffix
+      socket.emit(EVENTS.DENY_CLUE, { guess: prefix + val });
     } else if (val) {
       socket.emit(EVENTS.CHAT_MESSAGE, { message: val });
     }

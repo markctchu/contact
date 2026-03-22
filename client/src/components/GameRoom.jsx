@@ -1,12 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import CentralArea from './CentralArea';
 import BottomInput from './BottomInput';
 import { socket } from '../socket';
 import { Users } from 'lucide-react';
 import { EVENTS } from '../constants';
+import { useGameState } from '../hooks/useGameState';
 
 function GameRoom({ room, typingStatus, username, socketId }) {
   const [chat, setChat] = useState(room.chat || []);
+  const [inputValue, setInputValue] = useState('');
+  const [showKeyboard, setShowKeyboard] = useState(true);
+  
+  const isWordmaster = room.wordmaster === socketId;
+  const { activeAction, setActiveAction, toggleAction } = useGameState(room, socketId, isWordmaster);
 
   useEffect(() => {
     socket.on(EVENTS.CHAT_UPDATE, (updatedChat) => {
@@ -15,7 +21,16 @@ function GameRoom({ room, typingStatus, username, socketId }) {
     return () => socket.off(EVENTS.CHAT_UPDATE);
   }, []);
 
-  const isWordmaster = room.wordmaster === socketId;
+  // Sync keyboard toggle with Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowKeyboard(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="flex flex-col h-[100dvh] bg-gray-950 text-white overflow-hidden">
@@ -40,8 +55,14 @@ function GameRoom({ room, typingStatus, username, socketId }) {
 
       {/* Main Area */}
       <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden">
-        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-gradient-to-b from-gray-900/20 to-transparent">
-          <CentralArea room={room} typingStatus={typingStatus} socketId={socketId} />
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-gradient-to-b from-gray-900/20 to-transparent overflow-hidden">
+          <CentralArea 
+            room={room} 
+            typingStatus={typingStatus} 
+            socketId={socketId} 
+            inputValue={inputValue}
+            activeAction={activeAction}
+          />
         </div>
 
         {/* Bottom Section (Includes Chat & Keyboard) */}
@@ -51,6 +72,13 @@ function GameRoom({ room, typingStatus, username, socketId }) {
             socketId={socketId}
             chat={chat}
             isWordmaster={isWordmaster}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            activeAction={activeAction}
+            setActiveAction={setActiveAction}
+            toggleAction={toggleAction}
+            showKeyboard={showKeyboard}
+            setShowKeyboard={setShowKeyboard}
           />
         </section>
       </main>
