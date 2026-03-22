@@ -44,7 +44,7 @@ function App() {
     if (savedName) {
       console.log('[App] Restoring session for:', savedName);
       setUsername(savedName);
-      socket.connect();
+      // Removed socket.connect() here to let user click or handle more gracefully
     }
   }, []);
 

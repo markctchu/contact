@@ -19,10 +19,11 @@ export function useSocketEvents() {
       });
 
       // Auto re-join if we were in a room
-      // Use raw state or check if we have enough info to re-join
       const savedRoomId = sessionStorage.getItem('lastRoomId');
       const savedUsername = sessionStorage.getItem('username');
-      if (savedRoomId && savedUsername) {
+      
+      // Only emit join if we aren't already in a room state (prevents loops)
+      if (savedRoomId && savedUsername && !currentRoom) {
         console.log(`[Socket] Attempting auto-rejoin for ${savedUsername} in ${savedRoomId}`);
         socket.emit(EVENTS.JOIN_ROOM, { roomId: savedRoomId, username: savedUsername });
       }
