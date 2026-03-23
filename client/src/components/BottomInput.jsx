@@ -1,40 +1,20 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import React from 'react';
 import ChatWindow from './ChatWindow';
 import VirtualKeyboard from './VirtualKeyboard';
+import { useGame } from '../contexts/GameContext';
 
-function BottomInput({ 
-  room, 
-  socketId, 
-  chat, 
-  username,
-  isWordmaster, 
-  inputValue, 
-  setInputValue, 
-  activeAction, 
-  setActiveAction, 
-  toggleAction,
-  handleEnter,
-  showKeyboard,
-  setShowKeyboard
-}) {
-  const [privateMessages, setPrivateMessages] = useState([]);
-
-  useEffect(() => {
-    // Note: In a real app, you'd move these listeners to useSocketEvents
-    // but keeping it here for continuity with existing private message logic
-  }, []);
-
-  const allMessages = [...chat, ...privateMessages].sort((a, b) => a.timestamp - b.timestamp);
+function BottomInput() {
+  const { 
+    setInputValue, 
+    handleEnter, 
+    showKeyboard, 
+    setShowKeyboard 
+  } = useGame();
 
   return (
     <div className="flex flex-col max-w-2xl mx-auto w-full relative px-2 sm:px-4 pb-0.5 sm:pb-0.5">
       {/* 1. Integrated Chat Window */}
-      <ChatWindow 
-        messages={allMessages} 
-        username={username}
-        inputValue={inputValue}
-        activeAction={activeAction}
-      />
+      <ChatWindow />
 
       {/* 2. Keyboard Section */}
       <div className="mt-1 pb-0.5 sm:pb-1 space-y-1">

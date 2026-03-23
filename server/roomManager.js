@@ -35,11 +35,12 @@ class RoomManager {
       wordmaster: null,
       secretWord: null,
       revealedPrefix: '',
-      currentGuess: null, // Unified term for hidden word attempt
+      currentGuess: null,
       victoryCountdown: 0,
       chat: [],
       typingStatus: new Map(),
-      usedWords: new Set()
+      usedWords: new Set(),
+      winner: null
     };
     room.players.set(creatorId, { id: creatorId, username: username, role: 'player' });
     this.rooms.set(roomId, room);
@@ -114,7 +115,6 @@ class RoomManager {
     const room = this.rooms.get(roomId);
     if (!room) return;
     
-    // Allow taking role if no WM OR if previous game is over
     if (room.wordmaster && room.status !== 'game_over') return;
 
     room.wordmaster = playerId;
@@ -122,8 +122,8 @@ class RoomManager {
     room.secretWord = null;
     room.revealedPrefix = '';
     room.currentGuess = null;
+    room.winner = null;
     
-    // Ensure player object reflects role
     for (const p of room.players.values()) {
       p.role = (p.id === playerId) ? 'wordmaster' : 'player';
     }
@@ -172,7 +172,7 @@ class RoomManager {
     room.currentGuess = {
       player: playerId,
       hiddenWord: upperWord,
-      clue: null, // The public description
+      clue: null,
       contactedBy: null,
       contactGuess: null,
       countdown: 0
@@ -330,8 +330,6 @@ class RoomManager {
         if (room.victoryCountdown === 0) {
           room.status = 'game_over';
           room.winner = 'wordmaster';
-          // Keep wordmaster ID so client knows who it was, 
-          // but set revealedPrefix to secretWord for final display
           room.revealedPrefix = room.secretWord;
           this.addLog(io, roomId, 'System', `Game Over! Wordmaster wins! The word was ${room.secretWord}`);
         }
@@ -340,29 +338,32 @@ class RoomManager {
     });
   }
 
+  serializeRoom(room) {
+    return {
+      id: room.id || '',
+      name: room.name || '',
+      status: room.status || 'waiting',
+      winner: room.winner || null,
+      players: Array.from(room.players.values()),
+      wordmaster: room.wordmaster || null,
+      revealedPrefix: room.revealedPrefix || '',
+      currentGuess: {
+        player: room.currentGuess?.player || null,
+        playerName: room.currentGuess ? this.getUsername(room, room.currentGuess.player) : null,
+        clue: room.currentGuess?.clue || null,
+        hiddenWord: room.currentGuess?.hiddenWord || null,
+        contactedBy: room.currentGuess?.contactedBy || null,
+        contactedByName: room.currentGuess?.contactedBy ? this.getUsername(room, room.currentGuess.contactedBy) : null,
+        countdown: room.currentGuess?.countdown || 0
+      },
+      victoryCountdown: room.victoryCountdown || 0,
+      chat: room.chat || [],
+      secretWord: room.status === 'game_over' ? room.secretWord : null
+    };
+  }
+
   emitRoomUpdate(io, room) {
-    const playersArr = Array.from(room.players.values());
-    
-    io.to(room.id).emit(EVENTS.ROOM_UPDATE, {
-      id: room.id,
-      name: room.name,
-      status: room.status,
-      winner: room.winner,
-      players: playersArr,
-      wordmaster: room.wordmaster,
-      revealedPrefix: room.revealedPrefix,
-      currentGuess: room.currentGuess ? {
-        player: room.currentGuess.player,
-        playerName: this.getUsername(room, room.currentGuess.player),
-        clue: room.currentGuess.clue,
-        contactedBy: room.currentGuess.contactedBy,
-        contactedByName: this.getUsername(room, room.currentGuess.contactedBy),
-        countdown: room.currentGuess.countdown
-      } : null,
-      victoryCountdown: room.victoryCountdown,
-      chat: room.chat,
-      secretWord: room.status === 'game_over' ? room.secretWord : null 
-    });
+    io.to(room.id).emit(EVENTS.ROOM_UPDATE, this.serializeRoom(room));
   }
 }
 

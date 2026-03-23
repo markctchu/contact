@@ -1,43 +1,45 @@
 import { useMemo } from 'react';
+import { useGame } from '../contexts/GameContext';
 import ActionToggleButton from './ActionToggleButton';
 
-function CentralArea({ 
-  room, 
-  typingStatus, 
-  socketId, 
-  inputValue, 
-  activeAction, 
-  onToggleAction, 
-  onCancel 
-}) {
-  const { revealedPrefix, currentGuess, status, victoryCountdown, secretWord, wordmaster } = room;
-  const isWordmaster = wordmaster === socketId;
+function CentralArea() {
+  const { 
+    room, 
+    typingStatus, 
+    socketId, 
+    inputValue, 
+    activeAction, 
+    toggleAction, 
+    handleCancel,
+    isWordmaster
+  } = useGame();
+
+  const { revealedPrefix, currentGuess, status, victoryCountdown, secretWord, winner } = room;
 
   const displayWord = useMemo(() => {
     if (status === 'game_over' && secretWord) return secretWord;
-    return revealedPrefix || '';
+    return revealedPrefix;
   }, [revealedPrefix, status, secretWord]);
 
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isClueInput = activeAction === 'GUESS_CLUE';
   const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
 
-  // Use the hidden word from the server if in clue input mode
-  const clueHiddenWord = room.currentGuess?.hiddenWord || '';
+  const clueHiddenWord = currentGuess.hiddenWord || '';
 
   // Calculate total visible tiles to ensure accurate scaling
   const totalVisibleCount = useMemo(() => {
     if (status === 'game_over') return secretWord?.length || 7;
     if (isWordInput) {
-      const prefixLen = (showPrefixInInput && revealedPrefix) ? revealedPrefix.length : 0;
-      const inputLen = inputValue ? inputValue.length : 0;
+      const prefixLen = showPrefixInInput ? revealedPrefix.length : 0;
+      const inputLen = inputValue.length;
       return prefixLen + inputLen + 1; // +1 for the cursor tile
     }
     if (isClueInput) {
       return clueHiddenWord.length || 7;
     }
     if (!revealedPrefix && status !== 'game_over') return 7; // 'CONTACT'
-    return displayWord ? displayWord.length : 7;
+    return displayWord.length;
   }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, clueHiddenWord, secretWord]);
 
   const getBoxSize = (wordLength) => {
@@ -50,7 +52,7 @@ function CentralArea({
   };
 
   const boxClass = getBoxSize(totalVisibleCount);
-  const isCountdownActive = status === 'victory_countdown' || (currentGuess && currentGuess.contactedBy);
+  const isCountdownActive = status === 'victory_countdown' || (currentGuess.player && currentGuess.contactedBy);
 
   const modeLabel = useMemo(() => {
     if (!activeAction) return 'Chat Mode';
@@ -84,10 +86,10 @@ function CentralArea({
                 <div className="text-left min-w-0 mr-4">
                   <h4 className="text-lg sm:text-2xl font-extrabold text-white uppercase leading-tight tracking-tighter">Contact</h4>
                   <p className="text-white/60 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-1 truncate">
-                    {currentGuess?.playerName} & {currentGuess?.contactedByName}
+                    {currentGuess.playerName} & {currentGuess.contactedByName}
                   </p>
                 </div>
-                <div className="text-5xl sm:text-8xl font-black text-white leading-none tabular-nums">{currentGuess?.countdown}</div>
+                <div className="text-5xl sm:text-8xl font-black text-white leading-none tabular-nums">{currentGuess.countdown}</div>
               </div>
             )}
           </div>
@@ -101,35 +103,30 @@ function CentralArea({
               </h3>
               
               <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2">
-                {/* 1. INITIAL "CONTACT" TILES */}
                 {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
                   <div key={`init-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow`}>
                     {char}
                   </div>
                 ))}
 
-                {/* 2. PERSISTENT REVEALED PREFIX (Only during active game modes) */}
                 {status !== 'game_over' && showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
                   <div key={`prefix-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30`}>
                     {char}
                   </div>
                 ))}
 
-                {/* 3. CURRENT INPUT or REVEALED WORD or FINALIZED GUESS */}
-                {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || ''))).split('').map((char, i) => (
+                {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWord)).split('').map((char, i) => (
                   <div key={`input-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}>
                     {char}
                   </div>
                 ))}
                 
-                {/* 4. ACTIVE TYPING CURSOR */}
                 {isWordInput && (
                   <div className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20`}>
                     <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
                   </div>
                 )}
 
-                {/* 5. ELLIPSIS (Only while playing) */}
                 {status === 'playing' && !isWordInput && !isClueInput && revealedPrefix && (
                   <div className="flex items-center ml-1">
                     <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
@@ -142,23 +139,23 @@ function CentralArea({
               {status === 'game_over' ? (
                 <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
                   <div className={`px-10 py-4 rounded-full font-black text-xl sm:text-3xl uppercase tracking-[0.3em] ambient-shadow border-2
-                    ${room.winner === 'players' ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'cta-gradient border-primary/10 text-on-primary-container'}`}>
-                    {room.winner === 'players' ? 'PLAYERS WIN' : 'WORDMASTER WINS'}
+                    ${winner === 'players' ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'cta-gradient border-primary/10 text-on-primary-container'}`}>
+                    {winner === 'players' ? 'PLAYERS WIN' : 'WORDMASTER WINS'}
                   </div>
                   <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">Select Wordmaster to Play Again</p>
                 </div>
-              ) : activeAction === 'GUESS_CLUE' ? (
-                <div className="bg-tertiary/5 p-4 sm:p-8 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
+              ) : isClueInput ? (
+                <div className="bg-tertiary/5 p-4 sm:p-10 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
                   <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-3 sm:mb-6 opacity-60">THE PERFECT CLUE: {clueHiddenWord}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                     {inputValue}
                     <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
                   </h4>
                 </div>
-              ) : currentGuess ? (
+              ) : currentGuess.player ? (
                 <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
                   <div className="absolute top-0 left-0 w-full h-1 bg-tertiary/20"></div>
-                  <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-3 sm:mb-6 text-center">Clue from {currentGuess.playerName}</p>
+                  <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center">Clue from {currentGuess.playerName}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
                     "{currentGuess.clue || 'Pending...'}"
                   </h4>
@@ -179,15 +176,11 @@ function CentralArea({
         )}
       </div>
 
-      {/* 2. Control Row (Sticky at the bottom of the central area) */}
+      {/* 2. Control Row */}
       <div className="w-full max-w-2xl mx-auto flex items-center justify-between px-4 py-1.5 shrink-0">
         <ActionToggleButton 
-          room={room}
-          socketId={socketId}
-          isWordmaster={isWordmaster}
-          activeAction={activeAction}
-          onToggleAction={onToggleAction}
-          onCancel={onCancel}
+          onToggleAction={toggleAction}
+          onCancel={handleCancel}
         />
         
         <div className="flex flex-col items-end">
@@ -196,9 +189,9 @@ function CentralArea({
               {modeLabel}
             </span>
           </div>
-          {(typingStatus?.length > 0 || room.typingStatus?.length > 0) && (
+          {typingStatus.length > 0 && (
             <div className="text-[8px] font-bold text-tertiary/40 uppercase tracking-widest italic mt-0.5">
-              {typingStatus?.length || room.typingStatus?.length} composing...
+              {typingStatus.length} composing...
             </div>
           )}
         </div>

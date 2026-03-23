@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { getLogStyle, getLogBorderColor } from '../utils/gameUtils';
+import { useGame } from '../contexts/GameContext';
 
-function ChatWindow({ messages, username, inputValue, activeAction }) {
+function ChatWindow() {
+  const { chat: messages, username, inputValue, activeAction } = useGame();
   const chatEndRef = useRef(null);
   const isChatInput = !activeAction;
 
@@ -14,9 +16,9 @@ function ChatWindow({ messages, username, inputValue, activeAction }) {
   }, [messages, inputValue]);
 
   return (
-    <div className="bg-surface-low rounded-lg p-2 sm:p-3 shrink-0 overflow-hidden border border-outline-variant flex flex-col h-40 sm:h-48 transition-all duration-500 ease-in-out">
+    <div className="bg-surface-low rounded-lg p-2 sm:p-3 shrink-0 overflow-hidden border border-outline-variant flex flex-col h-32 sm:h-40 transition-all duration-500 ease-in-out">
       {/* 1. Message History (Scrollable) */}
-      <div className="flex-1 overflow-y-auto space-y-1 custom-scrollbar pr-2 min-h-0">
+      <div className="flex-1 overflow-y-auto space-y-1.5 custom-scrollbar pr-2 min-h-0">
         {Array.isArray(messages) && messages.map((msg, i) => (
           <div key={i} className="text-xs sm:text-[13px] animate-in fade-in slide-in-from-bottom-1 duration-300">
             {msg.isLog ? (

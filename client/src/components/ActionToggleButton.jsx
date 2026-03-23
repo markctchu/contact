@@ -1,7 +1,9 @@
 import { EVENTS } from '../constants';
 import { socket } from '../socket';
+import { useGame } from '../contexts/GameContext';
 
-function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onToggleAction, onCancel }) {
+function ActionToggleButton({ onToggleAction, onCancel }) {
+  const { room, socketId, isWordmaster, activeAction } = useGame();
   const { status, currentGuess } = room;
 
   // 1. END OF GAME / LOBBY
@@ -33,7 +35,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
   // 3. PLAYING
   if (status === 'playing') {
     if (isWordmaster) {
-      if (!currentGuess) {
+      if (!currentGuess.player) {
         return (
           <button 
             type="button"
@@ -55,7 +57,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
       );
     } else {
       // Player
-      if (!currentGuess) {
+      if (!currentGuess.player) {
         return (
           <button 
             type="button"
@@ -65,8 +67,8 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
             {activeAction === 'GUESS' ? 'Cancel' : 'Guess'}
           </button>
         );
-      } else if (currentGuess?.player === socketId) {
-        if (!currentGuess?.clue) {
+      } else if (currentGuess.player === socketId) {
+        if (!currentGuess.clue) {
           return (
             <button 
               type="button"
@@ -76,7 +78,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
               Cancel
             </button>
           );
-        } else if (!currentGuess?.contactedBy) {
+        } else if (!currentGuess.contactedBy) {
           return (
             <button 
               type="button"
@@ -87,7 +89,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
             </button>
           );
         }
-      } else if (currentGuess?.clue && !currentGuess?.contactedBy) {
+      } else if (currentGuess.clue && !currentGuess.contactedBy) {
         return (
           <button 
             type="button"
