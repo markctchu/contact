@@ -113,7 +113,8 @@ class RoomManager {
   joinRoom(roomId, playerId, username) {
     const room = this.rooms.get(roomId);
     if (!room) return null;
-    return this.addPlayer(room, playerId, username);
+    this.addPlayer(room, playerId, username);
+    return room;
   }
 
   handleDisconnect(io, socket) {
@@ -409,12 +410,13 @@ class RoomManager {
   }
 
   serializeRoom(room) {
+    if (!room) return null;
     return {
       id: room.id || '',
       name: room.name || '',
       status: room.status || 'waiting',
       winner: room.winner || null,
-      players: Array.from(room.players.values()),
+      players: room.players ? Array.from(room.players.values()) : [],
       wordmaster: room.wordmaster || null,
       revealedPrefix: room.revealedPrefix || '',
       currentGuess: {
