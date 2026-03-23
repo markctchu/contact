@@ -181,30 +181,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnecting', (reason) => {
-    const { roomId, username } = socket.data;
-    console.log(`[Socket] User ${username || 'Unknown'} (${socket.id}) disconnecting. Reason: ${reason}`);
-    
-    if (roomId && username) {
-      // Grace Period: Wait 10 seconds before removing the player
-      setTimeout(() => {
-        const currentRoom = roomManager.getRoom(roomId);
-        if (!currentRoom) return;
-
-        // Check if the user has re-connected since they disconnected
-        const isReconnected = Array.from(io.sockets.adapter.rooms.get(roomId) || []).some(socketId => {
-          const s = io.sockets.sockets.get(socketId);
-          return s && s.data.username === username;
-        });
-
-        if (!isReconnected) {
-          console.log(`[Room] Removing ${username} from ${roomId} after grace period.`);
-          roomManager.leaveRoom(io, roomId, socket.id);
-          io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
-        } else {
-          console.log(`[Room] ${username} re-joined ${roomId}, cancelling removal.`);
-        }
-      }, 10000);
-    }
+    console.log(`[Socket] User ${socket.data.username || 'Unknown'} (${socket.id}) disconnecting. Reason: ${reason}`);
+    roomManager.handleDisconnect(io, socket);
   });
 
   socket.on('disconnect', (reason) => {

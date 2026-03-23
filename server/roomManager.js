@@ -31,7 +31,7 @@ class RoomManager {
       id: roomId,
       name: name,
       status: 'waiting',
-      players: new Map(),
+      players: new Map(), // Map<socketId, PlayerObject>
       wordmaster: null,
       secretWord: null,
       revealedPrefix: '',
@@ -42,9 +42,58 @@ class RoomManager {
       usedWords: new Set(),
       winner: null
     };
-    room.players.set(creatorId, { id: creatorId, username: username, role: 'player' });
+    this.addPlayer(room, creatorId, username);
     this.rooms.set(roomId, room);
     return room;
+  }
+
+  addPlayer(room, socketId, username) {
+    // Check for existing player with same username (session recovery)
+    let existingPlayer = null;
+    let oldSocketId = null;
+
+    for (const [id, p] of room.players.entries()) {
+      if (p.username === username) {
+        existingPlayer = p;
+        oldSocketId = id;
+        break;
+      }
+    }
+
+    if (existingPlayer) {
+      // Inherit properties from disconnected session
+      existingPlayer.status = 'active';
+      existingPlayer.lastSeen = Date.now();
+      
+      // If they changed socket IDs, update the map
+      if (oldSocketId !== socketId) {
+        room.players.delete(oldSocketId);
+        room.players.set(socketId, existingPlayer);
+        // If they were Wordmaster, keep them as Wordmaster
+        if (room.wordmaster === oldSocketId) {
+          room.wordmaster = socketId;
+        }
+        // If they were the current guesser, update the guesser ID
+        if (room.currentGuess?.player === oldSocketId) {
+          room.currentGuess.player = socketId;
+        }
+        // Update contactedBy
+        if (room.currentGuess?.contactedBy === oldSocketId) {
+          room.currentGuess.contactedBy = socketId;
+        }
+      }
+      return existingPlayer;
+    } else {
+      const newPlayer = {
+        id: socketId,
+        username: username,
+        status: 'active',
+        lastSeen: Date.now(),
+        role: 'player'
+      };
+      room.players.set(socketId, newPlayer);
+      return newPlayer;
+    }
   }
 
   getRoom(roomId) {
@@ -55,7 +104,7 @@ class RoomManager {
     return Array.from(this.rooms.values()).map(r => ({
       id: r.id,
       name: r.name,
-      playerCount: r.players.size,
+      playerCount: Array.from(r.players.values()).filter(p => p.status === 'active').length,
       status: r.status
     }));
   }
@@ -63,21 +112,23 @@ class RoomManager {
   joinRoom(roomId, playerId, username) {
     const room = this.rooms.get(roomId);
     if (!room) return null;
-    
-    let existingRole = 'player';
-    // Session Resumption
-    for (const [id, p] of room.players.entries()) {
-      if (p.username === username) {
-        existingRole = p.role;
-        if (room.wordmaster === id) room.wordmaster = playerId;
-        room.players.delete(id);
-        room.typingStatus.delete(id);
-        break;
-      }
-    }
+    return this.addPlayer(room, playerId, username);
+  }
 
-    room.players.set(playerId, { id: playerId, username: username, role: existingRole });
-    return room;
+  handleDisconnect(io, socket) {
+    const { roomId, username } = socket.data;
+    if (!roomId) return;
+
+    const room = this.getRoom(roomId);
+    if (!room) return;
+
+    const player = room.players.get(socket.id);
+    if (player) {
+      player.status = 'disconnected';
+      player.lastSeen = Date.now();
+      console.log(`[Lifecycle] Player ${username} marked as disconnected in ${roomId}`);
+      this.emitRoomUpdate(io, room);
+    }
   }
 
   leaveRoom(io, roomId, playerId) {
@@ -87,6 +138,10 @@ class RoomManager {
     const player = room.players.get(playerId);
     const username = player ? player.username : 'Unknown';
     
+    this._removePlayerPermanently(io, room, playerId, username);
+  }
+
+  _removePlayerPermanently(io, room, playerId, username) {
     room.players.delete(playerId);
     room.typingStatus.delete(playerId);
 
@@ -96,16 +151,16 @@ class RoomManager {
       room.secretWord = null;
       room.revealedPrefix = '';
       room.currentGuess = null;
-      this.addLog(io, roomId, 'System', `${username} (Wordmaster) left. Game reset.`);
+      this.addLog(io, room.id, 'System', `${username} (Wordmaster) left. Game reset.`);
     } else if (room.currentGuess && room.currentGuess.player === playerId) {
       room.currentGuess = null;
-      this.addLog(io, roomId, 'System', `${username}'s guess was removed as they left.`);
+      this.addLog(io, room.id, 'System', `${username}'s guess was removed as they left.`);
     } else {
-      this.addLog(io, roomId, 'System', `${username} left the room.`);
+      this.addLog(io, room.id, 'System', `${username} left the room.`);
     }
 
     if (room.players.size === 0) {
-      this.rooms.delete(roomId);
+      this.rooms.delete(room.id);
     } else {
       this.emitRoomUpdate(io, room);
     }
@@ -290,7 +345,20 @@ class RoomManager {
   }
 
   tick(io) {
+    const GRACE_PERIOD = 10000; // 10 seconds
+
     this.rooms.forEach((room, roomId) => {
+      // 1. Handle Grace Periods for Disconnected Players
+      room.players.forEach((player, socketId) => {
+        if (player.status === 'disconnected') {
+          if (Date.now() - player.lastSeen > GRACE_PERIOD) {
+            console.log(`[Lifecycle] Removing ${player.username} permanently from ${roomId} (Grace period expired)`);
+            this._removePlayerPermanently(io, room, socketId, player.username);
+          }
+        }
+      });
+
+      // 2. Handle Countdown: Contact
       if (room.currentGuess && room.currentGuess.contactedBy && room.currentGuess.countdown > 0) {
         room.currentGuess.countdown--;
         if (room.currentGuess.countdown === 0) {
@@ -325,6 +393,7 @@ class RoomManager {
         this.emitRoomUpdate(io, room);
       }
 
+      // 3. Handle Countdown: Victory
       if (room.status === 'victory_countdown' && room.victoryCountdown > 0) {
         room.victoryCountdown--;
         if (room.victoryCountdown === 0) {
