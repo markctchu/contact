@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useGame } from '../contexts/GameContext';
 import ActionToggleButton from './ActionToggleButton';
+import { STRINGS } from '../constants/strings';
 
 const LetterTile = React.memo(({ char, className }) => (
   <div className={className}>
@@ -61,14 +62,14 @@ function CentralArea() {
   const isCountdownActive = status === 'victory_countdown' || (currentGuess.player && currentGuess.contactedBy);
 
   const modeLabel = useMemo(() => {
-    if (!activeAction) return 'Chat Mode';
+    if (!activeAction) return STRINGS.ACTION_CHAT;
     switch (activeAction) {
-      case 'SECRET': return 'Secret Word Mode';
-      case 'GUESS': return 'Guess Word Mode';
-      case 'GUESS_CLUE': return 'Clue Mode';
-      case 'CONTACT': return 'Contact Mode';
-      case 'DENY': return 'Intercept Mode';
-      default: return `${activeAction} Mode`;
+      case 'SECRET': return STRINGS.PLACEHOLDER_SECRET;
+      case 'GUESS': return STRINGS.PLACEHOLDER_GUESS;
+      case 'GUESS_CLUE': return STRINGS.PLACEHOLDER_GUESS_CLUE;
+      case 'CONTACT': return STRINGS.PLACEHOLDER_CONTACT;
+      case 'DENY': return STRINGS.PLACEHOLDER_DENY;
+      default: return `${activeAction} ${STRINGS.MODE_ACTIVE_SUFFIX}`;
     }
   }, [activeAction]);
 
@@ -82,15 +83,15 @@ function CentralArea() {
             {status === 'victory_countdown' ? (
               <div className="cta-gradient py-4 px-8 sm:py-8 sm:px-12 rounded-2xl ambient-shadow w-full max-w-xl mx-auto flex items-center justify-between border-2 border-primary/10">
                 <div className="text-left min-w-0 mr-4">
-                  <h4 className="text-lg sm:text-2xl font-extrabold text-on-primary-container uppercase leading-tight tracking-tighter">Wordmaster has Declared Victory!</h4>
-                  <p className="text-on-primary-container/60 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-1">Contest to stop the countdown</p>
+                  <h4 className="text-lg sm:text-2xl font-extrabold text-on-primary-container uppercase leading-tight tracking-tighter">{STRINGS.VICTORY_TITLE}</h4>
+                  <p className="text-on-primary-container/60 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-1">{STRINGS.VICTORY_SUBTITLE}</p>
                 </div>
                 <div className="text-5xl sm:text-8xl font-black text-on-primary-container leading-none tabular-nums">{victoryCountdown}</div>
               </div>
             ) : (
               <div className="bg-tertiary py-4 px-8 sm:py-8 sm:px-12 rounded-2xl ambient-shadow w-full max-w-xl mx-auto flex items-center justify-between border-2 border-tertiary/20">
                 <div className="text-left min-w-0 mr-4">
-                  <h4 className="text-lg sm:text-2xl font-extrabold text-white uppercase leading-tight tracking-tighter">Contact</h4>
+                  <h4 className="text-lg sm:text-2xl font-extrabold text-white uppercase leading-tight tracking-tighter">{STRINGS.CONTACT_TITLE}</h4>
                   <p className="text-white/60 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-1 truncate">
                     {currentGuess.playerName} & {currentGuess.contactedByName}
                   </p>
@@ -104,8 +105,8 @@ function CentralArea() {
             <div className="space-y-2 sm:space-y-4 w-full flex flex-col items-center">
               <h3 className="text-[9px] sm:text-xs font-black tracking-[0.4em] text-on-surface/30 uppercase">
                 {status === 'game_over' 
-                  ? 'THE SECRET WORD WAS' 
-                  : (isClueInput ? "YOUR GUESS:" : (isWordInput ? "THEY'LL NEVER GUESS" : (revealedPrefix ? 'IT STARTS WITH' : "PREPARE TO MAKE")))}
+                  ? STRINGS.WORD_LABEL_FINAL 
+                  : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))}
               </h3>
               
               <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2">
@@ -152,13 +153,13 @@ function CentralArea() {
                 <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
                   <div className={`px-10 py-4 rounded-full font-black text-xl sm:text-3xl uppercase tracking-[0.3em] ambient-shadow border-2
                     ${winner === 'players' ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'cta-gradient border-primary/10 text-on-primary-container'}`}>
-                    {winner === 'players' ? 'PLAYERS WIN' : 'WORDMASTER WINS'}
+                    {winner === 'players' ? STRINGS.WINNER_PLAYERS : STRINGS.WINNER_WORDMASTER}
                   </div>
-                  <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">Select Wordmaster to Play Again</p>
+                  <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
                 </div>
               ) : isClueInput ? (
                 <div className="bg-tertiary/5 p-4 sm:p-10 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
-                  <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-3 sm:mb-6 opacity-60">THE PERFECT CLUE: {clueHiddenWord}</p>
+                  <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-3 sm:mb-6 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                     {inputValue}
                     <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
@@ -167,20 +168,20 @@ function CentralArea() {
               ) : currentGuess.player ? (
                 <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
                   <div className="absolute top-0 left-0 w-full h-1 bg-tertiary/20"></div>
-                  <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center">Clue from {currentGuess.playerName}</p>
+                  <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center">{STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
-                    "{currentGuess.clue || 'Pending...'}"
+                    "{currentGuess.clue || STRINGS.LOG_HINT_PENDING}"
                   </h4>
                 </div>
               ) : status === 'setting_word' || status === 'waiting' ? (
                 <div className="text-on-surface/40 flex flex-col items-center py-4">
                   <p className="text-xs sm:text-base font-bold uppercase tracking-[0.3em] animate-pulse text-center px-12 leading-loose italic">
-                    {status === 'waiting' ? 'Tap Wordmaster to Begin' : (isWordmaster ? 'Enter your secret word above' : 'Awaiting Wordmaster Submission')}
+                    {status === 'waiting' ? STRINGS.STATUS_WAITING : (isWordmaster ? STRINGS.STATUS_SETTING_WM : STRINGS.STATUS_SETTING_PL)}
                   </p>
                 </div>
               ) : (
                 <div className="text-on-surface/20 text-xs sm:text-base font-black uppercase tracking-[0.4em] py-6 text-center px-12 italic">
-                  AWAITING GUESS SUBMISSION
+                  {STRINGS.STATUS_PLAYING_EMPTY}
                 </div>
               )}
             </div>
@@ -203,7 +204,7 @@ function CentralArea() {
           </div>
           {typingStatus.length > 0 && (
             <div className="text-[8px] font-bold text-tertiary/40 uppercase tracking-widest italic mt-0.5">
-              {typingStatus.length} composing...
+              {typingStatus.length} {STRINGS.TYPING_SUFFIX}
             </div>
           )}
         </div>
