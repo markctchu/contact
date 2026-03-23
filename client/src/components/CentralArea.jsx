@@ -113,7 +113,7 @@ function CentralArea({
                 ))}
 
                 {/* 3. CURRENT INPUT or REVEALED WORD or FINALIZED GUESS */}
-                {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || ''))).split('').map((char, i) => (
+                {(isClueInput ? (room.currentGuess?.hiddenWord || '') : (isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || ''))).split('').map((char, i) => (
                   <div key={`input-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}>
                     {char}
                   </div>

@@ -27,7 +27,7 @@ function BottomInput({
   const allMessages = [...chat, ...privateMessages].sort((a, b) => a.timestamp - b.timestamp);
 
   return (
-    <div className="flex flex-col max-w-2xl mx-auto w-full relative p-2 sm:p-4 pb-0.5 sm:pb-0.5">
+    <div className="flex flex-col max-w-2xl mx-auto w-full relative px-2 sm:px-4 pb-0.5 sm:pb-0.5">
       {/* 1. Integrated Chat Window */}
       <ChatWindow 
         messages={allMessages} 
@@ -37,7 +37,7 @@ function BottomInput({
       />
 
       {/* 2. Keyboard Section */}
-      <div className="mt-2 pb-1 sm:pb-3 space-y-2">
+      <div className="mt-1 pb-0.5 sm:pb-1 space-y-1">
         <div className="flex justify-end px-2">
           <button 
             onClick={() => setShowKeyboard(!showKeyboard)}
