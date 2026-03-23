@@ -6,20 +6,22 @@ import { Users, Sun, Moon } from 'lucide-react';
 import { EVENTS } from '../constants';
 import { useGameState } from '../hooks/useGameState';
 
-function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }) {
+function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme, isConnected }) {
   const [chat, setChat] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [showKeyboard, setShowKeyboard] = useState(true);
   
-  // Defensive check: ensure room exists before initializing hooks
-  const isWordmaster = room?.wordmaster === socketId;
-  const { activeAction, setActiveAction, toggleAction } = useGameState(room || { status: 'waiting' }, socketId, isWordmaster);
+  // Explicit check for a valid room object
+  const isValidRoom = room && typeof room === 'object' && room.id;
+  
+  const isWordmaster = isValidRoom && room.wordmaster === socketId;
+  const { activeAction, setActiveAction, toggleAction } = useGameState(isValidRoom ? room : { status: 'waiting' }, socketId, isWordmaster);
 
   useEffect(() => {
-    if (room?.chat) {
+    if (isValidRoom && room.chat) {
       setChat(room.chat);
     }
-  }, [room?.id]); // Only reset when room actually changes
+  }, [isValidRoom, room?.id]);
 
   useEffect(() => {
     socket.on(EVENTS.CHAT_UPDATE, (updatedChat) => {
@@ -29,7 +31,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
   }, []);
 
   const handleEnter = () => {
-    if (!room) return;
+    if (!isValidRoom) return;
     const val = inputValue.trim();
     const prefix = room.revealedPrefix || '';
     if (!val && !activeAction) return;
@@ -64,7 +66,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (!room) return;
+      if (!isValidRoom) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'Escape') {
         setShowKeyboard(prev => !prev);
@@ -83,12 +85,16 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [inputValue, activeAction, room?.revealedPrefix, room?.id]);
+  }, [inputValue, activeAction, room?.revealedPrefix, room?.id, isValidRoom]);
 
-  if (!room) {
-    return <div className="h-[100dvh] bg-surface flex items-center justify-center">
-      <div className="animate-pulse text-on-surface/20 font-black uppercase tracking-widest">Initializing Session...</div>
-    </div>;
+  if (!isValidRoom) {
+    return (
+      <div className="h-[100dvh] bg-surface flex flex-col items-center justify-center p-10 text-center">
+        <div className="w-16 h-1 bg-tertiary/20 rounded-full mb-8 animate-pulse"></div>
+        <h2 className="text-2xl font-black text-on-surface/40 uppercase tracking-[0.2em] mb-2">Connecting</h2>
+        <p className="text-xs font-bold text-on-surface/20 uppercase tracking-widest italic">Awaiting secure session handshake...</p>
+      </div>
+    );
   }
 
   return (
@@ -111,7 +117,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
           </button>
           <div className="flex items-center bg-surface-container px-4 py-2 rounded-full border border-outline-variant ambient-shadow">
             <Users size={16} className="text-tertiary mr-2" />
-            <span className="text-xs sm:text-sm font-black">{room.players?.length || 0}</span>
+            <span className="text-xs sm:text-sm font-black">{Array.isArray(room.players) ? room.players.length : 0}</span>
             <span className="hidden sm:inline text-[10px] text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-40">Entities</span>
           </div>
         </div>

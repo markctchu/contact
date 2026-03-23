@@ -16,7 +16,7 @@ function ChatWindow({ messages, username, inputValue, activeAction }) {
   return (
     <div className="bg-surface-low rounded-xl p-2 sm:p-3 shrink-0 overflow-hidden border border-outline-variant flex flex-col">
       <div className="h-24 sm:h-32 overflow-y-auto space-y-1.5 mb-1 custom-scrollbar pr-2 flex-1">
-        {messages.map((msg, i) => (
+        {Array.isArray(messages) && messages.map((msg, i) => (
           <div key={i} className="text-xs sm:text-sm">
             {msg.isLog ? (
               <div className={`py-1 px-3 bg-surface rounded border-l-2 ${msg.isPrivate ? 'border-dashed opacity-60' : ''} ${getLogBorderColor(msg.logType)}`}>
