@@ -16,6 +16,11 @@ export function GameProvider({ children, initialRoom, username }) {
   const isWordmaster = room?.wordmaster === socketId;
   const { activeAction, setActiveAction, toggleAction } = useInternalGameState(room || { status: 'waiting' }, socketId, isWordmaster);
 
+  // Clear input when action mode changes to prevent leaked text between modes (e.g. secret word into chat)
+  useEffect(() => {
+    setInputValue('');
+  }, [activeAction]);
+
   // Sync room state from socket hook
   useEffect(() => {
     if (roomFromSocket) {
