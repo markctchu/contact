@@ -18,7 +18,8 @@ function CentralArea({
     return revealedPrefix || '';
   }, [revealedPrefix, status, secretWord]);
 
-  const isWordInput = ['SECRET', 'GUESS', 'GUESS_CLUE', 'CONTACT', 'DENY'].includes(activeAction);
+  const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
+  const isClueInput = activeAction === 'GUESS_CLUE';
   const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
 
   // Calculate total visible tiles to ensure accurate scaling
@@ -28,9 +29,12 @@ function CentralArea({
       const inputLen = inputValue ? inputValue.length : 0;
       return prefixLen + inputLen + 1; // +1 for the cursor tile
     }
+    if (isClueInput) {
+      return currentGuess?.hiddenWord?.length || 7;
+    }
     if (!revealedPrefix && status !== 'game_over') return 7; // 'CONTACT'
     return displayWord ? displayWord.length : 7;
-  }, [isWordInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord]);
+  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, currentGuess]);
 
   const getBoxSize = (wordLength) => {
     const baseClasses = "flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow transition-all duration-300";
@@ -61,6 +65,7 @@ function CentralArea({
       {/* 1. Main Content Area (Tiles and Clues) */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-4 sm:space-y-8 w-full transition-all duration-500 min-h-0">
         {isCountdownActive ? (
+          /* Countdown Display (same as before) */
           <div className="w-full animate-in fade-in zoom-in duration-500 px-2 py-4">
             {status === 'victory_countdown' ? (
               <div className="cta-gradient py-4 px-8 sm:py-8 sm:px-12 rounded-2xl ambient-shadow w-full max-w-xl mx-auto flex items-center justify-between border-2 border-primary/10">
@@ -86,35 +91,40 @@ function CentralArea({
           <div className="w-full space-y-6 sm:space-y-10 py-4">
             <div className="space-y-2 sm:space-y-4 w-full flex flex-col items-center">
               <h3 className="text-[9px] sm:text-xs font-black tracking-[0.4em] text-on-surface/30 uppercase">
-                {isWordInput ? "THEY'LL NEVER GUESS" : (revealedPrefix ? 'IT STARTS WITH' : "PREPARE TO MAKE")}
+                {isClueInput ? "YOUR GUESS:" : (isWordInput ? "THEY'LL NEVER GUESS" : (revealedPrefix ? 'IT STARTS WITH' : "PREPARE TO MAKE"))}
               </h3>
               
               <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2">
-                {!revealedPrefix && !isWordInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
+                {/* 1. INITIAL "CONTACT" TILES */}
+                {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
                   <div key={`init-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow`}>
                     {char}
                   </div>
                 ))}
 
+                {/* 2. PERSISTENT REVEALED PREFIX */}
                 {showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
                   <div key={`prefix-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30`}>
                     {char}
                   </div>
                 ))}
 
-                {(isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || '')).split('').map((char, i) => (
+                {/* 3. CURRENT INPUT or REVEALED WORD or FINALIZED GUESS */}
+                {(isClueInput ? (currentGuess?.hiddenWord || '') : (isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || ''))).split('').map((char, i) => (
                   <div key={`input-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}>
                     {char}
                   </div>
                 ))}
                 
+                {/* 4. ACTIVE TYPING CURSOR */}
                 {isWordInput && (
                   <div className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20`}>
                     <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
                   </div>
                 )}
 
-                {!isWordInput && status !== 'game_over' && revealedPrefix && (
+                {/* 5. ELLIPSIS */}
+                {!isWordInput && !isClueInput && status !== 'game_over' && revealedPrefix && (
                   <div className="flex items-center ml-1">
                     <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                   </div>
