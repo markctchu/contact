@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getLogStyle, getLogBorderColor } from '../utils/gameUtils';
 import { useGame } from '../contexts/GameContext';
 
@@ -6,10 +6,21 @@ function ChatWindow() {
   const { chat: messages, username, inputValue, activeAction } = useGame();
   const chatEndRef = useRef(null);
   const isChatInput = !activeAction;
+  const [shouldRenderInput, setShouldRenderInput] = useState(isChatInput);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Sync rendering with action state but with a slight delay to prevent flicker
+  useEffect(() => {
+    if (isChatInput) {
+      const timer = setTimeout(() => setShouldRenderInput(true), 50);
+      return () => clearTimeout(timer);
+    } else {
+      setShouldRenderInput(false);
+    }
+  }, [isChatInput]);
 
   useEffect(() => {
     scrollToBottom();
@@ -42,14 +53,16 @@ function ChatWindow() {
       </div>
       
       {/* 2. Persistent Chat Input Line - Absolutely positioned at bottom */}
-      <div className={`absolute bottom-0 left-0 w-full px-3 py-1 bg-surface-low border-t border-on-surface/5 overflow-hidden transition-opacity duration-300 ${isChatInput ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
-        <div className="flex items-center space-x-3 px-1 py-1">
-          <span className="font-black text-tertiary shrink-0 uppercase text-[9px] tracking-widest translate-y-[1px]">{username}</span>
-          <div className="flex items-center flex-1 min-w-0">
-            <span className="text-on-surface font-bold text-xs sm:text-sm uppercase tracking-widest truncate">{inputValue}</span>
-            <span className="inline-block w-1 h-3.5 ml-1 bg-tertiary animate-[pulse_1.5s_infinite] rounded-full"></span>
+      <div className={`absolute bottom-0 left-0 w-full px-3 py-1 bg-surface-low border-t border-on-surface/5 overflow-hidden transition-all duration-300 ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+        {shouldRenderInput && (
+          <div className="flex items-center space-x-3 px-1 py-1">
+            <span className="font-black text-tertiary shrink-0 uppercase text-[9px] tracking-widest translate-y-[1px]">{username}</span>
+            <div className="flex items-center flex-1 min-w-0">
+              <span className="text-on-surface font-bold text-xs sm:text-sm uppercase tracking-widest truncate">{inputValue}</span>
+              <span className="inline-block w-1 h-3.5 ml-1 bg-tertiary animate-[pulse_1.5s_infinite] rounded-full"></span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
