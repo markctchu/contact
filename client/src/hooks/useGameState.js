@@ -19,11 +19,11 @@ export function useGameState(room, socketId, isWordmaster) {
     // 2. AUTO-CLEAR (If user was in an optional mode that is no longer valid)
     // Also clear if status shifted away from mandatory modes
     const isValid = (
-      (activeAction === 'DENY' && currentGuess && isWordmaster) ||
-      (activeAction === 'GUESS' && !currentGuess && !isWordmaster) ||
-      (activeAction === 'CONTACT' && currentGuess?.clue && !currentGuess.contactedBy && !isWordmaster && currentGuess.player !== socketId) ||
+      (activeAction === 'DENY' && currentGuess.player && isWordmaster) ||
+      (activeAction === 'GUESS' && !currentGuess.player && !isWordmaster) ||
+      (activeAction === 'CONTACT' && currentGuess.clue && !currentGuess.contactedBy && !isWordmaster && currentGuess.player !== socketId) ||
       (activeAction === 'SECRET' && status === 'setting_word' && isWordmaster) ||
-      (activeAction === 'GUESS_CLUE' && currentGuess?.player === socketId && !currentGuess.clue)
+      (activeAction === 'GUESS_CLUE' && currentGuess.player === socketId && !currentGuess.clue)
     );
 
     if (activeAction && !isValid) {
