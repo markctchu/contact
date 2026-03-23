@@ -27,7 +27,7 @@ function BottomInput({
   const allMessages = [...chat, ...privateMessages].sort((a, b) => a.timestamp - b.timestamp);
 
   return (
-    <div className="flex flex-col max-w-2xl mx-auto w-full relative p-2 sm:p-4">
+    <div className="flex flex-col max-w-2xl mx-auto w-full relative p-2 sm:p-4 pb-0.5 sm:pb-0.5">
       {/* 1. Integrated Chat Window */}
       <ChatWindow 
         messages={allMessages} 
