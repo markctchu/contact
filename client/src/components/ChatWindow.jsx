@@ -13,7 +13,7 @@ function ChatWindow() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, inputValue]);
+  }, [messages, inputValue, activeAction]);
 
   return (
     <div className="bg-surface-low rounded-lg p-2 sm:p-3 shrink-0 overflow-hidden border border-outline-variant flex flex-col h-32 sm:h-40 transition-all duration-500 ease-in-out">
