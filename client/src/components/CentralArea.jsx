@@ -101,7 +101,7 @@ function CentralArea() {
             )}
           </div>
         ) : (
-          <div className="w-full space-y-6 sm:space-y-10 py-4">
+          <div className={`w-full ${isClueInput ? 'space-y-4 sm:space-y-6' : 'space-y-6 sm:space-y-10'} py-4`}>
             <div className="space-y-2 sm:space-y-4 w-full flex flex-col items-center">
               <h3 className="text-[9px] sm:text-xs font-black tracking-[0.4em] text-on-surface/30 uppercase">
                 {status === 'game_over' 
@@ -158,8 +158,8 @@ function CentralArea() {
                   <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
                 </div>
               ) : isClueInput ? (
-                <div className="bg-tertiary/5 p-4 sm:p-10 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
-                  <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-3 sm:mb-6 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
+                <div className="bg-tertiary/5 p-3 sm:p-6 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
+                  <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-2 sm:mb-4 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                     {inputValue}
                     <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
