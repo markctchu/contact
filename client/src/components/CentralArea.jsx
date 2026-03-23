@@ -22,6 +22,9 @@ function CentralArea({
   const isClueInput = activeAction === 'GUESS_CLUE';
   const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
 
+  // Use the hidden word from the server if in clue input mode
+  const clueHiddenWord = room.currentGuess?.hiddenWord || '';
+
   // Calculate total visible tiles to ensure accurate scaling
   const totalVisibleCount = useMemo(() => {
     if (isWordInput) {
@@ -30,11 +33,11 @@ function CentralArea({
       return prefixLen + inputLen + 1; // +1 for the cursor tile
     }
     if (isClueInput) {
-      return currentGuess?.hiddenWord?.length || 7;
+      return clueHiddenWord.length || 7;
     }
     if (!revealedPrefix && status !== 'game_over') return 7; // 'CONTACT'
     return displayWord ? displayWord.length : 7;
-  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, currentGuess]);
+  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, clueHiddenWord]);
 
   const getBoxSize = (wordLength) => {
     const baseClasses = "flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow transition-all duration-300";
@@ -65,7 +68,7 @@ function CentralArea({
       {/* 1. Main Content Area (Tiles and Clues) */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-4 sm:space-y-8 w-full transition-all duration-500 min-h-0">
         {isCountdownActive ? (
-          /* Countdown Display (same as before) */
+          /* Countdown Display */
           <div className="w-full animate-in fade-in zoom-in duration-500 px-2 py-4">
             {status === 'victory_countdown' ? (
               <div className="cta-gradient py-4 px-8 sm:py-8 sm:px-12 rounded-2xl ambient-shadow w-full max-w-xl mx-auto flex items-center justify-between border-2 border-primary/10">
@@ -110,7 +113,7 @@ function CentralArea({
                 ))}
 
                 {/* 3. CURRENT INPUT or REVEALED WORD or FINALIZED GUESS */}
-                {(isClueInput ? (currentGuess?.hiddenWord || '') : (isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || ''))).split('').map((char, i) => (
+                {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || ''))).split('').map((char, i) => (
                   <div key={`input-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}>
                     {char}
                   </div>
@@ -134,15 +137,15 @@ function CentralArea({
 
             <div className="w-full flex items-center justify-center px-4">
               {activeAction === 'GUESS_CLUE' ? (
-                <div className="bg-tertiary/5 p-4 sm:p-10 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
-                  <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-3 sm:mb-6 opacity-60">THE PERFECT CLUE: {currentGuess?.hiddenWord}</p>
+                <div className="bg-tertiary/5 p-4 sm:p-8 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
+                  <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-3 sm:mb-6 opacity-60">THE PERFECT CLUE: {clueHiddenWord}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                     {inputValue}
                     <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
                   </h4>
                 </div>
               ) : currentGuess ? (
-                <div className="bg-surface-lowest p-4 sm:p-10 rounded-2xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
+                <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
                   <div className="absolute top-0 left-0 w-full h-1 bg-tertiary/20"></div>
                   <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-3 sm:mb-6 text-center">Clue from {currentGuess.playerName}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
@@ -166,7 +169,7 @@ function CentralArea({
       </div>
 
       {/* 2. Control Row (Sticky at the bottom of the central area) */}
-      <div className="w-full max-w-2xl mx-auto flex items-center justify-between px-4 py-2 shrink-0">
+      <div className="w-full max-w-2xl mx-auto flex items-center justify-between px-4 py-1.5 shrink-0">
         <ActionToggleButton 
           room={room}
           socketId={socketId}
