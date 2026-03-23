@@ -74,7 +74,7 @@ function CentralArea() {
   }, [activeAction]);
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full relative">
+    <div className="flex-1 flex flex-col w-full h-full relative transition-colors duration-300">
       {/* 1. Main Content Area (Tiles and Clues) */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-4 sm:space-y-8 w-full transition-all duration-500 min-h-0">
         {isCountdownActive ? (
