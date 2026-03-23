@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { socket } from '../socket';
 import { EVENTS } from '../constants';
+import { STRINGS } from '../constants/strings';
 import { Sun, Moon } from 'lucide-react';
 
 function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
@@ -19,9 +20,9 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
     <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full p-6 sm:p-12 overflow-hidden">
       <header className="mb-12 flex justify-between items-start shrink-0">
         <div className="text-left">
-          <h1 className="text-6xl sm:text-7xl font-extrabold text-on-surface tracking-tighter mb-2">Lobby</h1>
+          <h1 className="text-6xl sm:text-7xl font-extrabold text-on-surface tracking-tighter mb-2">{STRINGS.LOBBY_TITLE}</h1>
           <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold opacity-40 ml-1">
-            Active Sessions for <span className="text-on-surface opacity-100 italic">{username}</span>
+            {STRINGS.LOBBY_SUBTITLE(username)}
           </p>
         </div>
         <button 
@@ -37,16 +38,16 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
         {/* Active Rooms List - The Hero */}
         <section className="md:col-span-7 flex flex-col min-h-0 overflow-hidden">
           <div className="flex items-center justify-between mb-8 shrink-0">
-            <h2 className="text-2xl font-bold tracking-tight">Current Games</h2>
+            <h2 className="text-2xl font-bold tracking-tight">{STRINGS.ROOM_LIST_HEADER}</h2>
             <span className="text-xs font-black text-on-surface-variant bg-surface-low px-4 py-1.5 rounded-full uppercase tracking-tighter">
-              {rooms.length} Total
+              {rooms.length} {STRINGS.ROOM_COUNT_SUFFIX}
             </span>
           </div>
           
           <div className="space-y-6 flex-1 overflow-y-auto pr-4 custom-scrollbar min-h-0">
             {rooms.length === 0 ? (
               <div className="bg-surface-low/50 rounded-xl p-12 text-center border-2 border-dashed border-on-surface/5">
-                <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold opacity-30 italic">No active rooms</p>
+                <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold opacity-30 italic">{STRINGS.NO_ROOMS_MSG}</p>
               </div>
             ) : (
               rooms.map((room) => (
@@ -66,7 +67,7 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
                     onClick={() => onJoinRoom(room.id)}
                     className="bg-surface-container hover:bg-surface-high text-on-surface px-6 py-2.5 rounded-full text-xs font-black transition-all uppercase tracking-widest shrink-0"
                   >
-                    Join
+                    {STRINGS.JOIN_BUTTON}
                   </button>
                 </div>
               ))
@@ -77,7 +78,7 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
         {/* Create Room - The Aside */}
         <section className="md:col-span-5 flex flex-col shrink-0 self-start">
           <div className="bg-surface-low p-8 sm:p-10 rounded-xl border border-outline-variant">
-            <h2 className="text-2xl font-bold mb-8 tracking-tight">Host Game</h2>
+            <h2 className="text-2xl font-bold mb-8 tracking-tight">{STRINGS.CREATE_HEADER}</h2>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (newRoomName.trim()) {
@@ -89,7 +90,7 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
                 type="text"
                 value={newRoomName}
                 onChange={(e) => setNewRoomName(e.target.value)}
-                placeholder="Room Name"
+                placeholder={STRINGS.ROOM_NAME_PLACEHOLDER}
                 name="room_designation_field"
                 autoComplete="off"
                 role="presentation"
@@ -103,7 +104,7 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
                 type="submit"
                 className="w-full cta-gradient text-on-primary-container font-black py-4 rounded-full transition-all active:scale-[0.98] shadow-lg uppercase tracking-widest text-xs"
               >
-                Launch Session
+                {STRINGS.CREATE_BUTTON}
               </button>
             </form>
           </div>
