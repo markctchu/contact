@@ -4,6 +4,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * DESIGN SYSTEM: EDITORIAL PLAY (Light) & VIBRANT DARK
+ * 
+ * LIGHT MODE PALETTE:
+ * - Surface: #f7f6f1 (Base Layer)
+ * - Surface Low: #f1f1ec (Section Separators)
+ * - Surface Container: #e9e8e3 (Secondary Content)
+ * - Surface High: #deddd8 (Interactive Elements)
+ * - Surface Lowest: #ffffff (Floating Cards)
+ * - Primary: #695b00 (Anchor / Gradient Start)
+ * - Primary Container: #fadd30 (CTA / Gradient End)
+ * - Tertiary: #004ddc (Action / Success)
+ * - Tertiary Fixed: #96adff (Active States)
+ * 
+ * DARK MODE PALETTE:
+ * - Neutral Color: #121212 (Base Background)
+ * - Primary Color: #8B5CF6 (Vibrant Purple)
+ * - Secondary Color: #2DD4BF (Vibrant Teal)
+ * - Tertiary Color: #FDE047 (Bright Yellow Accent)
+ */
+
 :root {
   /* Light Mode Palette: Editorial Play */
   --surface: #f7f6f1;
@@ -41,7 +62,7 @@
   --on-surface: #e2e2e2;
   --on-surface-variant: #a1a1aa;
   
-  --primary: #a78bfa;
+  --primary: #8b5cf6;
   --primary-container: #8b5cf6;
   --on-primary-container: #ffffff;
   --primary-dim: #7c3aed;
