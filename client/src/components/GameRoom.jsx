@@ -7,12 +7,19 @@ import { EVENTS } from '../constants';
 import { useGameState } from '../hooks/useGameState';
 
 function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }) {
-  const [chat, setChat] = useState(room.chat || []);
+  const [chat, setChat] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [showKeyboard, setShowKeyboard] = useState(true);
   
-  const isWordmaster = room.wordmaster === socketId;
-  const { activeAction, setActiveAction, toggleAction } = useGameState(room, socketId, isWordmaster);
+  // Defensive check: ensure room exists before initializing hooks
+  const isWordmaster = room?.wordmaster === socketId;
+  const { activeAction, setActiveAction, toggleAction } = useGameState(room || { status: 'waiting' }, socketId, isWordmaster);
+
+  useEffect(() => {
+    if (room?.chat) {
+      setChat(room.chat);
+    }
+  }, [room?.id]); // Only reset when room actually changes
 
   useEffect(() => {
     socket.on(EVENTS.CHAT_UPDATE, (updatedChat) => {
@@ -22,6 +29,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
   }, []);
 
   const handleEnter = () => {
+    if (!room) return;
     const val = inputValue.trim();
     const prefix = room.revealedPrefix || '';
     if (!val && !activeAction) return;
@@ -56,6 +64,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (!room) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'Escape') {
         setShowKeyboard(prev => !prev);
@@ -74,7 +83,13 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [inputValue, activeAction, room.revealedPrefix]);
+  }, [inputValue, activeAction, room?.revealedPrefix, room?.id]);
+
+  if (!room) {
+    return <div className="h-[100dvh] bg-surface flex items-center justify-center">
+      <div className="animate-pulse text-on-surface/20 font-black uppercase tracking-widest">Initializing Session...</div>
+    </div>;
+  }
 
   return (
     <div className="flex flex-col h-[100dvh] bg-surface text-on-surface overflow-hidden transition-colors duration-300">
@@ -96,7 +111,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
           </button>
           <div className="flex items-center bg-surface-container px-4 py-2 rounded-full border border-outline-variant ambient-shadow">
             <Users size={16} className="text-tertiary mr-2" />
-            <span className="text-xs sm:text-sm font-black">{room.players.length}</span>
+            <span className="text-xs sm:text-sm font-black">{room.players?.length || 0}</span>
             <span className="hidden sm:inline text-[10px] text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-40">Entities</span>
           </div>
         </div>
@@ -105,23 +120,25 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
       {/* Main Content (Tiles + Controls) */}
       <main className="flex-1 flex flex-col min-h-0 relative bg-surface">
         <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 overflow-y-auto custom-scrollbar bg-gradient-to-t from-surface-low/40 to-transparent">
-          <CentralArea 
-            room={room} 
-            typingStatus={typingStatus} 
-            socketId={socketId} 
-            inputValue={inputValue}
-            activeAction={activeAction}
-            onToggleAction={toggleAction}
-            onCancel={() => {
-              setInputValue('');
-              setActiveAction(null);
-              if (room.status === 'setting_word' && isWordmaster) {
-                socket.emit(EVENTS.CANCEL_ACTION);
-              } else if (room.currentGuess && room.currentGuess.player === socketId) {
-                socket.emit(EVENTS.CANCEL_ACTION);
-              }
-            }}
-          />
+          <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center py-4">
+            <CentralArea 
+              room={room} 
+              typingStatus={typingStatus} 
+              socketId={socketId} 
+              inputValue={inputValue}
+              activeAction={activeAction}
+              onToggleAction={toggleAction}
+              onCancel={() => {
+                setInputValue('');
+                setActiveAction(null);
+                if (room.status === 'setting_word' && isWordmaster) {
+                  socket.emit(EVENTS.CANCEL_ACTION);
+                } else if (room.currentGuess && room.currentGuess.player === socketId) {
+                  socket.emit(EVENTS.CANCEL_ACTION);
+                }
+              }}
+            />
+          </div>
         </div>
 
         {/* Integrated Chat & Keyboard */}

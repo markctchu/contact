@@ -172,9 +172,9 @@ function CentralArea({
               {modeLabel}
             </span>
           </div>
-          {typingStatus.length > 0 && (
+          {(typingStatus?.length > 0 || room.typingStatus?.length > 0) && (
             <div className="text-[8px] font-bold text-tertiary/40 uppercase tracking-widest italic mt-0.5">
-              {typingStatus.length} composing...
+              {typingStatus?.length || room.typingStatus?.length} composing...
             </div>
           )}
         </div>
