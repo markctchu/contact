@@ -55,7 +55,7 @@ export const STRINGS = {
   PLACEHOLDER_CONTACT: "SOLVE THE CLUE",
   PLACEHOLDER_DENY: "INTERCEPT CONTACT",
   PLACEHOLDER_CHAT: "SEND CHAT MESSAGE",
-  HINT_INPUT_PROMPT: (hiddenWord) => `THE PERFECT CLUE: ${hiddenWord}`,
+  HINT_INPUT_PROMPT: (hiddenWord) => `THE PERFECT CLUE:`,
   HINT_INPUT_AWAITING: "Enter Clue here...",
 
   // --- 7. Dynamic Action Buttons (ActionToggleButton.jsx) ---
