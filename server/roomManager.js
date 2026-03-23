@@ -315,11 +315,11 @@ class RoomManager {
       if (room.status === 'victory_countdown' && room.victoryCountdown > 0) {
         room.victoryCountdown--;
         if (room.victoryCountdown === 0) {
-          const finalWord = room.secretWord;
           room.status = 'game_over';
-          room.wordmaster = null; // RELINQUISH SO NEW GAME CAN START
-          room.revealedPrefix = '';
-          this.addLog(io, roomId, 'System', `Game Over! Wordmaster wins! The word was ${finalWord}`);
+          // Keep wordmaster ID so client knows who it was, 
+          // but set revealedPrefix to secretWord for final display
+          room.revealedPrefix = room.secretWord;
+          this.addLog(io, roomId, 'System', `Game Over! Wordmaster wins! The word was ${room.secretWord}`);
         }
         this.emitRoomUpdate(io, room);
       }

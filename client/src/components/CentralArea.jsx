@@ -95,7 +95,9 @@ function CentralArea({
           <div className="w-full space-y-6 sm:space-y-10 py-4">
             <div className="space-y-2 sm:space-y-4 w-full flex flex-col items-center">
               <h3 className="text-[9px] sm:text-xs font-black tracking-[0.4em] text-on-surface/30 uppercase">
-                {isClueInput ? "YOUR GUESS:" : (isWordInput ? "THEY'LL NEVER GUESS" : (revealedPrefix ? 'IT STARTS WITH' : "PREPARE TO MAKE"))}
+                {status === 'game_over' 
+                  ? 'THE SECRET WORD WAS' 
+                  : (isClueInput ? "YOUR GUESS:" : (isWordInput ? "THEY'LL NEVER GUESS" : (revealedPrefix ? 'IT STARTS WITH' : "PREPARE TO MAKE")))}
               </h3>
               
               <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2">
@@ -106,15 +108,15 @@ function CentralArea({
                   </div>
                 ))}
 
-                {/* 2. PERSISTENT REVEALED PREFIX */}
-                {showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
+                {/* 2. PERSISTENT REVEALED PREFIX (Only during active game modes) */}
+                {status !== 'game_over' && showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
                   <div key={`prefix-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30`}>
                     {char}
                   </div>
                 ))}
 
                 {/* 3. CURRENT INPUT or REVEALED WORD or FINALIZED GUESS */}
-                {(isClueInput ? (room.currentGuess?.hiddenWord || '') : (isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || ''))).split('').map((char, i) => (
+                {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? (inputValue || '') : (inputValue || '')) : (displayWord || ''))).split('').map((char, i) => (
                   <div key={`input-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}>
                     {char}
                   </div>
@@ -127,8 +129,8 @@ function CentralArea({
                   </div>
                 )}
 
-                {/* 5. ELLIPSIS */}
-                {!isWordInput && !isClueInput && status !== 'game_over' && revealedPrefix && (
+                {/* 5. ELLIPSIS (Only while playing) */}
+                {status === 'playing' && !isWordInput && !isClueInput && revealedPrefix && (
                   <div className="flex items-center ml-1">
                     <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                   </div>
@@ -137,7 +139,15 @@ function CentralArea({
             </div>
 
             <div className="w-full flex items-center justify-center px-4">
-              {activeAction === 'GUESS_CLUE' ? (
+              {status === 'game_over' ? (
+                <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
+                  <div className={`px-10 py-4 rounded-full font-black text-xl sm:text-3xl uppercase tracking-[0.3em] ambient-shadow border-2
+                    ${revealedPrefix === secretWord ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'cta-gradient border-primary/10 text-on-primary-container'}`}>
+                    {revealedPrefix === secretWord ? 'PLAYERS WIN' : 'WORDMASTER WINS'}
+                  </div>
+                  <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">Select Wordmaster to Play Again</p>
+                </div>
+              ) : activeAction === 'GUESS_CLUE' ? (
                 <div className="bg-tertiary/5 p-4 sm:p-8 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
                   <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-3 sm:mb-6 opacity-60">THE PERFECT CLUE: {clueHiddenWord}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
