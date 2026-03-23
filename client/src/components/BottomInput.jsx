@@ -13,6 +13,7 @@ function BottomInput({
   activeAction, 
   setActiveAction, 
   toggleAction,
+  handleEnter,
   showKeyboard,
   setShowKeyboard
 }) {
