@@ -123,10 +123,10 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme, 
         </div>
       </header>
 
-      {/* Main Content (Tiles + Controls) */}
-      <main className="flex-1 flex flex-col min-h-0 relative bg-surface">
-        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 overflow-y-auto custom-scrollbar bg-gradient-to-t from-surface-low/40 to-transparent">
-          <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center py-4">
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-h-0 relative bg-surface overflow-hidden">
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gradient-to-t from-surface-low/40 to-transparent">
+          <div className="w-full max-w-4xl mx-auto h-full min-h-0">
             <CentralArea 
               room={room} 
               typingStatus={typingStatus} 
@@ -147,8 +147,8 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme, 
           </div>
         </div>
 
-        {/* Integrated Chat & Keyboard */}
-        <section className="bg-surface border-t border-outline-variant shrink-0 transition-colors duration-300">
+        {/* Keyboard Footer (Chat is now inside CentralArea flow visually) */}
+        <section className="bg-surface shrink-0 transition-colors duration-300">
           <BottomInput 
             room={room} 
             socketId={socketId}

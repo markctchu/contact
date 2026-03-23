@@ -156,7 +156,7 @@ function CentralArea({
       </div>
 
       {/* 2. Control Row (Sticky at the bottom of the central area) */}
-      <div className="w-full flex items-center justify-between px-4 py-2 sm:py-4 border-t border-outline-variant bg-surface/50 backdrop-blur-sm shrink-0">
+      <div className="w-full flex items-center justify-between px-4 py-2 shrink-0">
         <ActionToggleButton 
           room={room}
           socketId={socketId}
