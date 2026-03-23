@@ -19,7 +19,7 @@ function ChatWindow() {
     <div className="bg-surface-low rounded-lg p-2 sm:p-3 shrink-0 overflow-hidden border border-outline-variant flex flex-col h-32 sm:h-40 relative">
       {/* 1. Message History (Scrollable) */}
       <div 
-        className={`flex-1 overflow-y-auto space-y-1.5 custom-scrollbar pr-2 min-h-0 ${isChatInput ? 'pb-8' : 'pb-0'}`}
+        className={`flex-1 overflow-y-auto space-y-1.5 custom-scrollbar pr-2 min-h-0 ${isChatInput ? 'pb-6' : 'pb-0'}`}
       >
         {Array.isArray(messages) && messages.map((msg, i) => (
           <div key={i} className="text-xs sm:text-[13px] animate-in fade-in slide-in-from-bottom-1 duration-300">
@@ -42,7 +42,7 @@ function ChatWindow() {
       </div>
       
       {/* 2. Persistent Chat Input Line - Absolutely positioned at bottom */}
-      <div className={`absolute bottom-0 left-0 w-full px-3 py-1 bg-surface-low border-t border-on-surface/5 overflow-hidden transition-all duration-300 ease-in-out ${isChatInput ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
+      <div className={`absolute bottom-0 left-0 w-full px-3 py-1 bg-surface-low border-t border-on-surface/5 overflow-hidden transition-opacity duration-300 ${isChatInput ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
         <div className="flex items-center space-x-3 px-1 py-1">
           <span className="font-black text-tertiary shrink-0 uppercase text-[9px] tracking-widest translate-y-[1px]">{username}</span>
           <div className="flex items-center flex-1 min-w-0">
