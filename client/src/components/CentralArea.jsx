@@ -166,7 +166,7 @@ function CentralArea({
               ) : status === 'setting_word' || status === 'waiting' ? (
                 <div className="text-on-surface/40 flex flex-col items-center py-4">
                   <p className="text-xs sm:text-base font-bold uppercase tracking-[0.3em] animate-pulse text-center px-12 leading-loose italic">
-                    {status === 'waiting' ? 'Tap Wordmaster to Begin' : (isWordmaster ? 'Define the Secret Lexicon Above' : 'Awaiting Wordmaster Submission')}
+                    {status === 'waiting' ? 'Tap Wordmaster to Begin' : (isWordmaster ? 'Enter your secret word above' : 'Awaiting Wordmaster Submission')}
                   </p>
                 </div>
               ) : (
