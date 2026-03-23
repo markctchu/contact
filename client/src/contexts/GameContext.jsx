@@ -59,6 +59,14 @@ export function GameProvider({ children, initialRoom, username }) {
     }
   }, [inputValue, activeAction, room]);
 
+  const handleKeyPress = useCallback((key) => {
+    setInputValue(prev => prev + key);
+  }, []);
+
+  const handleBackspace = useCallback(() => {
+    setInputValue(prev => prev.slice(0, -1));
+  }, []);
+
   const handleCancel = useCallback(() => {
     setInputValue('');
     setActiveAction(null);
@@ -78,6 +86,8 @@ export function GameProvider({ children, initialRoom, username }) {
     typingStatus,
     inputValue,
     setInputValue,
+    handleKeyPress,
+    handleBackspace,
     activeAction,
     setActiveAction,
     toggleAction,

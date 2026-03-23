@@ -2,10 +2,10 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
 const roomManager = require('./roomManager');
 const { EVENTS } = require('./constants');
+const { STRINGS } = require('./strings');
+const { setupSPA } = require('./middleware/spa');
 
 const app = express();
 app.use(cors());
@@ -26,19 +26,6 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3001;
-
-// Absolute paths for reliability
-const distPath = path.resolve(__dirname, '../client/dist');
-const indexPath = path.resolve(distPath, 'index.html');
-
-console.log(`[System] Serving static files from: ${distPath}`);
-if (fs.existsSync(indexPath)) {
-  console.log(`[System] Found index.html at: ${indexPath}`);
-} else {
-  console.error(`[Error] index.html NOT FOUND at: ${indexPath}`);
-}
-
-app.use(express.static(distPath));
 
 // Global interval for game ticks (countdowns)
 setInterval(() => {
@@ -190,16 +177,8 @@ io.on('connection', (socket) => {
   });
 });
 
-// Catch-all to serve index.html for SPA routing
-// Using app.use with no path is the safest way to bypass Express 5 wildcard issues
-app.use((req, res) => {
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error(`[Error] Failed to send index.html: ${err.message}`);
-      res.status(404).send('Frontend could not be loaded. Please ensure the build completed successfully.');
-    }
-  });
-});
+// Single Page Application (SPA) routing and static serving
+setupSPA(app);
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

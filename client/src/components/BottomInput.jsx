@@ -5,8 +5,9 @@ import { useGame } from '../contexts/GameContext';
 
 function BottomInput() {
   const { 
-    setInputValue, 
     handleEnter, 
+    handleKeyPress,
+    handleBackspace,
     showKeyboard, 
     setShowKeyboard 
   } = useGame();
@@ -28,9 +29,9 @@ function BottomInput() {
         </div>
         {showKeyboard && (
           <VirtualKeyboard 
-            onKeyPress={(key) => setInputValue(prev => prev + key)}
+            onKeyPress={handleKeyPress}
             onEnter={handleEnter}
-            onBackspace={() => setInputValue(prev => prev.slice(0, -1))}
+            onBackspace={handleBackspace}
           />
         )}
       </div>

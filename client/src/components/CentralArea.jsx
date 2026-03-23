@@ -1,6 +1,12 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useGame } from '../contexts/GameContext';
 import ActionToggleButton from './ActionToggleButton';
+
+const LetterTile = React.memo(({ char, className }) => (
+  <div className={className}>
+    {char}
+  </div>
+));
 
 function CentralArea() {
   const { 
@@ -104,21 +110,27 @@ function CentralArea() {
               
               <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2">
                 {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
-                  <div key={`init-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow`}>
-                    {char}
-                  </div>
+                  <LetterTile 
+                    key={`init-${i}`} 
+                    char={char} 
+                    className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow`}
+                  />
                 ))}
 
                 {status !== 'game_over' && showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
-                  <div key={`prefix-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30`}>
-                    {char}
-                  </div>
+                  <LetterTile 
+                    key={`prefix-${i}`} 
+                    char={char} 
+                    className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30`}
+                  />
                 ))}
 
                 {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWord)).split('').map((char, i) => (
-                  <div key={`input-${i}`} className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}>
-                    {char}
-                  </div>
+                  <LetterTile 
+                    key={`input-${i}`} 
+                    char={char} 
+                    className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}
+                  />
                 ))}
                 
                 {isWordInput && (
