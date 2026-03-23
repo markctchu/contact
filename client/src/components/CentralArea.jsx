@@ -27,6 +27,7 @@ function CentralArea({
 
   // Calculate total visible tiles to ensure accurate scaling
   const totalVisibleCount = useMemo(() => {
+    if (status === 'game_over') return secretWord?.length || 7;
     if (isWordInput) {
       const prefixLen = (showPrefixInInput && revealedPrefix) ? revealedPrefix.length : 0;
       const inputLen = inputValue ? inputValue.length : 0;
@@ -37,7 +38,7 @@ function CentralArea({
     }
     if (!revealedPrefix && status !== 'game_over') return 7; // 'CONTACT'
     return displayWord ? displayWord.length : 7;
-  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, clueHiddenWord]);
+  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, clueHiddenWord, secretWord]);
 
   const getBoxSize = (wordLength) => {
     const baseClasses = "flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow transition-all duration-300";
