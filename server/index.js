@@ -59,7 +59,9 @@ io.on('connection', (socket) => {
     socket.data.username = username;
     socket.data.roomId = room.id;
     socket.join(room.id);
-    roomManager.emitRoomUpdate(io, room);
+    console.log(`[Room] User joined room ${room.id}. Emitting update to room.`);
+    roomManager.emitRoomUpdate(io, room, socket);
+    console.log(`[Room] Emitting updated rooms list to all.`);
     io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
   });
 
@@ -74,7 +76,9 @@ io.on('connection', (socket) => {
       socket.data.username = username;
       socket.data.roomId = roomId;
       socket.join(roomId);
-      roomManager.emitRoomUpdate(io, room);
+      console.log(`[Room] User joined room ${roomId}. Emitting update to room.`);
+      roomManager.emitRoomUpdate(io, room, socket);
+      console.log(`[Room] Emitting updated rooms list to all.`);
       io.emit(EVENTS.ROOMS_LIST, roomManager.getAllRooms());
     } else {
       console.warn(`[Room] Join failed: Room ${roomId} not found for user ${username}`);

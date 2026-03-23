@@ -432,8 +432,13 @@ class RoomManager {
     };
   }
 
-  emitRoomUpdate(io, room) {
-    io.to(room.id).emit(EVENTS.ROOM_UPDATE, this.serializeRoom(room));
+  emitRoomUpdate(io, room, targetSocket = null) {
+    const serialized = this.serializeRoom(room);
+    if (targetSocket) {
+      console.log(`[Room] Emitting direct room update to socket: ${targetSocket.id}`);
+      targetSocket.emit(EVENTS.ROOM_UPDATE, serialized);
+    }
+    io.to(room.id).emit(EVENTS.ROOM_UPDATE, serialized);
   }
 }
 
