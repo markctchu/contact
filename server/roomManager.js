@@ -112,11 +112,22 @@ class RoomManager {
 
   setWordmaster(io, roomId, playerId) {
     const room = this.rooms.get(roomId);
-    if (!room || room.wordmaster) return;
+    if (!room) return;
+    
+    // Allow taking role if no WM OR if previous game is over
+    if (room.wordmaster && room.status !== 'game_over') return;
 
     room.wordmaster = playerId;
     room.status = 'setting_word';
-    room.players.get(playerId).role = 'wordmaster';
+    room.secretWord = null;
+    room.revealedPrefix = '';
+    room.currentGuess = null;
+    
+    // Ensure player object reflects role
+    for (const p of room.players.values()) {
+      p.role = (p.id === playerId) ? 'wordmaster' : 'player';
+    }
+
     this.addLog(io, roomId, 'System', `${this.getUsername(room, playerId)} is now the Wordmaster.`);
     this.emitRoomUpdate(io, room);
   }
@@ -291,6 +302,7 @@ class RoomManager {
             if (hiddenWord === room.secretWord) {
               room.revealedPrefix = room.secretWord;
               room.status = 'game_over';
+              room.winner = 'players';
               this.addLog(io, roomId, 'Success', `VICTORY! ${this.getUsername(room, player)} and ${this.getUsername(room, contactedBy)} contacted the secret word: ${hiddenWord}`);
             } else {
               const nextChar = room.secretWord[room.revealedPrefix.length];
@@ -298,6 +310,7 @@ class RoomManager {
               this.addLog(io, roomId, 'Success', `Contact! ${this.getUsername(room, player)} and ${this.getUsername(room, contactedBy)} successfully guessed ${hiddenWord}`);
               if (room.revealedPrefix === room.secretWord) {
                 room.status = 'game_over';
+                room.winner = 'players';
                 this.addLog(io, roomId, 'System', `Game Over! Players win! The word was ${room.secretWord}`);
               }
             }
@@ -316,6 +329,7 @@ class RoomManager {
         room.victoryCountdown--;
         if (room.victoryCountdown === 0) {
           room.status = 'game_over';
+          room.winner = 'wordmaster';
           // Keep wordmaster ID so client knows who it was, 
           // but set revealedPrefix to secretWord for final display
           room.revealedPrefix = room.secretWord;
@@ -333,6 +347,7 @@ class RoomManager {
       id: room.id,
       name: room.name,
       status: room.status,
+      winner: room.winner,
       players: playersArr,
       wordmaster: room.wordmaster,
       revealedPrefix: room.revealedPrefix,

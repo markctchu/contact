@@ -142,8 +142,8 @@ function CentralArea({
               {status === 'game_over' ? (
                 <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
                   <div className={`px-10 py-4 rounded-full font-black text-xl sm:text-3xl uppercase tracking-[0.3em] ambient-shadow border-2
-                    ${revealedPrefix === secretWord ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'cta-gradient border-primary/10 text-on-primary-container'}`}>
-                    {revealedPrefix === secretWord ? 'PLAYERS WIN' : 'WORDMASTER WINS'}
+                    ${room.winner === 'players' ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'cta-gradient border-primary/10 text-on-primary-container'}`}>
+                    {room.winner === 'players' ? 'PLAYERS WIN' : 'WORDMASTER WINS'}
                   </div>
                   <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">Select Wordmaster to Play Again</p>
                 </div>
