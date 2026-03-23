@@ -1,6 +1,7 @@
 import { EVENTS } from '../constants';
 import { socket } from '../socket';
 import { useGame } from '../contexts/GameContext';
+import { STRINGS } from '../constants/strings';
 
 function ActionToggleButton({ onToggleAction, onCancel }) {
   const { room, socketId, isWordmaster, activeAction } = useGame();
@@ -14,7 +15,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
         onClick={() => socket.emit(EVENTS.BECOME_WORDMASTER)}
         className="cta-gradient text-on-primary-container font-black px-6 rounded-full transition-all active:scale-95 whitespace-nowrap uppercase tracking-widest text-xs sm:text-sm shadow-md"
       >
-        Wordmaster
+        {STRINGS.ACTION_WM}
       </button>
     );
   }
@@ -27,7 +28,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
         onClick={onCancel}
         className="bg-on-surface/5 hover:bg-on-surface/10 text-on-surface font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
       >
-        Cancel
+        {STRINGS.ACTION_CANCEL}
       </button>
     );
   }
@@ -42,7 +43,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
             onClick={() => socket.emit(EVENTS.DECLARE_VICTORY)}
             className="cta-gradient text-on-primary-container font-black px-6 rounded-full transition-all active:scale-95 whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest shadow-md"
           >
-            Declare Victory
+            {STRINGS.ACTION_DECLARE}
           </button>
         );
       }
@@ -52,7 +53,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
           onClick={() => onToggleAction('DENY')}
           className={`${activeAction === 'DENY' ? 'bg-tertiary text-white shadow-lg' : 'bg-on-surface/5 text-on-surface'} font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest`}
         >
-          {activeAction === 'DENY' ? 'Cancel' : 'Deny'}
+          {activeAction === 'DENY' ? STRINGS.ACTION_CANCEL : STRINGS.ACTION_DENY}
         </button>
       );
     } else {
@@ -64,7 +65,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
             onClick={() => onToggleAction('GUESS')}
             className={`${activeAction === 'GUESS' ? 'bg-tertiary text-white shadow-lg' : 'bg-on-surface/5 text-on-surface'} font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest`}
           >
-            {activeAction === 'GUESS' ? 'Cancel' : 'Guess'}
+            {activeAction === 'GUESS' ? STRINGS.ACTION_CANCEL : STRINGS.ACTION_GUESS}
           </button>
         );
       } else if (currentGuess.player === socketId) {
@@ -75,7 +76,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
               onClick={onCancel}
               className="bg-on-surface/5 text-on-surface font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
             >
-              Cancel
+              {STRINGS.ACTION_CANCEL}
             </button>
           );
         } else if (!currentGuess.contactedBy) {
@@ -85,7 +86,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
               onClick={onCancel}
               className="bg-tertiary/10 text-tertiary font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
             >
-              Retract
+              {STRINGS.ACTION_RETRACT}
             </button>
           );
         }
@@ -96,7 +97,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
             onClick={() => onToggleAction('CONTACT')}
             className={`${activeAction === 'CONTACT' ? 'bg-tertiary text-white shadow-lg' : 'bg-on-surface/5 text-on-surface'} font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest`}
           >
-            {activeAction === 'CONTACT' ? 'Cancel' : 'Contact!'}
+            {activeAction === 'CONTACT' ? STRINGS.ACTION_CANCEL : STRINGS.ACTION_CONTACT}
           </button>
         );
       }
@@ -111,12 +112,12 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
         onClick={() => socket.emit(EVENTS.CONTEST_VICTORY)}
         className="bg-tertiary text-white font-black px-6 rounded-full transition-all animate-bounce whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest shadow-xl"
       >
-        Contest
+        {STRINGS.ACTION_CONTEST}
       </button>
     );
   }
 
-  return <div className="bg-on-surface/5 text-on-surface/20 font-black px-6 flex items-center rounded-full whitespace-nowrap uppercase tracking-widest text-[10px] sm:text-xs">Chat</div>;
+  return <div className="bg-on-surface/5 text-on-surface/20 font-black px-6 flex items-center rounded-full whitespace-nowrap uppercase tracking-widest text-[10px] sm:text-xs">{STRINGS.ACTION_CHAT}</div>;
 }
 
 export default ActionToggleButton;
