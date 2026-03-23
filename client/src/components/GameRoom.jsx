@@ -21,21 +21,65 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
     return () => socket.off(EVENTS.CHAT_UPDATE);
   }, []);
 
-  // Sync keyboard toggle with Escape
+  const handleEnter = () => {
+    const val = inputValue.trim();
+    const prefix = room.revealedPrefix || '';
+    if (!val && !activeAction) return;
+
+    if (activeAction === 'SECRET') {
+      socket.emit(EVENTS.SET_SECRET_WORD, { word: val });
+    } else if (activeAction === 'GUESS') {
+      socket.emit(EVENTS.SUBMIT_GUESS_WORD, { word: prefix + val });
+    } else if (activeAction === 'GUESS_CLUE') {
+      socket.emit(EVENTS.SUBMIT_GUESS_CLUE, { clue: val });
+    } else if (activeAction === 'CONTACT') {
+      socket.emit(EVENTS.CALL_CONTACT, { guess: prefix + val });
+    } else if (activeAction === 'DENY') {
+      socket.emit(EVENTS.DENY_GUESS, { guess: prefix + val });
+    } else if (val) {
+      socket.emit(EVENTS.CHAT_MESSAGE, { message: val });
+    }
+
+    setInputValue('');
+    if (['CONTACT', 'GUESS', 'DENY'].includes(activeAction)) {
+      setActiveAction(null);
+    }
+  };
+
+  const handleKeyPress = (key) => {
+    setInputValue(prev => prev + key);
+  };
+
+  const handleBackspace = () => {
+    setInputValue(prev => prev.slice(0, -1));
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'Escape') {
         setShowKeyboard(prev => !prev);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        handleEnter();
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        handleBackspace();
+      } else if (e.key.length === 1) {
+        if (/^[a-zA-Z0-9 ]$/.test(e.key)) {
+          e.preventDefault();
+          handleKeyPress(e.key.toUpperCase());
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [inputValue, activeAction, room.revealedPrefix]);
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-surface text-on-surface overflow-hidden">
+    <div className="flex flex-col h-[100dvh] bg-surface text-on-surface overflow-hidden transition-colors duration-300">
       {/* Top Bar */}
-      <header className="bg-surface-low border-b border-outline-variant px-4 sm:px-8 py-3 sm:py-5 flex justify-between items-center z-10 shrink-0 transition-colors duration-300">
+      <header className="bg-surface-low border-b border-outline-variant px-4 sm:px-8 py-3 sm:py-5 flex justify-between items-center z-10 shrink-0">
         <div className="flex items-center space-x-4 sm:space-x-6">
           <div className="bg-tertiary p-2 rounded-lg ambient-shadow">
             <h1 className="text-xl sm:text-2xl font-black text-white leading-none">C</h1>
@@ -47,11 +91,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
         </div>
         
         <div className="flex items-center space-x-3">
-          <button 
-            onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-surface-container transition-all mr-2"
-            title="Toggle Theme"
-          >
+          <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-surface-container transition-all mr-2">
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
           </button>
           <div className="flex items-center bg-surface-container px-4 py-2 rounded-full border border-outline-variant ambient-shadow">
@@ -62,21 +102,29 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
         </div>
       </header>
 
-      {/* Main Area */}
-      <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-surface transition-colors duration-300">
-        <div className="flex-1 flex flex-col items-center justify-center p-2 sm:p-6 overflow-y-auto custom-scrollbar bg-gradient-to-t from-surface-low/40 to-transparent">
-          <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center py-4">
-            <CentralArea 
-              room={room} 
-              typingStatus={typingStatus} 
-              socketId={socketId} 
-              inputValue={inputValue}
-              activeAction={activeAction}
-            />
-          </div>
+      {/* Main Content (Tiles + Controls) */}
+      <main className="flex-1 flex flex-col min-h-0 relative bg-surface">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 overflow-y-auto custom-scrollbar bg-gradient-to-t from-surface-low/40 to-transparent">
+          <CentralArea 
+            room={room} 
+            typingStatus={typingStatus} 
+            socketId={socketId} 
+            inputValue={inputValue}
+            activeAction={activeAction}
+            onToggleAction={toggleAction}
+            onCancel={() => {
+              setInputValue('');
+              setActiveAction(null);
+              if (room.status === 'setting_word' && isWordmaster) {
+                socket.emit(EVENTS.CANCEL_ACTION);
+              } else if (room.currentGuess && room.currentGuess.player === socketId) {
+                socket.emit(EVENTS.CANCEL_ACTION);
+              }
+            }}
+          />
         </div>
 
-        {/* Bottom Section (Includes Chat & Keyboard) */}
+        {/* Integrated Chat & Keyboard */}
         <section className="bg-surface border-t border-outline-variant shrink-0 transition-colors duration-300">
           <BottomInput 
             room={room} 
@@ -87,8 +135,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
             inputValue={inputValue}
             setInputValue={setInputValue}
             activeAction={activeAction}
-            setActiveAction={setActiveAction}
-            toggleAction={toggleAction}
+            handleEnter={handleEnter}
             showKeyboard={showKeyboard}
             setShowKeyboard={setShowKeyboard}
           />
