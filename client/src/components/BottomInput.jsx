@@ -2,6 +2,7 @@ import React from 'react';
 import ChatWindow from './ChatWindow';
 import VirtualKeyboard from './VirtualKeyboard';
 import { useGame } from '../contexts/GameContext';
+import { STRINGS } from '../constants/strings';
 
 function BottomInput() {
   const { 
@@ -24,7 +25,7 @@ function BottomInput() {
             onClick={() => setShowKeyboard(!showKeyboard)}
             className="hidden sm:block text-[10px] font-black text-on-surface/10 hover:text-tertiary uppercase tracking-[0.2em] transition-colors"
           >
-            {showKeyboard ? '[ Hide Keys ]' : '[ Show Keys ]'}
+            {showKeyboard ? `[ ${STRINGS.KEYBOARD_COLLAPSE} ]` : `[ ${STRINGS.KEYBOARD_EXPAND} ]`}
           </button>
         </div>
         {showKeyboard && (
