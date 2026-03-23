@@ -79,7 +79,7 @@ function GameRoomContent({ toggleTheme, theme }) {
         </div>
 
         {/* Keyboard Footer */}
-        <section className="bg-surface border-t border-outline-variant shrink-0 transition-colors duration-300">
+        <section className="bg-surface shrink-0 transition-colors duration-300">
           <BottomInput />
         </section>
       </main>
