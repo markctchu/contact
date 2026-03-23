@@ -158,6 +158,12 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on(EVENTS.ERROR_REPORT, (errorData) => {
+    console.error(`\x1b[31m[FRONTEND CRASH]\x1b[0m User: ${socket.data.username || 'Unknown'} (${socket.id})`);
+    console.error(`Message: ${errorData.message}`);
+    console.error(`Stack: ${errorData.componentStack}`);
+  });
+
   socket.on(EVENTS.TYPING_STATUS, ({ intent }) => {
     const { roomId } = socket.data;
     if (roomId) roomManager.setTypingStatus(io, roomId, socket.id, intent);

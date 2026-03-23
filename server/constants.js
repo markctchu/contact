@@ -27,7 +27,8 @@ const EVENTS = {
   CHAT_UPDATE_PRIVATE: 'chat_update_private',
   
   // System
-  ERROR: 'error'
+  ERROR: 'error',
+  ERROR_REPORT: 'error_report'
 };
 
 module.exports = { EVENTS };
