@@ -82,6 +82,7 @@ function GameRoom({ room, typingStatus, username, socketId, toggleTheme, theme }
             room={room} 
             socketId={socketId}
             chat={chat}
+            username={username}
             isWordmaster={isWordmaster}
             inputValue={inputValue}
             setInputValue={setInputValue}

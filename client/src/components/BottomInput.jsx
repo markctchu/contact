@@ -1,15 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { socket } from '../socket';
 import { EVENTS } from '../constants';
 import ChatWindow from './ChatWindow';
 import ActionToggleButton from './ActionToggleButton';
-import UnifiedInput from './UnifiedInput';
 import VirtualKeyboard from './VirtualKeyboard';
 
 function BottomInput({ 
   room, 
   socketId, 
   chat, 
+  username,
   isWordmaster, 
   inputValue, 
   setInputValue, 
@@ -105,25 +105,24 @@ function BottomInput({
     setInputValue('');
   };
 
+  const isWordInput = ['SECRET', 'GUESS', 'GUESS_CLUE', 'CONTACT', 'DENY'].includes(activeAction);
+
+  const modeLabel = useMemo(() => {
+    if (!activeAction) return 'Chat Mode';
+    switch (activeAction) {
+      case 'SECRET': return 'Secret Word Mode';
+      case 'GUESS': return 'Guess Word Mode';
+      case 'GUESS_CLUE': return 'Clue Mode';
+      case 'CONTACT': return 'Contact Mode';
+      case 'DENY': return 'Intercept Mode';
+      default: return `${activeAction} Mode`;
+    }
+  }, [activeAction]);
+
   return (
-    <div className="p-2 sm:p-4 pb-0.5 sm:pb-3 flex flex-col space-y-2 sm:space-y-4 max-w-2xl mx-auto w-full relative">
-      <div className="flex items-center justify-between px-1 shrink-0">
-        <button 
-          onClick={() => setShowKeyboard(!showKeyboard)}
-          className="hidden sm:block text-[10px] font-black text-on-surface/20 hover:text-tertiary uppercase tracking-[0.2em] transition-colors"
-        >
-          {showKeyboard ? 'Collapse Keys' : 'Expand Keys'}
-        </button>
-        {activeAction && (
-          <span className="text-[10px] font-black text-tertiary uppercase tracking-[0.2em] animate-pulse ml-auto">
-            {activeAction === 'GUESS_CLUE' ? 'CLUE' : activeAction} Mode Active
-          </span>
-        )}
-      </div>
-
-      <ChatWindow messages={allMessages} />
-
-      <div className="flex space-x-2 sm:space-x-3 h-10 sm:h-12 shrink-0">
+    <div className="flex flex-col max-w-2xl mx-auto w-full relative">
+      {/* 1. Prompt & Mode Display Row (Lives just above chat) */}
+      <div className="flex items-center justify-between px-4 py-2 sm:py-3 shrink-0">
         <ActionToggleButton 
           room={room}
           socketId={socketId}
@@ -132,19 +131,57 @@ function BottomInput({
           onToggleAction={onToggleAction}
           onCancel={handleCancel}
         />
-        <UnifiedInput 
-          activeAction={activeAction}
-          inputValue={inputValue}
-        />
+        <div className="text-[10px] font-black text-tertiary uppercase tracking-[0.2em] transition-all">
+          <span className={activeAction ? 'animate-pulse' : 'opacity-40'}>
+            {modeLabel}
+          </span>
+        </div>
       </div>
 
-      {showKeyboard && (
-        <VirtualKeyboard 
-          onKeyPress={handleKeyPress}
-          onEnter={handleEnter}
-          onBackspace={handleBackspace}
-        />
-      )}
+      {/* 2. Chat Window */}
+      <div className="px-4">
+        <ChatWindow messages={allMessages} />
+      </div>
+
+      {/* 3. Input Row (Persistent Username + Cursor) */}
+      <div className="px-6 py-2 sm:py-3 min-h-[40px] flex items-center">
+        {!isWordInput ? (
+          <div className="flex items-baseline w-full transition-all duration-300">
+            <span className="font-black text-tertiary uppercase text-[10px] tracking-widest mr-3 opacity-60 shrink-0">
+              {username}:
+            </span>
+            <div className="flex-1 flex items-baseline min-w-0">
+              <span className="text-on-surface font-bold text-sm sm:text-base uppercase tracking-widest truncate">
+                {inputValue}
+              </span>
+              <span className="inline-block w-1 h-4 ml-1 bg-tertiary/40 animate-[pulse_1.5s_infinite] rounded-full shrink-0"></span>
+            </div>
+          </div>
+        ) : (
+          <div className="text-[10px] font-black text-on-surface/20 uppercase tracking-[0.2em] italic">
+            Input active in central area...
+          </div>
+        )}
+      </div>
+
+      {/* 4. Keyboard Controls */}
+      <div className="px-2 pb-1 sm:pb-3 space-y-2">
+        <div className="flex justify-end px-2">
+          <button 
+            onClick={() => setShowKeyboard(!showKeyboard)}
+            className="hidden sm:block text-[10px] font-black text-on-surface/10 hover:text-tertiary uppercase tracking-[0.2em] transition-colors"
+          >
+            {showKeyboard ? '[ Hide Keys ]' : '[ Show Keys ]'}
+          </button>
+        </div>
+        {showKeyboard && (
+          <VirtualKeyboard 
+            onKeyPress={handleKeyPress}
+            onEnter={handleEnter}
+            onBackspace={handleBackspace}
+          />
+        )}
+      </div>
     </div>
   );
 }
