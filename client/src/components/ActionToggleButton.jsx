@@ -65,8 +65,8 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
             {activeAction === 'GUESS' ? 'Cancel' : 'Guess'}
           </button>
         );
-      } else if (currentGuess.player === socketId) {
-        if (!currentGuess.clue) {
+      } else if (currentGuess?.player === socketId) {
+        if (!currentGuess?.clue) {
           return (
             <button 
               type="button"
@@ -76,7 +76,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
               Cancel
             </button>
           );
-        } else if (!currentGuess.contactedBy) {
+        } else if (!currentGuess?.contactedBy) {
           return (
             <button 
               type="button"
@@ -87,7 +87,7 @@ function ActionToggleButton({ room, socketId, isWordmaster, activeAction, onTogg
             </button>
           );
         }
-      } else if (currentGuess.clue && !currentGuess.contactedBy) {
+      } else if (currentGuess?.clue && !currentGuess?.contactedBy) {
         return (
           <button 
             type="button"

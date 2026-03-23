@@ -166,6 +166,7 @@ function App() {
           socketId={socketId}
           toggleTheme={toggleTheme}
           theme={theme}
+          isConnected={isConnected}
         />
       )}
     </div>
