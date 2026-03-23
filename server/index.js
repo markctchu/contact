@@ -151,7 +151,7 @@ io.on('connection', (socket) => {
         if (player) player.role = 'player';
         
         roomManager.emitRoomUpdate(io, room);
-        roomManager.addLog(io, roomId, 'System', `${socket.data.username} has relinquished Wordmaster.`);
+        roomManager.addLog(io, roomId, 'System', STRINGS.MSG_WM_RELINQUISHED(socket.data.username));
       } else {
         roomManager.cancelAction(io, roomId, socket.id);
       }

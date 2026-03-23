@@ -1,0 +1,22 @@
+const STRINGS = {
+  MSG_JOINED: (user) => `${user} joined the room.`,
+  MSG_LEFT: (user) => `${user} left the room.`,
+  MSG_WM_LEFT: (user) => `${user} (Wordmaster) left. Game reset.`,
+  MSG_GUESS_LEFT: (user) => `${user}'s guess was removed as they left.`,
+  MSG_WM_ASSIGNED: (user) => `${user} is now the Wordmaster.`,
+  MSG_WM_RELINQUISHED: (user) => `${user} has relinquished Wordmaster.`,
+  MSG_GAME_STARTED: (prefix) => `Game Started! Revealed: ${prefix}`,
+  MSG_GUESS_SUBMITTED: (user, clue) => `${user} submitted a new guess: "${clue}"`,
+  MSG_CONTACT_ATTEMPT: (user1, user2) => `${user1} and ${user2} are attempting contact...`,
+  MSG_INTERCEPTED: (word) => `Wordmaster intercepted! The word was ${word}`,
+  MSG_VICTORY_DECLARED: "Wordmaster is declaring victory!",
+  MSG_VICTORY_CONTESTED: (user) => `${user} contested the victory!`,
+  MSG_GUESS_RETRACTED: (user) => `${user} retracted their guess.`,
+  MSG_CONTACT_SUCCESS_GAME: (user1, user2, word) => `VICTORY! ${user1} and ${user2} contacted the secret word: ${word}`,
+  MSG_CONTACT_SUCCESS_CHAR: (user1, user2, word) => `Contact! ${user1} and ${user2} successfully guessed ${word}`,
+  MSG_CONTACT_FAILED: "Contact failed! Words did not match.",
+  MSG_PLAYERS_WIN: (word) => `Game Over! Players win! The word was ${word}`,
+  MSG_WM_WINS: (word) => `Game Over! Wordmaster wins! The word was ${word}`
+};
+
+module.exports = { STRINGS };

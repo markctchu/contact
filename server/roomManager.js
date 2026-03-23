@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
 const { EVENTS } = require('./constants');
+const { STRINGS } = require('./strings');
 
 class RoomManager {
   constructor() {
@@ -151,12 +152,12 @@ class RoomManager {
       room.secretWord = null;
       room.revealedPrefix = '';
       room.currentGuess = null;
-      this.addLog(io, room.id, 'System', `${username} (Wordmaster) left. Game reset.`);
+      this.addLog(io, room.id, 'System', STRINGS.MSG_WM_LEFT(username));
     } else if (room.currentGuess && room.currentGuess.player === playerId) {
       room.currentGuess = null;
-      this.addLog(io, room.id, 'System', `${username}'s guess was removed as they left.`);
+      this.addLog(io, room.id, 'System', STRINGS.MSG_GUESS_LEFT(username));
     } else {
-      this.addLog(io, room.id, 'System', `${username} left the room.`);
+      this.addLog(io, room.id, 'System', STRINGS.MSG_LEFT(username));
     }
 
     if (room.players.size === 0) {
@@ -183,7 +184,7 @@ class RoomManager {
       p.role = (p.id === playerId) ? 'wordmaster' : 'player';
     }
 
-    this.addLog(io, roomId, 'System', `${this.getUsername(room, playerId)} is now the Wordmaster.`);
+    this.addLog(io, roomId, 'System', STRINGS.MSG_WM_ASSIGNED(this.getUsername(room, playerId)));
     this.emitRoomUpdate(io, room);
   }
 
@@ -202,7 +203,7 @@ class RoomManager {
     room.status = 'playing';
     room.usedWords.clear();
     room.usedWords.add(upperWord);
-    this.addLog(io, roomId, 'System', `Game Started! Revealed: ${room.revealedPrefix}`);
+    this.addLog(io, roomId, 'System', STRINGS.MSG_GAME_STARTED(room.revealedPrefix));
     this.emitRoomUpdate(io, room);
   }
 
@@ -240,7 +241,7 @@ class RoomManager {
     if (!room || !room.currentGuess || room.currentGuess.player !== playerId) return;
 
     room.currentGuess.clue = clue;
-    this.addLog(io, roomId, 'Action', `${this.getUsername(room, playerId)} submitted a new guess: "${clue}"`);
+    this.addLog(io, roomId, 'Action', STRINGS.MSG_GUESS_SUBMITTED(this.getUsername(room, playerId), clue));
     this.emitRoomUpdate(io, room);
   }
 
@@ -258,7 +259,7 @@ class RoomManager {
     room.currentGuess.contactGuess = normalizedGuess;
     room.currentGuess.countdown = 4;
     
-    this.addLog(io, roomId, 'Contact', `${this.getUsername(room, room.currentGuess.player)} and ${this.getUsername(room, playerId)} are attempting contact...`);
+    this.addLog(io, roomId, 'Contact', STRINGS.MSG_CONTACT_ATTEMPT(this.getUsername(room, room.currentGuess.player), this.getUsername(room, playerId)));
     this.emitRoomUpdate(io, room);
   }
 
@@ -274,7 +275,7 @@ class RoomManager {
 
     if (upperGuess === room.currentGuess.hiddenWord) {
       room.usedWords.add(upperGuess);
-      this.addLog(io, roomId, 'Failure', `Wordmaster intercepted! The word was ${upperGuess}`);
+      this.addLog(io, roomId, 'Failure', STRINGS.MSG_INTERCEPTED(upperGuess));
       room.currentGuess = null;
     } else {
       this.addPrivateLog(io, playerId, 'Error', 'Incorrect intercept attempt.');
@@ -288,7 +289,7 @@ class RoomManager {
 
     room.status = 'victory_countdown';
     room.victoryCountdown = 10;
-    this.addLog(io, roomId, 'System', `Wordmaster is declaring victory!`);
+    this.addLog(io, roomId, 'System', STRINGS.MSG_VICTORY_DECLARED);
     this.emitRoomUpdate(io, room);
   }
 
@@ -298,7 +299,7 @@ class RoomManager {
 
     room.status = 'playing';
     room.victoryCountdown = 0;
-    this.addLog(io, roomId, 'System', `${this.getUsername(room, playerId)} contested the victory!`);
+    this.addLog(io, roomId, 'System', STRINGS.MSG_VICTORY_CONTESTED(this.getUsername(room, playerId)));
     this.emitRoomUpdate(io, room);
   }
 
@@ -308,7 +309,7 @@ class RoomManager {
 
     if (room.currentGuess && room.currentGuess.player === playerId) {
       room.currentGuess = null;
-      this.addLog(io, roomId, 'System', `${this.getUsername(room, playerId)} retracted their guess.`);
+      this.addLog(io, roomId, 'System', STRINGS.MSG_GUESS_RETRACTED(this.getUsername(room, playerId)));
       this.emitRoomUpdate(io, room);
     }
   }
@@ -371,20 +372,20 @@ class RoomManager {
               room.revealedPrefix = room.secretWord;
               room.status = 'game_over';
               room.winner = 'players';
-              this.addLog(io, roomId, 'Success', `VICTORY! ${this.getUsername(room, player)} and ${this.getUsername(room, contactedBy)} contacted the secret word: ${hiddenWord}`);
+              this.addLog(io, roomId, 'Success', STRINGS.MSG_CONTACT_SUCCESS_GAME(this.getUsername(room, player), this.getUsername(room, contactedBy), hiddenWord));
             } else {
               const nextChar = room.secretWord[room.revealedPrefix.length];
               room.revealedPrefix += nextChar;
-              this.addLog(io, roomId, 'Success', `Contact! ${this.getUsername(room, player)} and ${this.getUsername(room, contactedBy)} successfully guessed ${hiddenWord}`);
+              this.addLog(io, roomId, 'Success', STRINGS.MSG_CONTACT_SUCCESS_CHAR(this.getUsername(room, player), this.getUsername(room, contactedBy), hiddenWord));
               if (room.revealedPrefix === room.secretWord) {
                 room.status = 'game_over';
                 room.winner = 'players';
-                this.addLog(io, roomId, 'System', `Game Over! Players win! The word was ${room.secretWord}`);
+                this.addLog(io, roomId, 'System', STRINGS.MSG_PLAYERS_WIN(room.secretWord));
               }
             }
             room.currentGuess = null;
           } else {
-            this.addLog(io, roomId, 'Failure', `Contact failed! Words did not match.`);
+            this.addLog(io, roomId, 'Failure', STRINGS.MSG_CONTACT_FAILED);
             room.currentGuess.contactedBy = null;
             room.currentGuess.contactGuess = null;
             room.currentGuess.countdown = 0;
@@ -400,7 +401,7 @@ class RoomManager {
           room.status = 'game_over';
           room.winner = 'wordmaster';
           room.revealedPrefix = room.secretWord;
-          this.addLog(io, roomId, 'System', `Game Over! Wordmaster wins! The word was ${room.secretWord}`);
+          this.addLog(io, roomId, 'System', STRINGS.MSG_WM_WINS(room.secretWord));
         }
         this.emitRoomUpdate(io, room);
       }
