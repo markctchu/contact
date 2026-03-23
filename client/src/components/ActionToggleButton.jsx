@@ -13,9 +13,9 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
       <button 
         type="button"
         onClick={() => socket.emit(EVENTS.BECOME_WORDMASTER)}
-        className="cta-gradient text-on-primary-container font-black px-6 rounded-full transition-all active:scale-95 whitespace-nowrap uppercase tracking-widest text-xs sm:text-sm shadow-md"
+        className="text-primary font-black transition-all active:scale-95 whitespace-nowrap uppercase tracking-widest text-xs sm:text-sm"
       >
-        {STRINGS.ACTION_WM}
+        👑 {STRINGS.ACTION_WM}
       </button>
     );
   }
@@ -26,7 +26,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
       <button 
         type="button"
         onClick={onCancel}
-        className="bg-on-surface/5 hover:bg-on-surface/10 text-on-surface font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+        className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
       >
         {STRINGS.ACTION_CANCEL}
       </button>
@@ -41,9 +41,9 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
           <button 
             type="button"
             onClick={() => socket.emit(EVENTS.DECLARE_VICTORY)}
-            className="cta-gradient text-on-primary-container font-black px-6 rounded-full transition-all active:scale-95 whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest shadow-md"
+            className="text-primary font-black transition-all active:scale-95 whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
           >
-            {STRINGS.ACTION_DECLARE}
+            🏆 {STRINGS.ACTION_DECLARE}
           </button>
         );
       }
@@ -51,9 +51,9 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
         <button 
           type="button"
           onClick={() => onToggleAction('DENY')}
-          className={`${activeAction === 'DENY' ? 'bg-tertiary text-white shadow-lg' : 'bg-on-surface/5 text-on-surface'} font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest`}
+          className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
         >
-          {activeAction === 'DENY' ? STRINGS.ACTION_CANCEL : STRINGS.ACTION_DENY}
+          {activeAction === 'DENY' ? STRINGS.ACTION_CANCEL : `✋ ${STRINGS.ACTION_DENY}`}
         </button>
       );
     } else {
@@ -63,9 +63,9 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
           <button 
             type="button"
             onClick={() => onToggleAction('GUESS')}
-            className={`${activeAction === 'GUESS' ? 'bg-tertiary text-white shadow-lg' : 'bg-on-surface/5 text-on-surface'} font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest`}
+            className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
           >
-            {activeAction === 'GUESS' ? STRINGS.ACTION_CANCEL : STRINGS.ACTION_GUESS}
+            {activeAction === 'GUESS' ? STRINGS.ACTION_CANCEL : `🎯 ${STRINGS.ACTION_GUESS}`}
           </button>
         );
       } else if (currentGuess.player === socketId) {
@@ -74,7 +74,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
             <button 
               type="button"
               onClick={onCancel}
-              className="bg-on-surface/5 text-on-surface font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+              className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
             >
               {STRINGS.ACTION_CANCEL}
             </button>
@@ -84,7 +84,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
             <button 
               type="button"
               onClick={onCancel}
-              className="bg-tertiary/10 text-tertiary font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+              className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
             >
               {STRINGS.ACTION_RETRACT}
             </button>
@@ -95,9 +95,9 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
           <button 
             type="button"
             onClick={() => onToggleAction('CONTACT')}
-            className={`${activeAction === 'CONTACT' ? 'bg-tertiary text-white shadow-lg' : 'bg-on-surface/5 text-on-surface'} font-black px-6 rounded-full transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest`}
+            className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
           >
-            {activeAction === 'CONTACT' ? STRINGS.ACTION_CANCEL : STRINGS.ACTION_CONTACT}
+            {activeAction === 'CONTACT' ? STRINGS.ACTION_CANCEL : `💡 ${STRINGS.ACTION_CONTACT}`}
           </button>
         );
       }
@@ -110,14 +110,14 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
       <button 
         type="button"
         onClick={() => socket.emit(EVENTS.CONTEST_VICTORY)}
-        className="bg-tertiary text-white font-black px-6 rounded-full transition-all animate-bounce whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest shadow-xl"
+        className="text-primary font-black transition-all animate-bounce whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
       >
-        {STRINGS.ACTION_CONTEST}
+        ☝️ {STRINGS.ACTION_CONTEST}
       </button>
     );
   }
 
-  return <div className="bg-on-surface/5 text-on-surface/20 font-black px-6 flex items-center rounded-full whitespace-nowrap uppercase tracking-widest text-[10px] sm:text-xs">{STRINGS.ACTION_CHAT}</div>;
+  return <div className="text-primary opacity-30 font-black flex items-center whitespace-nowrap uppercase tracking-widest text-[10px] sm:text-xs">{STRINGS.ACTION_CHAT}</div>;
 }
 
 export default ActionToggleButton;
