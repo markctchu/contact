@@ -44,9 +44,9 @@ const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration }) => 
   if (!isActive) return null;
 
   return (
-    <div className="absolute top-0 left-0 w-full h-1.5 bg-surface-container overflow-hidden z-20">
+    <div className="absolute top-0 left-0 w-full h-1.5 bg-surface-container overflow-hidden z-20 rounded-t-xl">
       <div 
-        className="h-full bg-on-secondary-container transition-none"
+        className="h-full bg-on-secondary-container transition-none rounded-r-full"
         style={{ width: `${progress}%` }}
       />
     </div>
