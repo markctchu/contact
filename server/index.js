@@ -111,7 +111,7 @@ io.on('connection', (socket) => {
 
   socket.on(EVENTS.CALL_CONTACT, ({ guess }) => {
     const { roomId } = socket.data;
-    if (roomId) roomManager.callContact(io, roomId, socket.id, guess);
+    if (roomId) roomManager.submitContact(io, roomId, socket.id, guess);
   });
 
   socket.on(EVENTS.DENY_GUESS, ({ guess }) => {
