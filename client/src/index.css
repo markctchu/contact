@@ -73,7 +73,7 @@
   --tertiary: #fde047;
   --tertiary-fixed: #fef08a;
   
-  --outline-variant: rgba(255, 255, 255, 0.05);
+  --outline-variant: rgba(0, 0, 0, 0.4);
   --shadow-color: rgba(0, 0, 0, 0.3);
 }
 

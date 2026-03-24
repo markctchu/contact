@@ -10,7 +10,7 @@ const ROWS = [
 
 const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
   return (
-    <div className="w-full p-1 sm:p-2 bg-surface-low rounded-2xl">
+    <div className="w-full p-1 sm:p-2 bg-surface-low rounded-lg">
       <div className="flex flex-col gap-1.5 sm:gap-2">
         {ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1.5 w-full">

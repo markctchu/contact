@@ -27,7 +27,7 @@ function ChatWindow() {
   }, [messages, inputValue, activeAction]);
 
   return (
-    <div className="bg-surface-low rounded-xl p-2 sm:p-3 shrink-0 overflow-hidden flex flex-col h-24 sm:h-40 max-h-[20vh] relative transition-colors duration-300 border border-outline-variant">
+    <div className="bg-surface-low rounded-lg p-2 sm:p-3 shrink-0 overflow-hidden flex flex-col h-24 sm:h-40 max-h-[20vh] relative transition-colors duration-300 border border-outline-variant">
       {/* 1. Message History (Scrollable) */}
       <div 
         className={`flex-1 overflow-y-auto space-y-1.5 custom-scrollbar pr-2 min-h-0 ${isChatInput ? 'pb-6' : 'pb-0'}`}
@@ -35,7 +35,7 @@ function ChatWindow() {
         {Array.isArray(messages) && messages.map((msg, i) => (
           <div key={i} className="text-xs sm:text-[13px] animate-in fade-in slide-in-from-bottom-1 duration-300">
             {msg.isLog ? (
-              <div className={`py-0.5 px-3 bg-surface-low/50 rounded border-l-2 ${msg.isPrivate ? 'border-dashed opacity-60' : ''} ${getLogBorderColor(msg.logType)}`}>
+              <div className={`py-0.5 px-3 bg-surface rounded border-l-2 ${msg.isPrivate ? 'border-dashed opacity-60' : ''} ${getLogBorderColor(msg.logType)}`}>
                 <span className={`${getLogStyle(msg.logType)} font-medium text-[10px] sm:text-xs`}>
                   {msg.isPrivate && <span className="text-[9px] uppercase mr-2 opacity-40 font-black">{STRINGS.LOG_PRIVATE_PREFIX}</span>}
                   {msg.message}
@@ -53,7 +53,7 @@ function ChatWindow() {
       </div>
       
       {/* 2. Persistent Chat Input Line - Absolutely positioned at bottom */}
-      <div className={`absolute bottom-0 left-0 w-full px-3 py-1 border-t border-on-surface/5 overflow-hidden transition-all duration-300 ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+      <div className={`absolute bottom-0 left-0 w-full px-3 py-1 border-t border-on-surface/10 dark:border-black/40 overflow-hidden transition-all duration-300 ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
         {shouldRenderInput && (
           <div className="flex items-center space-x-3 px-1 py-1">
             <span className="font-black text-tertiary shrink-0 uppercase text-xs sm:text-sm tracking-widest translate-y-[1px]">{username}</span>

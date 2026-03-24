@@ -65,7 +65,7 @@ function GameRoomContent({ toggleTheme, theme }) {
           <div className="flex items-center px-2 py-1">
             <Users size={16} className="text-tertiary mr-2 opacity-60" />
             <span className="text-sm sm:text-base font-black">{room.players.length}</span>
-            <span className="hidden sm:inline text-[10px] text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-30">{STRINGS.PLAYER_COUNT_LABEL(room.players.length)}</span>
+            <span className="hidden sm:inline text-xs text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-30">{STRINGS.PLAYER_COUNT_LABEL(room.players.length)}</span>
           </div>
         </div>
       </header>
