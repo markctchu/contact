@@ -67,8 +67,10 @@ function CentralArea() {
     const baseFontSize = isDesktop ? 2.25 : 1.25; // rem
     const gap = isDesktop ? 12 : (count > 10 ? 2 : 4);
     
+    // Respect the max-w-4xl (896px) limit from GameRoom.jsx on desktop
+    const maxContainerW = isDesktop ? 896 : windowWidth;
     const horizontalPadding = isDesktop ? 64 : 16;
-    const availableW = windowWidth - horizontalPadding;
+    const availableW = Math.min(windowWidth, maxContainerW) - horizontalPadding;
     
     const totalBaseWidth = count * baseW + (count - 1) * gap;
     
