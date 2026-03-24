@@ -278,7 +278,7 @@ function CentralArea() {
                     <div className="absolute top-0 left-0 w-full h-1 bg-tertiary/20"></div>
                   )}
                   
-                  <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center transition-all duration-500">
+                  <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center transition-all duration-500 ${isContactAttempt ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
                     {isContactAttempt 
                       ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess.contactedByName)
                       : STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}
