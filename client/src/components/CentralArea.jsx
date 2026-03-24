@@ -61,33 +61,13 @@ function CentralArea() {
     const count = totalVisibleCount;
     const isDesktop = windowWidth >= 640;
     
-    if (isDesktop) {
-      const baseW = 56;
-      const baseH = 80;
-      const gap = 12;
-      const maxW = 800; 
-      const totalBaseWidth = count * baseW + (count - 1) * gap;
-      
-      if (totalBaseWidth <= maxW) {
-        return { width: 56, height: 80, fontSize: '2.25rem', gap: 12 };
-      }
-      
-      const w = (maxW - (count - 1) * gap) / count;
-      const scale = w / baseW;
-      return { 
-        width: w, 
-        height: baseH * scale, 
-        fontSize: `${2.25 * scale}rem`,
-        gap: 12 
-      };
-    }
-
-    // Mobile logic
-    const baseW = 36;
-    const baseH = 56;
-    const baseFontSize = 1.25; // rem
-    const gap = count > 10 ? 2 : 4;
-    const horizontalPadding = 16; // 8px each side - tight detection
+    // Base dimensions
+    const baseW = isDesktop ? 56 : 36;
+    const baseH = isDesktop ? 80 : 56;
+    const baseFontSize = isDesktop ? 2.25 : 1.25; // rem
+    const gap = isDesktop ? 12 : (count > 10 ? 2 : 4);
+    
+    const horizontalPadding = isDesktop ? 64 : 16;
     const availableW = windowWidth - horizontalPadding;
     
     const totalBaseWidth = count * baseW + (count - 1) * gap;
@@ -96,21 +76,29 @@ function CentralArea() {
       return { width: baseW, height: baseH, fontSize: `${baseFontSize}rem`, gap };
     }
 
-    // Calculate the width needed to fit exactly in availableW
-    let w = (availableW - (count - 1) * gap) / count;
+    // CONTINUOUS RESIZING LOGIC
+    // We want total row width to stay exactly at availableW
+    const targetW = (availableW - (count - 1) * gap) / count;
+    
+    // Threshold where we start shrinking height: 
+    // When width reaches 60% of its original base width
+    const heightShrinkThreshold = baseW * 0.6;
+    
+    let w = targetW;
     let h = baseH;
-    let fontSize = baseFontSize;
-    
-    const squishLimit = 20; // Approaching max width of font
-    
-    if (w < squishLimit) {
-      // Height starts shrinking to maintain the squish ratio
-      const scale = w / squishLimit;
-      h = baseH * scale;
-      fontSize = baseFontSize * scale;
+    let fontSize = baseFontSize * (w / baseW);
+
+    if (w < heightShrinkThreshold) {
+      // Once we hit the width limit, we shrink height proportionally to maintain the slim ratio
+      const heightScale = w / heightShrinkThreshold;
+      h = baseH * heightScale;
+      // We don't shrink font as fast as width to keep it readable
+      fontSize = (baseFontSize * (heightShrinkThreshold / baseW)) * heightScale;
     } else {
-      // Just squishing width, reduce font slightly if it helps fit
-      fontSize = Math.max(0.9, baseFontSize * (w / baseW * 1.15));
+      // Just squishing width, keep height at baseH
+      h = baseH;
+      // Font shrinks with width but with a floor to prevent tiny text
+      fontSize = Math.max(0.8, baseFontSize * (w / baseW) * 1.1);
     }
 
     return { 
@@ -172,7 +160,7 @@ function CentralArea() {
               </h3>
               
               <div 
-                className="flex flex-wrap justify-center items-center max-w-full px-2 short-screen-scale-tiles transition-all duration-300"
+                className="flex flex-nowrap justify-center items-center max-w-full px-2 short-screen-scale-tiles transition-all duration-300"
                 style={{ gap: `${tileStyle.gap}px` }}
               >
                 {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
@@ -180,7 +168,7 @@ function CentralArea() {
                     key={`init-${i}`} 
                     char={char} 
                     style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow"
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow shrink-0"
                   />
                 ))}
 
@@ -189,7 +177,7 @@ function CentralArea() {
                     key={`prefix-${i}`} 
                     char={char} 
                     style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30"
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30 shrink-0"
                   />
                 ))}
 
@@ -198,21 +186,21 @@ function CentralArea() {
                     key={`input-${i}`} 
                     char={char} 
                     style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2"
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0"
                   />
                 ))}
                 
                 {isWordInput && (
                   <div 
                     style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20"
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20 shrink-0"
                   >
                     <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
                   </div>
                 )}
 
                 {status === 'playing' && !isWordInput && !isClueInput && revealedPrefix && (
-                  <div className="flex items-center ml-1">
+                  <div className="flex items-center ml-1 shrink-0">
                     <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                   </div>
                 )}
