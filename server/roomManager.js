@@ -246,9 +246,14 @@ class RoomManager {
     this.emitRoomUpdate(io, room);
   }
 
-  callContact(io, roomId, playerId, guess) {
+  submitContact(io, roomId, playerId, guess) {
     const room = this.rooms.get(roomId);
-    if (!room || !room.currentGuess || room.wordmaster === playerId || room.currentGuess.player === playerId || room.currentGuess.contactedBy) return;
+    if (!room || !room.currentGuess || room.wordmaster === playerId || room.currentGuess.player === playerId) return;
+
+    if (room.currentGuess.contactedBy) {
+      this.addPrivateLog(io, playerId, 'Error', 'Another player is already attempting contact.');
+      return;
+    }
 
     const normalizedGuess = guess.toUpperCase();
     if (!this.isValidWord(normalizedGuess)) {
