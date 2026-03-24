@@ -53,7 +53,7 @@ function ChatWindow() {
       </div>
       
       {/* 2. Persistent Chat Input Line - Absolutely positioned at bottom */}
-      <div className={`absolute bottom-0 left-0 w-full px-3 py-1 border-t border-on-surface/10 dark:border-black/40 overflow-hidden transition-all duration-300 ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+      <div className={`absolute bottom-0 left-0 w-full px-3 py-1 border-t border-outline-variant overflow-hidden transition-all duration-300 ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
         {shouldRenderInput && (
           <div className="flex items-center space-x-3 px-1 py-1">
             <span className="font-black text-tertiary shrink-0 uppercase text-xs sm:text-sm tracking-widest translate-y-[1px]">{username}</span>
