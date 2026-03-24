@@ -20,6 +20,7 @@ export default {
         tertiary: "var(--tertiary)",
         "tertiary-fixed": "var(--tertiary-fixed)",
         "outline-variant": "var(--outline-variant)",
+        "on-secondary-container": "var(--on-secondary-container)",
       },
       borderRadius: {
         'xl': '1.5rem',

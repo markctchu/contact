@@ -40,7 +40,7 @@ const ContactProgressBar = ({ isActive, currentCountdown }) => {
     }, interval);
 
     return () => clearInterval(timer);
-  }, [isActive]); // Only trigger on activation
+  }, [isActive, currentCountdown === 4]); // Re-trigger only when a fresh countdown starts
 
   if (!isActive) return null;
 
