@@ -113,8 +113,8 @@ function App() {
     return (
       <div className="h-[100dvh] bg-surface flex items-center justify-center p-6 overflow-hidden">
         <div className="bg-surface-lowest p-10 rounded-xl ambient-shadow w-full max-w-md">
-          <h1 className="text-5xl font-extrabold mb-2 text-on-surface tracking-tighter flex items-baseline">
-            <span className="bg-tertiary text-white w-12 h-12 rounded-lg flex items-center justify-center mr-2 translate-y-1">C</span>
+          <h1 className="text-5xl font-extrabold mb-2 text-on-surface tracking-tighter flex items-center">
+            <span className="bg-[#2e2f2c] text-[#f7f6f1] dark:bg-[#f7f6f1] dark:text-[#2e2f2c] w-14 h-14 rounded-xl flex items-center justify-center font-black">C</span>
             ontact
           </h1>
           <p className="text-on-surface-variant mb-10 text-sm uppercase tracking-[0.2em] font-bold opacity-60">{STRINGS.TAGLINE}</p>
