@@ -13,7 +13,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
       <button 
         type="button"
         onClick={() => socket.emit(EVENTS.BECOME_WORDMASTER)}
-        className="text-primary font-black transition-all active:scale-95 whitespace-nowrap uppercase tracking-widest text-xs sm:text-sm"
+        className="text-primary font-black transition-all active:scale-95 whitespace-nowrap uppercase tracking-widest text-xs sm:text-sm focus:outline-none"
       >
         👑 {STRINGS.ACTION_WM}
       </button>
@@ -26,7 +26,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
       <button 
         type="button"
         onClick={onCancel}
-        className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+        className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest focus:outline-none"
       >
         {STRINGS.ACTION_CANCEL}
       </button>
@@ -41,7 +41,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
           <button 
             type="button"
             onClick={() => socket.emit(EVENTS.DECLARE_VICTORY)}
-            className="text-primary font-black transition-all active:scale-95 whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+            className="text-primary font-black transition-all active:scale-95 whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest focus:outline-none"
           >
             🏆 {STRINGS.ACTION_DECLARE}
           </button>
@@ -51,7 +51,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
         <button 
           type="button"
           onClick={() => onToggleAction('DENY')}
-          className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+          className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest focus:outline-none"
         >
           {activeAction === 'DENY' ? STRINGS.ACTION_CANCEL : `✋ ${STRINGS.ACTION_DENY}`}
         </button>
@@ -63,7 +63,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
           <button 
             type="button"
             onClick={() => onToggleAction('GUESS')}
-            className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+            className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest focus:outline-none"
           >
             {activeAction === 'GUESS' ? STRINGS.ACTION_CANCEL : `🎯 ${STRINGS.ACTION_GUESS}`}
           </button>
@@ -74,7 +74,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
             <button 
               type="button"
               onClick={onCancel}
-              className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+              className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest focus:outline-none"
             >
               {STRINGS.ACTION_CANCEL}
             </button>
@@ -84,7 +84,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
             <button 
               type="button"
               onClick={onCancel}
-              className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+              className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest focus:outline-none"
             >
               {STRINGS.ACTION_RETRACT}
             </button>
@@ -95,7 +95,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
           <button 
             type="button"
             onClick={() => onToggleAction('CONTACT')}
-            className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+            className="text-primary font-black transition-all whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest focus:outline-none"
           >
             {activeAction === 'CONTACT' ? STRINGS.ACTION_CANCEL : `💡 ${STRINGS.ACTION_CONTACT}`}
           </button>
@@ -110,7 +110,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
       <button 
         type="button"
         onClick={() => socket.emit(EVENTS.CONTEST_VICTORY)}
-        className="text-primary font-black transition-all animate-bounce whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest"
+        className="text-primary font-black transition-all animate-bounce whitespace-nowrap text-xs sm:text-sm uppercase tracking-widest focus:outline-none"
       >
         ☝️ {STRINGS.ACTION_CONTEST}
       </button>
