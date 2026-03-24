@@ -25,7 +25,7 @@ export const STRINGS = {
 
   // --- 3. Game Room Interface (GameRoom.jsx / BottomInput.jsx) ---
   ROOM_STATUS_TAG: "Active Session",
-  PLAYER_COUNT_LABEL: "Entities",
+  PLAYER_COUNT_LABEL: (count) => count === 1 ? "Player" : "Players",
   KEYBOARD_COLLAPSE: "Collapse Keys",
   KEYBOARD_EXPAND: "Expand Keys",
   MODE_ACTIVE_SUFFIX: "Mode Active",
