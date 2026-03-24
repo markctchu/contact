@@ -201,7 +201,7 @@ function CentralArea() {
               <h3 className="text-[9px] sm:text-xs font-black tracking-[0.4em] text-on-surface/30 uppercase">
                 {status === 'game_over' 
                   ? STRINGS.WORD_LABEL_FINAL 
-                  : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))}
+                  : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (activeAction === 'SECRET' ? STRINGS.WORD_LABEL_SECRET : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT))))}
               </h3>
               
               <div 
