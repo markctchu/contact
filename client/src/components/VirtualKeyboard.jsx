@@ -38,13 +38,13 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
               let flexClass = "flex-1";
               
               if (key === 'SHIFT') {
-                content = <ArrowUp size={18} className={isShifted ? 'text-primary' : 'text-on-surface/40'} />;
+                content = <ArrowUp size={18} className={isShifted ? 'text-on-primary-container' : 'text-on-surface/40'} />;
                 flexClass = "flex-[1.5]";
               } else if (key === 'DONE') {
-                content = <CornerDownLeft size={18} className="text-primary" />;
+                content = <CornerDownLeft size={18} className="text-on-primary-container" />;
                 flexClass = "flex-[1.5]";
               } else if (key === 'DELETE') {
-                content = <Delete size={18} className="text-primary" />;
+                content = <Delete size={18} className="text-on-primary-container" />;
                 flexClass = "flex-[1.5]";
               } else if (key === 'SPACE') {
                 content = "";
@@ -63,10 +63,12 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
                     rounded-lg
                     text-[11px] sm:text-sm font-bold 
                     transition-all active:scale-95
-                    ${isShifted && key === 'SHIFT' ? 'bg-surface-high ring-1 ring-primary/20 shadow-inner' : 'bg-surface-lowest'}
-                    ${isSpecial && key !== 'SPACE' ? 'text-on-surface/60' : 'text-on-surface shadow-sm'}
+                    ${isSpecial && key !== 'SPACE' 
+                      ? 'bg-primary text-on-primary-container shadow-md' 
+                      : 'bg-surface-lowest text-on-surface shadow-sm'}
+                    ${isShifted && key === 'SHIFT' ? 'ring-2 ring-primary/50 border border-white/20' : ''}
                     ${key === 'SPACE' ? 'bg-surface-lowest/50' : ''}
-                    hover:bg-surface-high
+                    hover:brightness-110
                   `}
                 >
                   {content}
