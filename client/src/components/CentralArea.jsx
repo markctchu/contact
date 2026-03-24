@@ -18,7 +18,6 @@ const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration }) => 
       return;
     }
 
-    // Initialize progress based on current server countdown
     const startProgress = ((totalDuration - currentCountdown) / totalDuration) * 100;
     setProgress(startProgress);
 
@@ -28,7 +27,7 @@ const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration }) => 
       return;
     }
 
-    const interval = 16; // ~60fps
+    const interval = 16;
     const totalSteps = remainingTime / interval;
     const increment = (100 - startProgress) / totalSteps;
 
@@ -250,7 +249,7 @@ function CentralArea() {
                 <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
               </div>
             ) : isClueInput ? (
-              <div className="bg-tertiary/5 p-3 sm:p-6 rounded-2xl border border-tertiary/10 w-full max-w-2xl text-center">
+              <div className="bg-tertiary/5 p-3 sm:p-6 rounded-2xl border border-tertiary/10 w-full max-w-4xl text-center">
                 <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-2 sm:mb-4 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
                 <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                   {inputValue}
@@ -258,7 +257,7 @@ function CentralArea() {
                 </h4>
               </div>
             ) : currentGuess.player ? (
-              <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
+              <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl w-full max-w-4xl relative overflow-hidden group border border-outline-variant">
                 {/* Contact Progress Bar */}
                 <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess.countdown} totalDuration={4} />
                 
@@ -279,7 +278,7 @@ function CentralArea() {
                 </p>
               </div>
             ) : (
-              <div className="w-full max-w-2xl relative overflow-hidden flex flex-col items-center">
+              <div className="w-full max-w-4xl mx-auto relative overflow-hidden flex flex-col items-center">
                 {/* Victory Progress Bar */}
                 <div className={`w-full h-1.5 absolute top-0 left-0 transition-opacity duration-500 ${isVictoryActive ? 'opacity-100' : 'opacity-0'}`}>
                   <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
