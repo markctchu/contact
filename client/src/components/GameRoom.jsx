@@ -48,26 +48,24 @@ function GameRoomContent({ toggleTheme, theme }) {
   return (
     <div className="flex flex-col h-[100dvh] bg-surface text-on-surface overflow-hidden transition-colors duration-300">
       {/* Top Bar */}
-      <header className="bg-surface-low border-b border-outline-variant w-full z-10 shrink-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-2 sm:py-3 flex justify-between items-center">
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="bg-tertiary p-1.5 rounded-md ambient-shadow">
-              <h1 className="text-sm sm:text-base font-black text-white leading-none">C</h1>
-            </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-extrabold text-on-surface leading-tight tracking-tight">{room.name}</h2>
-            </div>
+      <header className="bg-surface-low border-b border-outline-variant w-full z-10 shrink-0 px-4 sm:px-8 py-2 sm:py-3 flex justify-between items-center">
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="bg-tertiary p-1.5 rounded-md ambient-shadow">
+            <h1 className="text-sm sm:text-base font-black text-white leading-none">C</h1>
           </div>
-          
-          <div className="flex items-center space-x-3">
-            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-surface-container transition-all mr-1">
-              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-            </button>
-            <div className="flex items-center px-2 py-1">
-              <Users size={16} className="text-tertiary mr-2 opacity-60" />
-              <span className="text-sm sm:text-base font-black">{room.players.length}</span>
-              <span className="hidden sm:inline text-sm text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-30">{STRINGS.PLAYER_COUNT_LABEL(room.players.length)}</span>
-            </div>
+          <div>
+            <h2 className="text-base sm:text-lg font-extrabold text-on-surface leading-tight tracking-tight">{room.name}</h2>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-3">
+          <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-surface-container transition-all mr-1">
+            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+          </button>
+          <div className="flex items-center px-2 py-1">
+            <Users size={16} className="text-tertiary mr-2 opacity-60" />
+            <span className="text-sm sm:text-base font-black">{room.players.length}</span>
+            <span className="hidden sm:inline text-sm text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-30">{STRINGS.PLAYER_COUNT_LABEL(room.players.length)}</span>
           </div>
         </div>
       </header>
