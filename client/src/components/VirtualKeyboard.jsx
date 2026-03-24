@@ -38,17 +38,14 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
               let flexClass = "flex-1";
               
               if (key === 'SHIFT') {
-                content = <ArrowUp size={18} className={isShifted ? 'text-on-primary-container' : 'text-on-surface/40'} />;
+                content = <ArrowUp size={18} className={isShifted ? 'text-primary dark:text-[#8B5CF6]' : 'text-on-surface/40'} />;
                 flexClass = "flex-[1.5]";
               } else if (key === 'DONE') {
-                content = <CornerDownLeft size={18} className="text-on-primary-container" />;
+                content = <CornerDownLeft size={18} className="text-on-surface/60" />;
                 flexClass = "flex-[1.5]";
               } else if (key === 'DELETE') {
-                content = <Delete size={18} className="text-on-primary-container" />;
+                content = <Delete size={18} className="text-on-surface/60" />;
                 flexClass = "flex-[1.5]";
-              } else if (key === 'SPACE') {
-                content = "";
-                flexClass = "flex-[6]";
               }
 
               return (
@@ -64,11 +61,11 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
                     text-[11px] sm:text-sm font-bold 
                     transition-all active:scale-95
                     ${isSpecial && key !== 'SPACE' 
-                      ? 'bg-primary text-on-primary-container shadow-md' 
+                      ? 'bg-surface-high text-on-surface shadow-md' 
                       : 'bg-surface-lowest text-on-surface shadow-sm'}
-                    ${isShifted && key === 'SHIFT' ? 'ring-2 ring-primary/50 border border-white/20' : ''}
+                    ${isShifted && key === 'SHIFT' ? 'ring-2 ring-primary dark:ring-[#8B5CF6] border border-on-surface/10' : ''}
                     ${key === 'SPACE' ? 'bg-surface-lowest/50' : ''}
-                    hover:brightness-110
+                    hover:bg-surface-high
                   `}
                 >
                   {content}
