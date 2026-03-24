@@ -3,6 +3,7 @@ import CentralArea from './CentralArea';
 import BottomInput from './BottomInput';
 import { Users, Sun, Moon } from 'lucide-react';
 import { GameProvider, useGame } from '../contexts/GameContext';
+import { STRINGS } from '../constants/strings';
 
 function GameRoomContent({ toggleTheme, theme }) {
   const { 
@@ -54,7 +55,7 @@ function GameRoomContent({ toggleTheme, theme }) {
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-extrabold text-on-surface leading-tight tracking-tight">{room.name}</h2>
-            <p className="text-[9px] sm:text-[10px] text-on-surface-variant uppercase tracking-[0.2em] font-black opacity-40">Active Session</p>
+            <p className="text-[9px] sm:text-[10px] text-on-surface-variant uppercase tracking-[0.2em] font-black opacity-40">{STRINGS.ROOM_STATUS_TAG}</p>
           </div>
         </div>
         
@@ -65,23 +66,22 @@ function GameRoomContent({ toggleTheme, theme }) {
           <div className="flex items-center bg-surface-container px-4 py-2 rounded-full border border-outline-variant ambient-shadow">
             <Users size={16} className="text-tertiary mr-2" />
             <span className="text-xs sm:text-sm font-black">{room.players.length}</span>
-            <span className="hidden sm:inline text-[10px] text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-40">Entities</span>
+            <span className="hidden sm:inline text-[10px] text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-40">{STRINGS.PLAYER_COUNT_LABEL}</span>
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-h-0 relative bg-surface overflow-hidden">
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gradient-to-t from-surface-low/40 to-transparent">
-          <div className="w-full max-w-4xl mx-auto h-full min-h-0">
-            <CentralArea />
-          </div>
+      {/* Main Unified Canvas */}
+      <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden max-w-4xl mx-auto w-full">
+        {/* Central Area: Expands to fill space and centers content */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <CentralArea />
         </div>
 
-        {/* Keyboard Footer */}
-        <section className="bg-surface shrink-0 transition-colors duration-300">
+        {/* Bottom Area: Anchored at the bottom */}
+        <div className="shrink-0 w-full">
           <BottomInput />
-        </section>
+        </div>
       </main>
     </div>
   );
