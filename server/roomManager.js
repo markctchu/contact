@@ -144,17 +144,22 @@ class RoomManager {
   }
 
   _removePlayerPermanently(io, room, playerId, username) {
+    const isWM = room.wordmaster === playerId;
+    const isGuesser = room.currentGuess && room.currentGuess.player === playerId;
+    
+    console.log(`[Lifecycle] Permanently removing ${username} (${playerId}) from room ${room.id}. Role: ${isWM ? 'Wordmaster' : (isGuesser ? 'Guesser' : 'Player')}`);
+
     room.players.delete(playerId);
     room.typingStatus.delete(playerId);
 
-    if (room.wordmaster === playerId) {
+    if (isWM) {
       room.wordmaster = null;
       room.status = 'waiting';
       room.secretWord = null;
       room.revealedPrefix = '';
       room.currentGuess = null;
       this.addLog(io, room.id, 'System', STRINGS.MSG_WM_LEFT(username));
-    } else if (room.currentGuess && room.currentGuess.player === playerId) {
+    } else if (isGuesser) {
       room.currentGuess = null;
       this.addLog(io, room.id, 'System', STRINGS.MSG_GUESS_LEFT(username));
     } else {
@@ -162,6 +167,7 @@ class RoomManager {
     }
 
     if (room.players.size === 0) {
+      console.log(`[Lifecycle] Room ${room.id} is now empty. Deleting room.`);
       this.rooms.delete(room.id);
     } else {
       this.emitRoomUpdate(io, room);
@@ -352,7 +358,7 @@ class RoomManager {
   }
 
   tick(io) {
-    const GRACE_PERIOD = 10000; // 10 seconds
+    const GRACE_PERIOD = 60000; // 60 seconds
 
     this.rooms.forEach((room, roomId) => {
       // 1. Handle Grace Periods for Disconnected Players
