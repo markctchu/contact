@@ -113,7 +113,10 @@ function App() {
     return (
       <div className="h-[100dvh] bg-surface flex items-center justify-center p-6 overflow-hidden">
         <div className="bg-surface-lowest p-10 rounded-xl ambient-shadow w-full max-w-md">
-          <h1 className="text-5xl font-extrabold mb-2 text-on-surface tracking-tighter">{STRINGS.APP_TITLE}</h1>
+          <h1 className="text-5xl font-extrabold mb-2 text-on-surface tracking-tighter flex items-baseline">
+            <span className="bg-tertiary text-white w-12 h-12 rounded-lg flex items-center justify-center mr-2 translate-y-1">C</span>
+            ontact
+          </h1>
           <p className="text-on-surface-variant mb-10 text-sm uppercase tracking-[0.2em] font-bold opacity-60">{STRINGS.TAGLINE}</p>
           <form onSubmit={(e) => {
             e.preventDefault();
