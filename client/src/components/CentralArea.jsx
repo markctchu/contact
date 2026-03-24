@@ -224,7 +224,7 @@ function CentralArea() {
                 <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
               </div>
             ) : isClueInput ? (
-              <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl border border-tertiary/10 w-full max-w-4xl text-center">
+              <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl border border-tertiary/10 w-full max-w-2xl mx-auto text-center">
                 <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-1 sm:mb-2 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
                 <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                   {inputValue}
@@ -232,7 +232,7 @@ function CentralArea() {
                 </h4>
               </div>
             ) : currentGuess.player ? (
-              <div className="w-full max-w-4xl mx-auto">
+              <div className="w-full max-w-2xl mx-auto px-4">
                 <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group border border-outline-variant">
                   <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess.countdown} totalDuration={4} />
                   <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${isContactAttempt ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
@@ -252,7 +252,7 @@ function CentralArea() {
                 </p>
               </div>
             ) : (
-              <div className="w-full max-w-4xl relative overflow-hidden flex flex-col items-center px-4">
+              <div className="w-full max-w-2xl mx-auto relative overflow-hidden flex flex-col items-center px-4">
                 <div className="w-full relative h-1.5">
                   <div className={`w-full absolute top-0 left-0 transition-opacity duration-500 ${isVictoryActive ? 'opacity-100' : 'opacity-0'}`}>
                     <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
