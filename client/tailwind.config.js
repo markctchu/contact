@@ -19,6 +19,7 @@ export default {
         "on-primary-container": "var(--on-primary-container)",
         tertiary: "var(--tertiary)",
         "tertiary-fixed": "var(--tertiary-fixed)",
+        "outline-variant": "var(--outline-variant)",
       },
       borderRadius: {
         'xl': '1.5rem',
