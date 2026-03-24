@@ -76,10 +76,10 @@ function CentralArea() {
   return (
     <div className="flex-1 flex flex-col w-full h-full relative">
       {/* 1. Main Content Area (Tiles and Clues) */}
-      <div className="flex-1 flex flex-col items-center justify-center space-y-4 sm:space-y-8 w-full transition-all duration-500 min-h-0 py-2">
+      <div className="flex-1 flex flex-col items-center justify-center space-y-4 sm:space-y-8 w-full transition-all duration-500 min-h-0 py-2 short-screen-tighten">
         {isCountdownActive ? (
           /* Countdown Display */
-          <div className="w-full animate-in fade-in zoom-in duration-500 px-2 py-4">
+          <div className="w-full animate-in fade-in zoom-in duration-500 px-2 py-4 short-screen-scale-tiles">
             {status === 'victory_countdown' ? (
               <div className="cta-gradient py-4 px-8 sm:py-8 sm:px-12 rounded-2xl ambient-shadow w-full max-w-xl mx-auto flex items-center justify-between border-2 border-primary/10">
                 <div className="text-left min-w-0 mr-4">
@@ -101,7 +101,7 @@ function CentralArea() {
             )}
           </div>
         ) : (
-          <div className={`w-full ${isClueInput ? 'space-y-4 sm:space-y-6' : 'space-y-6 sm:space-y-10'} py-4`}>
+          <div className={`w-full ${isClueInput ? 'space-y-4 sm:space-y-6' : 'space-y-6 sm:space-y-10'} py-4 short-screen-tighten`}>
             <div className="space-y-2 sm:space-y-4 w-full flex flex-col items-center">
               <h3 className="text-[9px] sm:text-xs font-black tracking-[0.4em] text-on-surface/30 uppercase">
                 {status === 'game_over' 
@@ -109,7 +109,7 @@ function CentralArea() {
                   : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))}
               </h3>
               
-              <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2">
+              <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2 short-screen-scale-tiles">
                 {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
                   <LetterTile 
                     key={`init-${i}`} 
@@ -148,7 +148,7 @@ function CentralArea() {
               </div>
             </div>
 
-            <div className="w-full flex items-center justify-center px-4">
+            <div className="w-full flex items-center justify-center px-4 short-screen-scale-tiles">
               {status === 'game_over' ? (
                 <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
                   <div className={`px-10 py-4 rounded-full font-black text-xl sm:text-3xl uppercase tracking-[0.3em] ambient-shadow border-2
