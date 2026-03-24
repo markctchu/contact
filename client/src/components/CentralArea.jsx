@@ -214,7 +214,7 @@ function CentralArea() {
             </div>
           </div>
 
-          <div className="w-full flex items-center justify-center px-4 short-screen-scale-tiles">
+          <div className="w-full flex items-center justify-center short-screen-scale-tiles">
             {status === 'game_over' ? (
               <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
                 <div className={`px-10 py-4 rounded-full font-black text-xl sm:text-3xl uppercase tracking-[0.3em] border-2
@@ -224,15 +224,17 @@ function CentralArea() {
                 <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
               </div>
             ) : isClueInput ? (
-              <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl border border-tertiary/10 w-full max-w-2xl mx-auto text-center">
-                <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-1 sm:mb-2 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
-                <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
-                  {inputValue}
-                  <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
-                </h4>
+              <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
+                <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl border border-tertiary/10 w-full text-center">
+                  <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-1 sm:mb-2 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
+                  <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
+                    {inputValue}
+                    <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
+                  </h4>
+                </div>
               </div>
             ) : currentGuess.player ? (
-              <div className="w-full max-w-2xl mx-auto px-4">
+              <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
                 <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group border border-outline-variant">
                   <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess.countdown} totalDuration={4} />
                   <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${isContactAttempt ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
@@ -246,13 +248,13 @@ function CentralArea() {
                 </div>
               </div>
             ) : status === 'setting_word' || status === 'waiting' ? (
-              <div className="text-on-surface/40 flex flex-col items-center py-2">
-                <p className="text-xs sm:text-base font-bold uppercase tracking-[0.3em] animate-pulse text-center px-12 leading-loose italic">
+              <div className="text-on-surface/40 flex flex-col items-center py-2 px-12">
+                <p className="text-xs sm:text-base font-bold uppercase tracking-[0.3em] animate-pulse text-center leading-loose italic">
                   {status === 'waiting' ? STRINGS.STATUS_WAITING : (isWordmaster ? STRINGS.STATUS_SETTING_WM : STRINGS.STATUS_SETTING_PL)}
                 </p>
               </div>
             ) : (
-              <div className="w-full max-w-2xl mx-auto relative overflow-hidden flex flex-col items-center px-4">
+              <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 relative overflow-hidden flex flex-col items-center">
                 <div className="w-full relative h-1.5">
                   <div className={`w-full absolute top-0 left-0 transition-opacity duration-500 ${isVictoryActive ? 'opacity-100' : 'opacity-0'}`}>
                     <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
