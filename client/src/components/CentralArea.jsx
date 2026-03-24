@@ -9,7 +9,7 @@ const LetterTile = React.memo(({ char, className, style }) => (
   </div>
 ));
 
-const ContactProgressBar = ({ isActive, currentCountdown }) => {
+const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -18,8 +18,8 @@ const ContactProgressBar = ({ isActive, currentCountdown }) => {
       return;
     }
 
-    // Initialize progress based on current server countdown to support late joiners
-    const startProgress = ((4 - currentCountdown) / 4) * 100;
+    // Initialize progress based on current server countdown
+    const startProgress = ((totalDuration - currentCountdown) / totalDuration) * 100;
     setProgress(startProgress);
 
     const remainingTime = currentCountdown * 1000;
@@ -28,7 +28,7 @@ const ContactProgressBar = ({ isActive, currentCountdown }) => {
       return;
     }
 
-    const interval = 16; // ~60fps for maximum smoothness
+    const interval = 16; // ~60fps
     const totalSteps = remainingTime / interval;
     const increment = (100 - startProgress) / totalSteps;
 
@@ -40,7 +40,7 @@ const ContactProgressBar = ({ isActive, currentCountdown }) => {
     }, interval);
 
     return () => clearInterval(timer);
-  }, [isActive, currentCountdown === 4]); // Re-trigger only when a fresh countdown starts
+  }, [isActive, currentCountdown === totalDuration]);
 
   if (!isActive) return null;
 
@@ -84,6 +84,7 @@ function CentralArea() {
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isClueInput = activeAction === 'GUESS_CLUE';
   const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
+  const isVictoryActive = status === 'victory_countdown';
 
   const clueHiddenWord = currentGuess.hiddenWord || '';
 
@@ -165,7 +166,6 @@ function CentralArea() {
     };
   }, [totalVisibleCount, windowWidth]);
 
-  const isCountdownActive = status === 'victory_countdown' || (currentGuess.player && currentGuess.contactedBy);
   const isContactAttempt = currentGuess.player && currentGuess.contactedBy;
 
   const modeLabel = useMemo(() => {
@@ -184,124 +184,116 @@ function CentralArea() {
     <div className="flex-1 flex flex-col w-full h-full relative">
       {/* 1. Main Content Area (Tiles and Clues) */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-4 sm:space-y-8 w-full transition-all duration-500 min-h-0 py-2 short-screen-tighten">
-        {status === 'victory_countdown' ? (
-          /* Victory Countdown Overlay */
-          <div className="w-full animate-in fade-in zoom-in duration-500 px-2 py-4 short-screen-scale-tiles">
-            <div className="cta-gradient py-4 px-8 sm:py-8 sm:px-12 rounded-2xl ambient-shadow w-full max-w-xl mx-auto flex items-center justify-between border-2 border-primary/10">
-              <div className="text-left min-w-0 mr-4">
-                <h4 className="text-lg sm:text-2xl font-extrabold text-on-primary-container uppercase leading-tight tracking-tighter">{STRINGS.VICTORY_TITLE}</h4>
-                <p className="text-on-primary-container/60 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-1">{STRINGS.VICTORY_SUBTITLE}</p>
-              </div>
-              <div className="text-5xl sm:text-8xl font-black text-on-primary-container leading-none tabular-nums">{victoryCountdown}</div>
-            </div>
-          </div>
-        ) : (
-          <div className={`w-full ${isClueInput ? 'space-y-4 sm:space-y-6' : 'space-y-6 sm:space-y-10'} py-4 short-screen-tighten`}>
-            <div className="space-y-2 sm:space-y-4 w-full flex flex-col items-center">
-              <h3 className="text-[9px] sm:text-xs font-black tracking-[0.4em] text-on-surface/30 uppercase">
-                {status === 'game_over' 
-                  ? STRINGS.WORD_LABEL_FINAL 
-                  : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (activeAction === 'SECRET' ? STRINGS.WORD_LABEL_SECRET : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT))))}
-              </h3>
+        <div className={`w-full ${isClueInput ? 'space-y-4 sm:space-y-6' : 'space-y-6 sm:space-y-10'} py-4 short-screen-tighten`}>
+          <div className="space-y-2 sm:space-y-4 w-full flex flex-col items-center relative">
+            <h3 className={`text-[9px] sm:text-xs font-black tracking-[0.4em] uppercase transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
+              {status === 'game_over' 
+                ? STRINGS.WORD_LABEL_FINAL 
+                : (isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (activeAction === 'SECRET' ? STRINGS.WORD_LABEL_SECRET : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))))}
+            </h3>
+            
+            <div 
+              className="flex flex-nowrap justify-center items-center max-w-full px-2 short-screen-scale-tiles transition-all duration-300"
+              style={{ gap: `${tileStyle.gap}px` }}
+            >
+              {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
+                <LetterTile 
+                  key={`init-${i}`} 
+                  char={char} 
+                  style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
+                  className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface border border-outline-variant shrink-0"
+                />
+              ))}
+
+              {status !== 'game_over' && showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
+                <LetterTile 
+                  key={`prefix-${i}`} 
+                  char={char} 
+                  style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
+                  className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30 shrink-0"
+                />
+              ))}
+
+              {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWord)).split('').map((char, i) => (
+                <LetterTile 
+                  key={`input-${i}`} 
+                  char={char} 
+                  style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
+                  className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface border border-outline-variant transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0"
+                />
+              ))}
               
-              <div 
-                className="flex flex-nowrap justify-center items-center max-w-full px-2 short-screen-scale-tiles transition-all duration-300"
-                style={{ gap: `${tileStyle.gap}px` }}
-              >
-                {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
-                  <LetterTile 
-                    key={`init-${i}`} 
-                    char={char} 
-                    style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface border border-outline-variant shrink-0"
-                  />
-                ))}
-
-                {status !== 'game_over' && showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
-                  <LetterTile 
-                    key={`prefix-${i}`} 
-                    char={char} 
-                    style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30 shrink-0"
-                  />
-                ))}
-
-                {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWord)).split('').map((char, i) => (
-                  <LetterTile 
-                    key={`input-${i}`} 
-                    char={char} 
-                    style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface border border-outline-variant transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0"
-                  />
-                ))}
-                
-                {isWordInput && (
-                  <div 
-                    style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border border-tertiary/20 shrink-0"
-                  >
-                    <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
-                  </div>
-                )}
-
-                {status === 'playing' && !isWordInput && !isClueInput && revealedPrefix && (
-                  <div className="flex items-center ml-1 shrink-0">
-                    <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="w-full flex items-center justify-center px-4 short-screen-scale-tiles">
-              {status === 'game_over' ? (
-                <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
-                  <div className={`px-10 py-4 rounded-full font-black text-xl sm:text-3xl uppercase tracking-[0.3em] ambient-shadow border-2
-                    ${winner === 'players' ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'cta-gradient border-primary/10 text-on-primary-container'}`}>
-                    {winner === 'players' ? STRINGS.WINNER_PLAYERS : STRINGS.WINNER_WORDMASTER}
-                  </div>
-                  <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
+              {isWordInput && (
+                <div 
+                  style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
+                  className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border border-tertiary/20 shrink-0"
+                >
+                  <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
                 </div>
-              ) : isClueInput ? (
-                <div className="bg-tertiary/5 p-3 sm:p-6 rounded-2xl border border-tertiary/10 w-full max-w-2xl text-center">
-                  <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-2 sm:mb-4 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
-                  <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
-                    {inputValue}
-                    <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
-                  </h4>
-                </div>
-              ) : currentGuess.player ? (
-                <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
-                  {/* Top Header Bar / Progress Bar */}
-                  {isContactAttempt ? (
-                    <ContactProgressBar isActive={true} currentCountdown={currentGuess.countdown} />
-                  ) : (
-                    <div className="absolute top-0 left-0 w-full h-1 bg-tertiary/20"></div>
-                  )}
-                  
-                  <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center transition-all duration-500 ${isContactAttempt ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
-                    {isContactAttempt 
-                      ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess.contactedByName)
-                      : STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}
-                  </p>
-                  
-                  <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
-                    "{currentGuess.clue || STRINGS.LOG_HINT_PENDING}"
-                  </h4>
-                </div>
-              ) : status === 'setting_word' || status === 'waiting' ? (
-                <div className="text-on-surface/40 flex flex-col items-center py-4">
-                  <p className="text-xs sm:text-base font-bold uppercase tracking-[0.3em] animate-pulse text-center px-12 leading-loose italic">
-                    {status === 'waiting' ? STRINGS.STATUS_WAITING : (isWordmaster ? STRINGS.STATUS_SETTING_WM : STRINGS.STATUS_SETTING_PL)}
-                  </p>
-                </div>
-              ) : (
-                <div className="text-on-surface/20 text-xs sm:text-base font-black uppercase tracking-[0.4em] py-6 text-center px-12 italic">
-                  {STRINGS.STATUS_PLAYING_EMPTY}
+              )}
+
+              {status === 'playing' && !isWordInput && !isClueInput && revealedPrefix && (
+                <div className="flex items-center ml-1 shrink-0">
+                  <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
               )}
             </div>
           </div>
-        )}
+
+          <div className="w-full flex items-center justify-center px-4 short-screen-scale-tiles">
+            {status === 'game_over' ? (
+              <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
+                <div className={`px-10 py-4 rounded-full font-black text-xl sm:text-3xl uppercase tracking-[0.3em] border-2
+                  ${winner === 'players' ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'cta-gradient border-primary/10 text-on-primary-container'}`}>
+                  {winner === 'players' ? STRINGS.WINNER_PLAYERS : STRINGS.WINNER_WORDMASTER}
+                </div>
+                <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
+              </div>
+            ) : isClueInput ? (
+              <div className="bg-tertiary/5 p-3 sm:p-6 rounded-2xl border border-tertiary/10 w-full max-w-2xl text-center">
+                <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-2 sm:mb-4 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
+                <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
+                  {inputValue}
+                  <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
+                </h4>
+              </div>
+            ) : currentGuess.player ? (
+              <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
+                {/* Contact Progress Bar */}
+                <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess.countdown} totalDuration={4} />
+                
+                <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center transition-all duration-500 ${isContactAttempt ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
+                  {isContactAttempt 
+                    ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess.contactedByName)
+                    : STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}
+                </p>
+                
+                <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
+                  "{currentGuess.clue || STRINGS.LOG_HINT_PENDING}"
+                </h4>
+              </div>
+            ) : status === 'setting_word' || status === 'waiting' ? (
+              <div className="text-on-surface/40 flex flex-col items-center py-4">
+                <p className="text-xs sm:text-base font-bold uppercase tracking-[0.3em] animate-pulse text-center px-12 leading-loose italic">
+                  {status === 'waiting' ? STRINGS.STATUS_WAITING : (isWordmaster ? STRINGS.STATUS_SETTING_WM : STRINGS.STATUS_SETTING_PL)}
+                </p>
+              </div>
+            ) : (
+              <div className="w-full max-w-2xl relative overflow-hidden flex flex-col items-center">
+                {/* Victory Progress Bar */}
+                <div className={`w-full h-1.5 absolute top-0 left-0 transition-opacity duration-500 ${isVictoryActive ? 'opacity-100' : 'opacity-0'}`}>
+                  <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
+                </div>
+                
+                <div className={`text-xs sm:text-base font-black uppercase tracking-[0.4em] py-6 text-center px-12 italic transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/20'}`}>
+                  {isVictoryActive 
+                    ? (activeAction === 'GUESS' ? STRINGS.STATUS_CONTEST_GUESS : STRINGS.STATUS_CONTEST_GAME)
+                    : STRINGS.STATUS_PLAYING_EMPTY}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* 2. Control Row */}

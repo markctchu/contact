@@ -36,10 +36,13 @@ export const STRINGS = {
   WORD_LABEL_REVEALED: "IT STARTS WITH",
   WORD_LABEL_INIT: "PREPARE TO MAKE",
   WORD_LABEL_FINAL: "THE SECRET WORD WAS",
+  WORD_LABEL_VICTORY: "WORDMASTER HAS DECLARED VICTORY!",
   STATUS_WAITING: "Tap Wordmaster to Begin",
   STATUS_SETTING_WM: "Enter your secret word above",
   STATUS_SETTING_PL: "Wordmaster is thinking...",
   STATUS_PLAYING_EMPTY: "AWAITING GUESS SUBMISSION",
+  STATUS_CONTEST_GAME: "Contest to continue the game",
+  STATUS_CONTEST_GUESS: "Submit Guess or Contest to continue",
   TYPING_SUFFIX: "is typing...",
 
   // --- 5. Active Event Overlays: Countdowns (CentralArea.jsx) ---

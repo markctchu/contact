@@ -216,7 +216,7 @@ class RoomManager {
 
   submitGuess(io, roomId, playerId, word) {
     const room = this.rooms.get(roomId);
-    if (!room || room.status !== 'playing' || room.wordmaster === playerId || room.currentGuess) return;
+    if (!room || (room.status !== 'playing' && room.status !== 'victory_countdown') || room.wordmaster === playerId || room.currentGuess) return;
 
     const upperWord = word.toUpperCase();
     if (!upperWord.startsWith(room.revealedPrefix)) {
@@ -230,6 +230,13 @@ class RoomManager {
     if (room.usedWords.has(upperWord)) {
       this.addPrivateLog(io, playerId, 'Error', 'Word has already been used.');
       return;
+    }
+
+    // If a guess is submitted during victory countdown, it "contests" the victory and continues the game
+    if (room.status === 'victory_countdown') {
+      room.status = 'playing';
+      room.victoryCountdown = 0;
+      this.addLog(io, roomId, 'System', STRINGS.MSG_VICTORY_CONTESTED(this.getUsername(room, playerId)));
     }
 
     room.currentGuess = {
