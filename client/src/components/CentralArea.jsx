@@ -262,7 +262,7 @@ function CentralArea() {
                   <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
                 </div>
               ) : isClueInput ? (
-                <div className="bg-tertiary/5 p-3 sm:p-6 rounded-2xl border border-tertiary/10 ambient-shadow w-full max-w-2xl text-center">
+                <div className="bg-tertiary/5 p-3 sm:p-6 rounded-2xl border border-tertiary/10 w-full max-w-2xl text-center">
                   <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-2 sm:mb-4 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                     {inputValue}
@@ -270,7 +270,7 @@ function CentralArea() {
                   </h4>
                 </div>
               ) : currentGuess.player ? (
-                <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
+                <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
                   {/* Top Header Bar / Progress Bar */}
                   {isContactAttempt ? (
                     <ContactProgressBar isActive={true} currentCountdown={currentGuess.countdown} />
