@@ -3,8 +3,8 @@ import { useGame } from '../contexts/GameContext';
 import ActionToggleButton from './ActionToggleButton';
 import { STRINGS } from '../constants/strings';
 
-const LetterTile = React.memo(({ char, className }) => (
-  <div className={className}>
+const LetterTile = React.memo(({ char, className, style }) => (
+  <div className={className} style={style}>
     {char}
   </div>
 ));
@@ -20,6 +20,14 @@ function CentralArea() {
     handleCancel,
     isWordmaster
   } = useGame();
+
+  const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 0);
+
+  React.useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const { revealedPrefix, currentGuess, status, victoryCountdown, secretWord, winner } = room;
 
@@ -49,28 +57,70 @@ function CentralArea() {
     return displayWord.length;
   }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, clueHiddenWord, secretWord]);
 
-  const getBoxSize = (wordLength) => {
-    const baseClasses = "flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow transition-all duration-300";
+  const tileStyle = useMemo(() => {
+    const count = totalVisibleCount;
+    const isDesktop = windowWidth >= 640;
     
-    // Stage 4: Extreme Shrunk (14+ letters)
-    if (wordLength > 14) return `${baseClasses} w-5 h-8 text-[10px] sm:w-14 sm:h-20 sm:text-4xl`;
-    
-    // Stage 3: Fully Shrunk (12-14 letters) - Height starts shrinking here
-    if (wordLength > 12) return `${baseClasses} w-5 h-10 text-xs sm:w-14 sm:h-20 sm:text-4xl`;
-    
-    // Stage 2: The "Major Squish" (10-12 letters) 
-    // width reduced to w-6 (1.5rem) but height stays at h-14
-    if (wordLength > 10) return `${baseClasses} w-6 h-14 text-sm sm:w-14 sm:h-20 sm:text-4xl`;
-    
-    // Stage 1: The "Minor Squish" (8-10 letters)
-    // width reduced to w-7.5 (approx via w-[30px]) but height stays at h-14
-    if (wordLength > 8) return `${baseClasses} w-[30px] h-14 text-lg sm:w-14 sm:h-20 sm:text-4xl`;
-    
-    // Default: Large (9 x 14 units)
-    return `${baseClasses} w-9 h-14 text-xl sm:w-14 sm:h-20 sm:text-4xl`;
-  };
+    if (isDesktop) {
+      const baseW = 56;
+      const baseH = 80;
+      const gap = 12;
+      const maxW = 800; 
+      const totalBaseWidth = count * baseW + (count - 1) * gap;
+      
+      if (totalBaseWidth <= maxW) {
+        return { width: 56, height: 80, fontSize: '2.25rem', gap: 12 };
+      }
+      
+      const w = (maxW - (count - 1) * gap) / count;
+      const scale = w / baseW;
+      return { 
+        width: w, 
+        height: baseH * scale, 
+        fontSize: `${2.25 * scale}rem`,
+        gap: 12 
+      };
+    }
 
-  const boxClass = getBoxSize(totalVisibleCount);
+    // Mobile logic
+    const baseW = 36;
+    const baseH = 56;
+    const baseFontSize = 1.25; // rem
+    const gap = count > 10 ? 2 : 4;
+    const horizontalPadding = 16; // 8px each side - tight detection
+    const availableW = windowWidth - horizontalPadding;
+    
+    const totalBaseWidth = count * baseW + (count - 1) * gap;
+    
+    if (totalBaseWidth <= availableW) {
+      return { width: baseW, height: baseH, fontSize: `${baseFontSize}rem`, gap };
+    }
+
+    // Calculate the width needed to fit exactly in availableW
+    let w = (availableW - (count - 1) * gap) / count;
+    let h = baseH;
+    let fontSize = baseFontSize;
+    
+    const squishLimit = 20; // Approaching max width of font
+    
+    if (w < squishLimit) {
+      // Height starts shrinking to maintain the squish ratio
+      const scale = w / squishLimit;
+      h = baseH * scale;
+      fontSize = baseFontSize * scale;
+    } else {
+      // Just squishing width, reduce font slightly if it helps fit
+      fontSize = Math.max(0.9, baseFontSize * (w / baseW * 1.15));
+    }
+
+    return { 
+      width: w, 
+      height: h, 
+      fontSize: `${fontSize}rem`,
+      gap
+    };
+  }, [totalVisibleCount, windowWidth]);
+
   const isCountdownActive = status === 'victory_countdown' || (currentGuess.player && currentGuess.contactedBy);
 
   const modeLabel = useMemo(() => {
@@ -121,12 +171,16 @@ function CentralArea() {
                   : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))}
               </h3>
               
-              <div className={`flex flex-wrap ${totalVisibleCount > 10 ? 'gap-0.5' : 'gap-1'} sm:gap-3 justify-center items-center max-w-full px-2 short-screen-scale-tiles transition-all duration-300`}>
+              <div 
+                className="flex flex-wrap justify-center items-center max-w-full px-2 short-screen-scale-tiles transition-all duration-300"
+                style={{ gap: `${tileStyle.gap}px` }}
+              >
                 {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
                   <LetterTile 
                     key={`init-${i}`} 
                     char={char} 
-                    className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow`}
+                    style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow"
                   />
                 ))}
 
@@ -134,7 +188,8 @@ function CentralArea() {
                   <LetterTile 
                     key={`prefix-${i}`} 
                     char={char} 
-                    className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30`}
+                    style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30"
                   />
                 ))}
 
@@ -142,12 +197,16 @@ function CentralArea() {
                   <LetterTile 
                     key={`input-${i}`} 
                     char={char} 
-                    className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2`}
+                    style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2"
                   />
                 ))}
                 
                 {isWordInput && (
-                  <div className={`${boxClass} flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20`}>
+                  <div 
+                    style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20"
+                  >
                     <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
                   </div>
                 )}
