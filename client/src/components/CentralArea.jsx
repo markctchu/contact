@@ -232,16 +232,18 @@ function CentralArea() {
                 </h4>
               </div>
             ) : currentGuess.player ? (
-              <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full max-w-4xl relative overflow-hidden group border border-outline-variant">
-                <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess.countdown} totalDuration={4} />
-                <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${isContactAttempt ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
-                  {isContactAttempt 
-                    ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess.contactedByName)
-                    : STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}
-                </p>
-                <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
-                  "{currentGuess.clue || STRINGS.LOG_HINT_PENDING}"
-                </h4>
+              <div className="w-full max-w-4xl mx-auto">
+                <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group border border-outline-variant">
+                  <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess.countdown} totalDuration={4} />
+                  <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${isContactAttempt ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
+                    {isContactAttempt 
+                      ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess.contactedByName)
+                      : STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}
+                  </p>
+                  <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
+                    "{currentGuess.clue || STRINGS.LOG_HINT_PENDING}"
+                  </h4>
+                </div>
               </div>
             ) : status === 'setting_word' || status === 'waiting' ? (
               <div className="text-on-surface/40 flex flex-col items-center py-2">
@@ -250,9 +252,11 @@ function CentralArea() {
                 </p>
               </div>
             ) : (
-              <div className="w-full max-w-4xl mx-auto relative overflow-hidden flex flex-col items-center px-4">
-                <div className={`w-full h-1.5 absolute top-0 left-0 transition-opacity duration-500 ${isVictoryActive ? 'opacity-100' : 'opacity-0'}`}>
-                  <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
+              <div className="w-full max-w-4xl relative overflow-hidden flex flex-col items-center px-4">
+                <div className="w-full relative h-1.5">
+                  <div className={`w-full absolute top-0 left-0 transition-opacity duration-500 ${isVictoryActive ? 'opacity-100' : 'opacity-0'}`}>
+                    <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
+                  </div>
                 </div>
                 <div className={`text-xs sm:text-base font-black uppercase tracking-[0.4em] py-4 text-center italic transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/20'}`}>
                   {isVictoryActive 
