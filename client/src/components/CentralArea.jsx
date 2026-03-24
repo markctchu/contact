@@ -65,21 +65,31 @@ function CentralArea() {
     const baseW = isDesktop ? 56 : 36;
     const baseH = isDesktop ? 80 : 56;
     const baseFontSize = isDesktop ? 2.25 : 1.25; // rem
-    const gap = isDesktop ? 12 : (count > 10 ? 2 : 4);
+    const baseGap = isDesktop ? 12 : (count > 10 ? 2 : 4);
     
-    // Use full window width for available space calculation
+    // Respect the header/footer alignment on desktop for detection
     const horizontalPadding = isDesktop ? 64 : 16;
     const availableW = windowWidth - horizontalPadding;
     
-    const totalBaseWidth = count * baseW + (count - 1) * gap;
+    const totalBaseWidth = count * baseW + (count - 1) * baseGap;
     
     if (totalBaseWidth <= availableW) {
-      return { width: baseW, height: baseH, fontSize: `${baseFontSize}rem`, gap };
+      return { width: baseW, height: baseH, fontSize: `${baseFontSize}rem`, gap: baseGap };
     }
 
     // CONTINUOUS RESIZING LOGIC
-    // We want total row width to stay exactly at availableW
-    const targetW = (availableW - (count - 1) * gap) / count;
+    // Calculate the width needed to fit exactly in availableW
+    // On desktop, we also scale the gap proportionally
+    let gap = baseGap;
+    let targetW;
+    
+    if (isDesktop) {
+      const scaleFactor = availableW / totalBaseWidth;
+      targetW = baseW * scaleFactor;
+      gap = baseGap * scaleFactor;
+    } else {
+      targetW = (availableW - (count - 1) * baseGap) / count;
+    }
     
     // Threshold where we start shrinking height: 
     // When width reaches 60% of its original base width
@@ -169,7 +179,7 @@ function CentralArea() {
                     key={`init-${i}`} 
                     char={char} 
                     style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface ambient-shadow shrink-0"
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface border border-outline-variant shrink-0"
                   />
                 ))}
 
@@ -187,14 +197,14 @@ function CentralArea() {
                     key={`input-${i}`} 
                     char={char} 
                     style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow bg-surface-lowest text-on-surface transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0"
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface border border-outline-variant transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0"
                   />
                 ))}
                 
                 {isWordInput && (
                   <div 
                     style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
-                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border-2 border-tertiary/20 shrink-0"
+                    className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border border-tertiary/20 shrink-0"
                   >
                     <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
                   </div>
