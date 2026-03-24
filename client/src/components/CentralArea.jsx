@@ -242,8 +242,8 @@ function CentralArea() {
                   {isContactAttempt && (
                     <div className="absolute bottom-0 left-0 w-full h-1.5 bg-surface-container overflow-hidden">
                       <div 
-                        className="h-full bg-on-secondary-container transition-all duration-1000 ease-linear"
-                        style={{ width: `${((currentGuess.countdown || 0) / 10) * 100}%` }}
+                        className="h-full bg-on-secondary-container transition-all duration-[4000ms] ease-linear"
+                        style={{ width: `${((4 - (currentGuess.countdown || 0)) / 4) * 100}%` }}
                       ></div>
                     </div>
                   )}
