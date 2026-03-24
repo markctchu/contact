@@ -9,7 +9,7 @@ const ROWS = [
 ];
 
 const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
-  const [isShifted, setIsShifted] = useState(true);
+  const [isShifted, setIsShifted] = useState(false);
 
   const handleKeyClick = (key) => {
     if (key === 'SHIFT') {
@@ -22,6 +22,8 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
       onKeyPress(' ');
     } else {
       onKeyPress(isShifted ? key.toUpperCase() : key.toLowerCase());
+      // Auto-reset shift after a character is typed (Mobile style)
+      if (isShifted) setIsShifted(false);
     }
   };
 
@@ -39,10 +41,10 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
                 content = <ArrowUp size={18} className={isShifted ? 'text-primary' : 'text-on-surface/40'} />;
                 flexClass = "flex-[1.5]";
               } else if (key === 'DONE') {
-                content = <CornerDownLeft size={18} />;
+                content = <CornerDownLeft size={18} className="text-primary" />;
                 flexClass = "flex-[1.5]";
               } else if (key === 'DELETE') {
-                content = <Delete size={18} />;
+                content = <Delete size={18} className="text-primary" />;
                 flexClass = "flex-[1.5]";
               } else if (key === 'SPACE') {
                 content = "";

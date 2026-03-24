@@ -182,7 +182,7 @@ function CentralArea() {
               {status !== 'game_over' && showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
                 <LetterTile 
                   key={`prefix-${i}`} 
-                  char={char} 
+                  char={char.toUpperCase()} 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
                   className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30 shrink-0"
                 />
@@ -191,12 +191,11 @@ function CentralArea() {
               {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWord)).split('').map((char, i) => (
                 <LetterTile 
                   key={`input-${i}`} 
-                  char={char} 
+                  char={isClueInput ? char : char.toUpperCase()} 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
                   className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface border border-outline-variant transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0"
                 />
-              ))}
-              
+              ))}              
               {isWordInput && (
                 <div 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
