@@ -73,6 +73,7 @@ export const STRINGS = {
   // --- 8. System Logs & Chat (ChatWindow.jsx / CentralArea.jsx) ---
   LOG_PRIVATE_PREFIX: "Private",
   LOG_CLUE_HEADER: (playerName) => `Clue from ${playerName}`,
+  LOG_CONTACT_ATTEMPT: (playerName) => `${playerName} is attempting contact...`,
   LOG_HINT_PENDING: "Pending...",
   LOG_YOUR_GUESS: "YOUR GUESS:",
 

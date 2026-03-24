@@ -121,6 +121,7 @@ function CentralArea() {
   }, [totalVisibleCount, windowWidth]);
 
   const isCountdownActive = status === 'victory_countdown' || (currentGuess.player && currentGuess.contactedBy);
+  const isContactAttempt = currentGuess.player && currentGuess.contactedBy;
 
   const modeLabel = useMemo(() => {
     if (!activeAction) return STRINGS.ACTION_CHAT;
@@ -138,28 +139,16 @@ function CentralArea() {
     <div className="flex-1 flex flex-col w-full h-full relative">
       {/* 1. Main Content Area (Tiles and Clues) */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-4 sm:space-y-8 w-full transition-all duration-500 min-h-0 py-2 short-screen-tighten">
-        {isCountdownActive ? (
-          /* Countdown Display */
+        {status === 'victory_countdown' ? (
+          /* Victory Countdown Overlay */
           <div className="w-full animate-in fade-in zoom-in duration-500 px-2 py-4 short-screen-scale-tiles">
-            {status === 'victory_countdown' ? (
-              <div className="cta-gradient py-4 px-8 sm:py-8 sm:px-12 rounded-2xl ambient-shadow w-full max-w-xl mx-auto flex items-center justify-between border-2 border-primary/10">
-                <div className="text-left min-w-0 mr-4">
-                  <h4 className="text-lg sm:text-2xl font-extrabold text-on-primary-container uppercase leading-tight tracking-tighter">{STRINGS.VICTORY_TITLE}</h4>
-                  <p className="text-on-primary-container/60 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-1">{STRINGS.VICTORY_SUBTITLE}</p>
-                </div>
-                <div className="text-5xl sm:text-8xl font-black text-on-primary-container leading-none tabular-nums">{victoryCountdown}</div>
+            <div className="cta-gradient py-4 px-8 sm:py-8 sm:px-12 rounded-2xl ambient-shadow w-full max-w-xl mx-auto flex items-center justify-between border-2 border-primary/10">
+              <div className="text-left min-w-0 mr-4">
+                <h4 className="text-lg sm:text-2xl font-extrabold text-on-primary-container uppercase leading-tight tracking-tighter">{STRINGS.VICTORY_TITLE}</h4>
+                <p className="text-on-primary-container/60 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-1">{STRINGS.VICTORY_SUBTITLE}</p>
               </div>
-            ) : (
-              <div className="bg-tertiary py-4 px-8 sm:py-8 sm:px-12 rounded-2xl ambient-shadow w-full max-w-xl mx-auto flex items-center justify-between border-2 border-tertiary/20">
-                <div className="text-left min-w-0 mr-4">
-                  <h4 className="text-lg sm:text-2xl font-extrabold text-white uppercase leading-tight tracking-tighter">{STRINGS.CONTACT_TITLE}</h4>
-                  <p className="text-white/60 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-1 truncate">
-                    {currentGuess.playerName} & {currentGuess.contactedByName}
-                  </p>
-                </div>
-                <div className="text-5xl sm:text-8xl font-black text-white leading-none tabular-nums">{currentGuess.countdown}</div>
-              </div>
-            )}
+              <div className="text-5xl sm:text-8xl font-black text-on-primary-container leading-none tabular-nums">{victoryCountdown}</div>
+            </div>
           </div>
         ) : (
           <div className={`w-full ${isClueInput ? 'space-y-4 sm:space-y-6' : 'space-y-6 sm:space-y-10'} py-4 short-screen-tighten`}>
@@ -238,10 +227,26 @@ function CentralArea() {
               ) : currentGuess.player ? (
                 <div className="bg-surface-lowest p-4 sm:p-8 rounded-2xl ambient-shadow w-full max-w-2xl relative overflow-hidden group border border-outline-variant">
                   <div className="absolute top-0 left-0 w-full h-1 bg-tertiary/20"></div>
-                  <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center">{STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}</p>
+                  
+                  <p className="text-[9px] sm:text-[10px] font-black text-on-surface/30 uppercase tracking-[0.3em] mb-2 sm:mb-4 text-center transition-all duration-500">
+                    {isContactAttempt 
+                      ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess.contactedByName)
+                      : STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}
+                  </p>
+                  
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
                     "{currentGuess.clue || STRINGS.LOG_HINT_PENDING}"
                   </h4>
+
+                  {/* Contact Countdown Bar */}
+                  {isContactAttempt && (
+                    <div className="absolute bottom-0 left-0 w-full h-1.5 bg-surface-container overflow-hidden">
+                      <div 
+                        className="h-full bg-on-secondary-container transition-all duration-1000 linear"
+                        style={{ width: `${(currentGuess.countdown / 10) * 100}%` }}
+                      ></div>
+                    </div>
+                  )}
                 </div>
               ) : status === 'setting_word' || status === 'waiting' ? (
                 <div className="text-on-surface/40 flex flex-col items-center py-4">
