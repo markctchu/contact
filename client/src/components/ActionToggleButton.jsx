@@ -117,7 +117,7 @@ function ActionToggleButton({ onToggleAction, onCancel }) {
     );
   }
 
-  return <div className="text-primary opacity-30 font-black flex items-center whitespace-nowrap uppercase tracking-widest text-[10px] sm:text-xs">{STRINGS.ACTION_CHAT}</div>;
+  return null;
 }
 
 export default ActionToggleButton;
