@@ -52,23 +52,21 @@ function CentralArea() {
   const getBoxSize = (wordLength) => {
     const baseClasses = "flex items-center justify-center rounded-lg sm:rounded-xl font-black ambient-shadow transition-all duration-300";
     
-    // Desktop (sm: and up) remains mostly stable as requested before, 
-    // but mobile (base class) implements the squish.
-    
     // Stage 4: Extreme Shrunk (14+ letters)
     if (wordLength > 14) return `${baseClasses} w-5 h-8 text-[10px] sm:w-14 sm:h-20 sm:text-4xl`;
     
-    // Stage 3: Fully Shrunk (12-14 letters)
-    if (wordLength > 12) return `${baseClasses} w-6 h-9 text-xs sm:w-14 sm:h-20 sm:text-4xl`;
+    // Stage 3: Fully Shrunk (12-14 letters) - Height starts shrinking here
+    if (wordLength > 12) return `${baseClasses} w-5 h-10 text-xs sm:w-14 sm:h-20 sm:text-4xl`;
     
-    // Stage 2: The "Squish" (10-12 letters) 
-    // We reduce width (w-7) but keep height (h-12) to fit more on one line
-    if (wordLength > 10) return `${baseClasses} w-7 h-12 text-sm sm:w-14 sm:h-20 sm:text-4xl`;
+    // Stage 2: The "Major Squish" (10-12 letters) 
+    // width reduced to w-6 (1.5rem) but height stays at h-14
+    if (wordLength > 10) return `${baseClasses} w-6 h-14 text-sm sm:w-14 sm:h-20 sm:text-4xl`;
     
-    // Stage 1: Standard (8-10 letters)
-    if (wordLength > 8) return `${baseClasses} w-8 h-12 text-lg sm:w-14 sm:h-20 sm:text-4xl`;
+    // Stage 1: The "Minor Squish" (8-10 letters)
+    // width reduced to w-7.5 (approx via w-[30px]) but height stays at h-14
+    if (wordLength > 8) return `${baseClasses} w-[30px] h-14 text-lg sm:w-14 sm:h-20 sm:text-4xl`;
     
-    // Default: Large
+    // Default: Large (9 x 14 units)
     return `${baseClasses} w-9 h-14 text-xl sm:w-14 sm:h-20 sm:text-4xl`;
   };
 
@@ -123,7 +121,7 @@ function CentralArea() {
                   : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))}
               </h3>
               
-              <div className="flex flex-wrap gap-1 sm:gap-3 justify-center items-center max-w-full px-2 short-screen-scale-tiles">
+              <div className={`flex flex-wrap ${totalVisibleCount > 10 ? 'gap-0.5' : 'gap-1'} sm:gap-3 justify-center items-center max-w-full px-2 short-screen-scale-tiles transition-all duration-300`}>
                 {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && 'CONTACT'.split('').map((char, i) => (
                   <LetterTile 
                     key={`init-${i}`} 
