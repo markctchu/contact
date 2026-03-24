@@ -74,7 +74,16 @@ export function GameProvider({ children, initialRoom, username }) {
 
   const handleCancel = useCallback(() => {
     setInputValue('');
-    setActiveAction(null);
+    
+    // Only clear optimistically if it's NOT a mandatory state.
+    // Mandatory states are managed by useGameState's internal effect.
+    const isMandatory = (room.status === 'setting_word' && isWordmaster) || 
+                       (room.status === 'playing' && room.currentGuess?.player === socketId && !room.currentGuess.clue);
+    
+    if (!isMandatory) {
+      setActiveAction(null);
+    }
+
     if (room.status === 'setting_word' && isWordmaster) {
       socket.emit(EVENTS.CANCEL_ACTION);
     } else if (room.currentGuess?.player === socketId) {
