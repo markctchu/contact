@@ -27,7 +27,7 @@ function ChatWindow() {
   }, [messages, inputValue, activeAction]);
 
   return (
-    <div className="bg-surface-low/50 rounded-xl p-2 sm:p-3 shrink-0 overflow-hidden flex flex-col h-24 sm:h-40 max-h-[20vh] relative transition-colors duration-300">
+    <div className="bg-surface-low rounded-xl p-2 sm:p-3 shrink-0 overflow-hidden flex flex-col h-24 sm:h-40 max-h-[20vh] relative transition-colors duration-300 border border-outline-variant">
       {/* 1. Message History (Scrollable) */}
       <div 
         className={`flex-1 overflow-y-auto space-y-1.5 custom-scrollbar pr-2 min-h-0 ${isChatInput ? 'pb-6' : 'pb-0'}`}
