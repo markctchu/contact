@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { getLogStyle, getLogBorderColor } from '../utils/gameUtils';
 import { useGame } from '../contexts/GameContext';
+import { STRINGS } from '../constants/strings';
 
 function ChatWindow() {
   const { chat: messages, username, inputValue, activeAction } = useGame();
