@@ -9,7 +9,7 @@ import { useSocketEvents } from './hooks/useSocketEvents';
 function App() {
   const [username, setUsername] = useState('');
   const [loginInput, setLoginInput] = useState('');
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const { currentRoom, typingStatus, socketId, isConnected } = useSocketEvents();
 
   // Screen Wake Lock
