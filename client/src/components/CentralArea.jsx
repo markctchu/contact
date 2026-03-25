@@ -221,11 +221,11 @@ function CentralArea() {
           <div className="w-full flex items-center justify-center short-screen-scale-tiles">
             {status === 'game_over' ? (
               <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
-                <div className={`px-10 py-4 rounded-full font-black text-xl sm:text-3xl uppercase tracking-[0.3em] border-2
-                  ${winner === 'players' ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'cta-gradient border-primary/10 text-on-primary-container'}`}>
+                <div className={`font-black text-2xl sm:text-4xl uppercase tracking-[0.3em]
+                  ${winner === 'players' ? 'text-on-secondary-container' : 'text-primary'}`}>
                   {winner === 'players' ? STRINGS.WINNER_PLAYERS : STRINGS.WINNER_WORDMASTER}
                 </div>
-                <p className="mt-6 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
+                <p className="mt-4 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
               </div>
             ) : isClueInput ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
