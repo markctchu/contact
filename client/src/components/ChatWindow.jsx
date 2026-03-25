@@ -59,7 +59,7 @@ function ChatWindow() {
           <div className="flex items-center space-x-3 px-1 py-1">
             <span className="font-black text-tertiary shrink-0 uppercase text-xs sm:text-sm tracking-widest translate-y-[1px]">{username}</span>
             <div className="flex items-center flex-1 min-w-0">
-              <span className="text-on-surface font-bold text-xs sm:text-sm uppercase tracking-widest truncate">{inputValue}</span>
+              <span className="text-on-surface font-bold text-xs sm:text-sm tracking-widest truncate">{inputValue}</span>
               <span className="inline-block w-1 h-3.5 ml-1 bg-tertiary animate-[pulse_1.5s_infinite] rounded-full"></span>
             </div>
           </div>
