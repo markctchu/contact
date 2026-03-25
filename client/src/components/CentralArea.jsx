@@ -160,6 +160,7 @@ function CentralArea() {
   return (
     <div className="flex-1 flex flex-col w-full h-full relative">
       <div className="flex-1 flex flex-col items-center justify-center space-y-2 sm:space-y-4 w-full transition-all duration-500 min-h-0 py-2 short-screen-tighten">
+        {/* Top Section: Word Display / Labels */}
         <div className={`w-full ${isClueInput ? 'space-y-3 sm:space-y-4' : 'space-y-4 sm:space-y-6'} py-2 short-screen-tighten`}>
           <div className="space-y-1.5 sm:space-y-2 w-full flex flex-col items-center relative">
             <h3 className={`text-[9px] sm:text-xs font-black tracking-[0.4em] uppercase transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
@@ -198,6 +199,7 @@ function CentralArea() {
                   className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface border border-outline-variant transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0"
                 />
               ))}              
+              
               {isWordInput && (
                 <div 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
@@ -215,6 +217,7 @@ function CentralArea() {
             </div>
           </div>
 
+          {/* Bottom Section: Dynamic State Messages / Clue Boxes */}
           <div className="w-full flex items-center justify-center short-screen-scale-tiles">
             {status === 'game_over' ? (
               <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-1000">
@@ -275,6 +278,7 @@ function CentralArea() {
         </div>
       </div>
 
+      {/* Control Row */}
       <div className="w-full max-w-2xl mx-auto flex items-center justify-between px-4 py-1.5 shrink-0">
         <ActionToggleButton 
           onToggleAction={toggleAction}
