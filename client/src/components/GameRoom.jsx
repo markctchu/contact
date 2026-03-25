@@ -37,7 +37,7 @@ function GameRoomContent({ toggleTheme, theme }) {
       } else if (e.key.length === 1) {
         if (/^[a-zA-Z0-9 ]$/.test(e.key)) {
           e.preventDefault();
-          handleKeyPress(e.key.toUpperCase());
+          handleKeyPress(e.key);
         }
       }
     };
