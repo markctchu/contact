@@ -14,12 +14,12 @@ export function GameProvider({ children, initialRoom, username }) {
   const [chat, setChat] = useState(initialRoom?.chat || []);
 
   const isWordmaster = room?.wordmaster === socketId;
-  const { activeAction, setActiveAction, toggleAction } = useInternalGameState(room || { status: 'waiting' }, socketId, isWordmaster);
+  const { activeAction, setActiveAction, toggleAction: internalToggleAction } = useInternalGameState(room || { status: 'waiting' }, socketId, isWordmaster);
 
-  // Clear input when action mode changes to prevent leaked text between modes (e.g. secret word into chat)
-  useEffect(() => {
-    setInputValue('');
-  }, [activeAction]);
+  const toggleAction = useCallback((action) => {
+    setInputValue(''); // Clear input BEFORE mode change to prevent tiles glitch
+    internalToggleAction(action);
+  }, [internalToggleAction]);
 
   // Sync room state from socket hook
   useEffect(() => {
@@ -34,8 +34,15 @@ export function GameProvider({ children, initialRoom, username }) {
   // Socket Listeners
   useEffect(() => {
     const onChatUpdate = (updatedChat) => setChat(updatedChat);
+    const onPrivateChatUpdate = (log) => setChat(prev => [...prev, log]);
+    
     socket.on(EVENTS.CHAT_UPDATE, onChatUpdate);
-    return () => socket.off(EVENTS.CHAT_UPDATE, onChatUpdate);
+    socket.on(EVENTS.CHAT_UPDATE_PRIVATE, onPrivateChatUpdate);
+    
+    return () => {
+      socket.off(EVENTS.CHAT_UPDATE, onChatUpdate);
+      socket.off(EVENTS.CHAT_UPDATE_PRIVATE, onPrivateChatUpdate);
+    };
   }, []);
 
   const handleEnter = useCallback(() => {

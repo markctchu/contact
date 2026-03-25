@@ -216,7 +216,12 @@ class RoomManager {
 
   submitGuess(io, roomId, playerId, word) {
     const room = this.rooms.get(roomId);
-    if (!room || (room.status !== 'playing' && room.status !== 'victory_countdown') || room.wordmaster === playerId || room.currentGuess) return;
+    if (!room || (room.status !== 'playing' && room.status !== 'victory_countdown') || room.wordmaster === playerId) return;
+
+    if (room.currentGuess) {
+      this.addPrivateLog(io, playerId, 'Error', 'A guess is already in progress.');
+      return;
+    }
 
     const upperWord = word.toUpperCase();
     if (!upperWord.startsWith(room.revealedPrefix)) {

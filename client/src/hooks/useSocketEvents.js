@@ -43,16 +43,6 @@ export function useSocketEvents() {
       setTypingStatus(typingArr);
     }
 
-    function onPrivateChatUpdate(log) {
-      setCurrentRoom(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          chat: [...prev.chat, log]
-        };
-      });
-    }
-
     // Global listener for all incoming events
     socket.onAny((eventName, ...args) => {
       if (eventName === EVENTS.TYPING_UPDATE) return; // Silent typing updates
@@ -65,7 +55,6 @@ export function useSocketEvents() {
     socket.on('reconnect_attempt', onReconnectAttempt);
     socket.on(EVENTS.ROOM_UPDATE, onRoomUpdate);
     socket.on(EVENTS.TYPING_UPDATE, onTypingUpdate);
-    socket.on(EVENTS.CHAT_UPDATE_PRIVATE, onPrivateChatUpdate);
 
     // Initial check in case it's already connected
     if (socket.connected) {
@@ -79,7 +68,6 @@ export function useSocketEvents() {
       socket.off('reconnect_attempt', onReconnectAttempt);
       socket.off(EVENTS.ROOM_UPDATE, onRoomUpdate);
       socket.off(EVENTS.TYPING_UPDATE, onTypingUpdate);
-      socket.off(EVENTS.CHAT_UPDATE_PRIVATE, onPrivateChatUpdate);
     };
   }, []);
 
