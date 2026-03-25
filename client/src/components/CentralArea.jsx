@@ -161,7 +161,7 @@ function CentralArea() {
     <div className="flex-1 flex flex-col w-full h-full relative">
       <div className="flex-1 flex flex-col items-center justify-center space-y-2 sm:space-y-4 w-full transition-all duration-500 min-h-0 py-2 short-screen-tighten">
         {/* Top Section: Word Display / Labels */}
-        <div className={`w-full ${isClueInput ? 'space-y-3 sm:space-y-4' : 'space-y-4 sm:space-y-6'} py-2 short-screen-tighten`}>
+        <div className={`w-full ${isClueInput ? 'space-y-3 sm:space-y-2' : 'space-y-4 sm:space-y-3'} py-2 short-screen-tighten`}>
           <div className="space-y-1.5 sm:space-y-2 w-full flex flex-col items-center relative">
             <h3 className={`text-[9px] sm:text-xs font-black tracking-[0.4em] uppercase transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
               {status === 'game_over' 
