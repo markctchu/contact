@@ -227,7 +227,7 @@ class RoomManager {
       this.addPrivateLog(io, playerId, 'Error', 'Word not in dictionary.');
       return;
     }
-    if (room.usedWords.has(upperWord)) {
+    if (room.usedWords.has(upperWord) && upperWord !== room.secretWord) {
       this.addPrivateLog(io, playerId, 'Error', 'Word has already been used.');
       return;
     }
