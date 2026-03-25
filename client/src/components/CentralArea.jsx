@@ -44,11 +44,13 @@ const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration }) => 
   if (!isActive) return null;
 
   return (
-    <div className="absolute top-0 left-0 w-full h-1.5 bg-surface-container overflow-hidden z-20 rounded-t-xl">
-      <div 
-        className="h-full bg-on-secondary-container transition-none rounded-r-full"
-        style={{ width: `${progress}%` }}
-      />
+    <div className="w-full px-6 py-2">
+      <div className="w-full h-1 bg-surface-container/50 rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-on-secondary-container transition-none rounded-full"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
     </div>
   );
 };
@@ -225,11 +227,17 @@ function CentralArea() {
             ) : isClueInput ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
                 <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl border border-tertiary/10 w-full text-center">
-                  <p className="text-[9px] sm:text-xs font-black text-tertiary uppercase tracking-[0.3em] mb-1 sm:mb-2 opacity-60">{STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}</p>
+                  <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
+                  <p className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.3em] mb-1 sm:mb-2 transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-tertiary opacity-60'}`}>
+                    {isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}
+                  </p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                     {inputValue}
                     <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
                   </h4>
+                  {isVictoryActive && (
+                    <p className="text-[10px] font-black text-on-secondary-container uppercase tracking-widest mt-2">{STRINGS.STATUS_CONTEST_GUESS}</p>
+                  )}
                 </div>
               </div>
             ) : currentGuess.player ? (
@@ -254,15 +262,14 @@ function CentralArea() {
               </div>
             ) : (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 relative overflow-hidden flex flex-col items-center">
-                <div className="w-full relative h-1.5">
-                  <div className={`w-full absolute top-0 left-0 transition-opacity duration-500 ${isVictoryActive ? 'opacity-100' : 'opacity-0'}`}>
-                    <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
+                <div className="bg-surface-low/30 rounded-2xl w-full py-4 px-4 border border-outline-variant/50">
+                  <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
+                  <p className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.4em] mb-2 text-center transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
+                    {isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : STRINGS.STATUS_PLAYING_EMPTY}
+                  </p>
+                  <div className={`text-xs sm:text-base font-black uppercase tracking-[0.4em] text-center italic transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/20'}`}>
+                    {isVictoryActive ? STRINGS.STATUS_CONTEST_GAME : STRINGS.STATUS_PLAYING_EMPTY}
                   </div>
-                </div>
-                <div className={`text-xs sm:text-base font-black uppercase tracking-[0.4em] py-4 text-center italic transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/20'}`}>
-                  {isVictoryActive 
-                    ? (activeAction === 'GUESS' ? STRINGS.STATUS_CONTEST_GUESS : STRINGS.STATUS_CONTEST_GAME)
-                    : STRINGS.STATUS_PLAYING_EMPTY}
                 </div>
               </div>
             )}
