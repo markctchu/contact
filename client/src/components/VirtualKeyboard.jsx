@@ -3,9 +3,9 @@ import { Delete, CornerDownLeft, ArrowUp } from 'lucide-react';
 
 const ROWS = [
   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'DELETE'],
-  ['SHIFT', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'DONE'],
-  ['SPACE']
+  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+  ['SHIFT', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'DELETE'],
+  [',', 'SPACE', '.', 'DONE']
 ];
 
 const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
@@ -42,10 +42,16 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
                 flexClass = "flex-[1.5]";
               } else if (key === 'DONE') {
                 content = <CornerDownLeft size={18} className="text-on-surface/60" />;
-                flexClass = "flex-[1.5]";
+                flexClass = "flex-[2]";
               } else if (key === 'DELETE') {
                 content = <Delete size={18} className="text-on-surface/60" />;
                 flexClass = "flex-[1.5]";
+              } else if (key === 'SPACE') {
+                content = "";
+                flexClass = "flex-[5]";
+              } else if (key === ',' || key === '.') {
+                content = key;
+                flexClass = "flex-1";
               }
 
               return (
