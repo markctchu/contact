@@ -226,7 +226,7 @@ function CentralArea() {
               </div>
             ) : isClueInput ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
-                <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl border border-tertiary/10 w-full text-center">
+                <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl w-full text-center">
                   <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
                   <p className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.3em] mb-1 sm:mb-2 transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-tertiary opacity-60'}`}>
                     {isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}
@@ -242,7 +242,7 @@ function CentralArea() {
               </div>
             ) : currentGuess.player ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
-                <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group border border-outline-variant">
+                <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group">
                   <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess.countdown} totalDuration={4} />
                   <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${isContactAttempt ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
                     {isContactAttempt 
@@ -261,15 +261,13 @@ function CentralArea() {
                 </p>
               </div>
             ) : (
-              <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 relative overflow-hidden flex flex-col items-center">
-                <div className="bg-surface-low/30 rounded-2xl w-full py-4 px-4 border border-outline-variant/50">
-                  <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
-                  <p className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.4em] mb-2 text-center transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
-                    {isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : STRINGS.STATUS_PLAYING_EMPTY}
-                  </p>
-                  <div className={`text-xs sm:text-base font-black uppercase tracking-[0.4em] text-center italic transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/20'}`}>
-                    {isVictoryActive ? STRINGS.STATUS_CONTEST_GAME : STRINGS.STATUS_PLAYING_EMPTY}
-                  </div>
+              <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 flex flex-col items-center">
+                <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
+                <p className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.4em] mb-2 text-center transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
+                  {isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : STRINGS.STATUS_PLAYING_EMPTY}
+                </p>
+                <div className={`text-xs sm:text-base font-black uppercase tracking-[0.4em] text-center italic transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/20'}`}>
+                  {isVictoryActive ? STRINGS.STATUS_CONTEST_GAME : STRINGS.STATUS_PLAYING_EMPTY}
                 </div>
               </div>
             )}
