@@ -100,19 +100,35 @@ function CentralArea() {
     return revealedPrefix;
   }, [revealedPrefix, status, secretWord]);
 
+  const isContactAttempt = !!(currentGuess?.player && currentGuess?.contactedBy);
+
   const displayWordWithOutcome = useMemo(() => {
-    if (showOutcome && outcomeData && outcomeData.contactedBy !== socketId) {
-      if (outcomeData.success) return outcomeData.guess;
+    // 1. If it's a contact outcome animation
+    if (showOutcome && outcomeData) {
+      if (outcomeData.contactedBy === socketId) {
+        // Caller sees their own guess during outcome
+        return outcomeData.guess;
+      } else {
+        // Others see the guess word ONLY on success
+        if (outcomeData.success) return outcomeData.guess;
+      }
+    }
+    // 2. If it's a contact attempt in progress
+    if (isContactAttempt) {
+      if (socketId === currentGuess?.contactedBy) {
+        // Caller sees their own guess during countdown
+        return currentGuess?.contactGuess || revealedPrefix;
+      }
     }
     return displayWord;
-  }, [showOutcome, outcomeData, displayWord, socketId]);
+  }, [showOutcome, outcomeData, displayWord, socketId, isContactAttempt, currentGuess, revealedPrefix]);
 
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isClueInput = activeAction === 'GUESS_CLUE';
   const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isVictoryActive = status === 'victory_countdown';
 
-  const guessWord = currentGuess.hiddenWord || '';
+  const guessWord = currentGuess?.hiddenWord || '';
 
   const totalVisibleCount = useMemo(() => {
     if (status === 'game_over') return secretWord?.length || 7;
@@ -168,8 +184,6 @@ function CentralArea() {
     return { width: w, height: h, fontSize: `${fontSize}rem`, gap };
   }, [totalVisibleCount, windowWidth]);
 
-  const isContactAttempt = !!(currentGuess?.player && currentGuess?.contactedBy);
-
   const modeLabel = useMemo(() => {
     if (!activeAction) return STRINGS.ACTION_CHAT;
     switch (activeAction) {
@@ -222,7 +236,7 @@ function CentralArea() {
                   char={isClueInput ? char : char.toUpperCase()} 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
                   className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0 ${
-                    showOutcome && outcomeData && outcomeData.contactedBy !== socketId
+                    showOutcome && outcomeData
                       ? (outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10' : 'text-red-500 border-red-500 bg-red-500/10')
                       : 'bg-surface-lowest text-on-surface border border-outline-variant'
                   }`}
@@ -238,7 +252,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && !isClueInput && !showOutcome && (
+              {revealedPrefix && !isClueInput && !showOutcome && !isContactAttempt && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
@@ -274,28 +288,28 @@ function CentralArea() {
                   </div>
                 </div>
               </div>
-            ) : (currentGuess.player || (showOutcome && outcomeData && outcomeData.contactedBy === socketId)) ? (
+            ) : (currentGuess?.player || (showOutcome && outcomeData && outcomeData.contactedBy === socketId)) ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
                 <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group">
                   <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${isContactAttempt || showOutcome ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
                     {isContactAttempt || (showOutcome && outcomeData && outcomeData.contactedBy === socketId)
-                      ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess.contactedByName || (outcomeData && outcomeData.contactedByName))
-                      : STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}
+                      ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess?.contactedByName || (outcomeData && outcomeData.contactedByName))
+                      : STRINGS.LOG_CLUE_HEADER(currentGuess?.playerName)}
                   </p>
                   <h4 className={`text-xl sm:text-4xl font-extrabold italic leading-tight break-words px-4 text-center tracking-tight transition-colors duration-300 ${
                     showOutcome && outcomeData && outcomeData.contactedBy === socketId
                       ? (outcomeData.success ? 'text-green-500' : 'text-red-500')
                       : 'text-on-surface'
                   }`}>
-                    {isContactAttempt && socketId === currentGuess.contactedBy
-                      ? (currentGuess.contactGuess || STRINGS.PLACEHOLDER_CONTACT)
+                    {isContactAttempt && socketId === currentGuess?.contactedBy
+                      ? STRINGS.LOG_CLUE_PENDING
                       : (showOutcome && outcomeData && outcomeData.contactedBy === socketId
-                          ? outcomeData.guess
-                          : `"${currentGuess.clue || STRINGS.LOG_CLUE_PENDING}"`)
+                          ? STRINGS.LOG_CLUE_PENDING
+                          : `"${currentGuess?.clue || STRINGS.LOG_CLUE_PENDING}"`)
                     }
                   </h4>
                   <div className="mt-2">
-                    <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess.countdown} totalDuration={4} />
+                    <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess?.countdown} totalDuration={4} />
                   </div>
                 </div>
               </div>
