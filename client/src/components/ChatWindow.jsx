@@ -57,8 +57,8 @@ function ChatWindow() {
       <div className={`absolute bottom-0 left-0 w-full px-3 h-8 sm:h-10 border-t border-outline-variant overflow-hidden transition-all duration-300 bg-surface-low ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
         {shouldRenderInput && (
           <div className="h-full flex flex-col justify-end">
-            <div className="flex items-baseline space-x-2 px-1 pb-1.5 sm:pb-2">
-              <span className="font-black text-tertiary shrink-0 uppercase text-[10px] sm:text-xs tracking-widest leading-none">{username}</span>
+            <div className="flex items-end space-x-2 px-1 pb-1.5 sm:pb-2">
+              <span className="font-black text-tertiary shrink-0 uppercase text-[10px] sm:text-xs tracking-widest leading-none mb-0.5 sm:mb-1">{username}</span>
               <div className="flex-1 min-w-0 leading-tight">
                 <span className="text-on-surface font-bold text-xs sm:text-sm tracking-widest break-words whitespace-pre-wrap">
                   {inputValue}
