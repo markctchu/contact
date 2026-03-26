@@ -55,12 +55,10 @@ export const STRINGS = {
   // --- 6. Action Mode Placeholders (UnifiedInput.jsx / CentralArea.jsx) ---
   PLACEHOLDER_SECRET: "SUBMIT SECRET WORD",
   PLACEHOLDER_GUESS: "SUBMIT GUESS WORD",
-  PLACEHOLDER_GUESS_CLUE: "PROVIDE HINT FOR CONTACT",
+  PLACEHOLDER_GUESS_CLUE: "PROVIDE CLUE FOR CONTACT",
   PLACEHOLDER_CONTACT: "SOLVE THE CLUE",
   PLACEHOLDER_DENY: "INTERCEPT CONTACT",
-  PLACEHOLDER_CHAT: "SEND CHAT MESSAGE",
-  HINT_INPUT_PROMPT: (hiddenWord) => `THE PERFECT CLUE:`,
-  HINT_INPUT_AWAITING: "Enter Clue here...",
+  CLUE_INPUT_PROMPT: (hiddenWord) => `THE PERFECT CLUE:`,
 
   // --- 7. Dynamic Action Buttons (ActionToggleButton.jsx) ---
   ACTION_WM: "Wordmaster",
@@ -78,7 +76,7 @@ export const STRINGS = {
   LOG_PRIVATE_PREFIX: "Private",
   LOG_CLUE_HEADER: (playerName) => `Clue from ${playerName}`,
   LOG_CONTACT_ATTEMPT: (playerName) => `${playerName} is attempting contact...`,
-  LOG_HINT_PENDING: "Pending...",
+  LOG_CLUE_PENDING: "Pending...",
   LOG_YOUR_GUESS: "YOUR GUESS:",
 
   // --- 9. Game Outcomes (CentralArea.jsx) ---

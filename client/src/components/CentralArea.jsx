@@ -87,7 +87,7 @@ function CentralArea() {
   const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isVictoryActive = status === 'victory_countdown';
 
-  const clueHiddenWord = currentGuess.hiddenWord || '';
+  const guessWord = currentGuess.hiddenWord || '';
 
   const totalVisibleCount = useMemo(() => {
     if (status === 'game_over') return secretWord?.length || 7;
@@ -96,10 +96,10 @@ function CentralArea() {
       const inputLen = inputValue.length;
       return prefixLen + inputLen + 1;
     }
-    if (isClueInput) return clueHiddenWord.length || 7;
+    if (isClueInput) return guessWord.length || 7;
     if (!revealedPrefix && status !== 'game_over') return 7;
     return displayWord.length;
-  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, clueHiddenWord, secretWord]);
+  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, guessWord, secretWord]);
 
   const tileStyle = useMemo(() => {
     const count = totalVisibleCount;
@@ -191,7 +191,7 @@ function CentralArea() {
                 />
               ))}
 
-              {(isClueInput ? clueHiddenWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWord)).split('').map((char, i) => (
+              {(isClueInput ? guessWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWord)).split('').map((char, i) => (
                 <LetterTile 
                   key={`input-${i}`} 
                   char={isClueInput ? char : char.toUpperCase()} 
@@ -232,7 +232,7 @@ function CentralArea() {
                 <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl w-full text-center relative overflow-hidden">
                   <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
                   <p className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.3em] mb-1 sm:mb-2 transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-tertiary opacity-60'}`}>
-                    {isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : STRINGS.HINT_INPUT_PROMPT(clueHiddenWord)}
+                    {isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : STRINGS.CLUE_INPUT_PROMPT(guessWord)}
                   </p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                     {inputValue}
@@ -253,7 +253,7 @@ function CentralArea() {
                       : STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}
                   </p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
-                    "{currentGuess.clue || STRINGS.LOG_HINT_PENDING}"
+                    "{currentGuess.clue || STRINGS.LOG_CLUE_PENDING}"
                   </h4>
                 </div>
               </div>

@@ -33,16 +33,15 @@ This document outlines the functional requirements and user stories for the **Co
   - **Details:** A system message must notify the room: *"[User] has relinquished Wordmaster."*
 
 ---
-
 ## 3. Core Gameplay Loop (Players)
 *As a player (Attacker), I want to coordinate with others to reveal the secret word.*
 
-- **User Story 3.1: Submitting a Clue**
-  - **Requirement:** Players can submit a "hidden" clue word that starts with the currently revealed prefix.
-- **User Story 3.2: Setting a Hint**
-  - **Requirement:** After submitting a clue word, the player is prompted to provide a public "hint" for that word.
+- **User Story 3.1: Submitting a Guess**
+  - **Requirement:** Players can submit a "hidden" guess word that starts with the currently revealed prefix.    
+- **User Story 3.2: Setting a Clue**
+  - **Requirement:** After submitting a guess word, the player is prompted to provide a public "clue" for that word.
 - **User Story 3.3: Calling Contact**
-  - **Requirement:** Other players (not the Wordmaster or Clue Owner) can tap **CONTACT** if they think they know the hidden word.
+  - **Requirement:** Other players (not the Wordmaster or Guess Owner) can tap **CONTACT** if they think they know the hidden word.
   - **Details:** This triggers a 4-second countdown (starting at "3" for visibility).
 - **User Story 3.4: Victory by Contact**
   - **Requirement:** If two players successfully match words and the word is the **Secret Word**, the players win immediately.
@@ -52,16 +51,16 @@ This document outlines the functional requirements and user stories for the **Co
 ---
 
 ## 4. Wordmaster Defense
-*As the Wordmaster, I want to block player clues to protect my secret word.*
+*As the Wordmaster, I want to block player guesses to protect my secret word.*
 
-- **User Story 4.1: Denying a Clue**
-  - **Requirement:** The Wordmaster can tap **DENY** and enter a word to guess the hidden clue.
-  - **Details:** If the Wordmaster is correct, the clue is discarded.
+- **User Story 4.1: Denying a Guess**
+  - **Requirement:** The Wordmaster can tap **DENY** and enter a word to guess the hidden guess word.
+  - **Details:** If the Wordmaster is correct, the guess is discarded.
 - **User Story 4.2: Deny Restriction**
-  - **Requirement:** The Wordmaster cannot use the actual Secret Word to deny a clue.
+  - **Requirement:** The Wordmaster cannot use the actual Secret Word to deny a guess.
 - **User Story 4.3: Declaring Victory**
   - **Requirement:** If players are stuck, the Wordmaster can tap **DECLARE VICTORY**.
-  - **Details:** This triggers a 10-second countdown. If no player **CONTESTS** it, the Wordmaster wins.
+  - **Details:** This triggers a 10-second countdown. If no player **CONTESTS** it, the Wordmaster wins.        
 
 ---
 
@@ -83,18 +82,19 @@ This document outlines the functional requirements and user stories for the **Co
 *As a player on a spotty connection, I want the game to survive brief signal drops.*
 
 - **User Story 6.1: Disconnection Grace Period**
-  - **Requirement:** If I lose my signal, the server must wait 10 seconds before removing me from the room.
+  - **Requirement:** If I lose my signal, the server must wait 10 seconds before removing me from the room.     
 - **User Story 6.2: Automatic Reconnection**
   - **Requirement:** The app must automatically re-join my current room and restore my role (e.g., Wordmaster) as soon as the connection returns.
 - **User Story 6.3: Transport Robustness**
   - **Requirement:** The connection should prefer WebSockets for speed but support Polling for compatibility with restricted networks.
 - **User Story 6.4: Real-time Presence**
-  - **Requirement:** I want to see exactly who is typing and what their "intent" is (e.g., "User is typing a clue...") in the central area.
+  - **Requirement:** I want to see exactly who is typing and what their "intent" is (e.g., "User is typing a guess...") in the central area.
 
 ---
 
 ## 7. Validation & Feedback
 - **User Story 7.1: Dictionary Enforcement**
-  - **Requirement:** Secret words and clues must be validated against a 170k+ English dictionary.
+  - **Requirement:** Secret words and guesses must be validated against a 170k+ English dictionary.
 - **User Story 7.2: Private Error Messages**
   - **Requirement:** If I submit an invalid word, I should receive a private [Private] message in the chat explaining the error without cluttering the room for others.
+
