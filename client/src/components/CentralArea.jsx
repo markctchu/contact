@@ -102,6 +102,32 @@ function CentralArea() {
   }, [revealedPrefix, status, secretWord]);
 
   const isContactAttempt = !!(currentGuess?.player && currentGuess?.contactedBy);
+
+  const displayWordWithOutcome = useMemo(() => {
+    // 1. If it's a contact outcome animation
+    if (showOutcome && outcomeData) {
+      if (outcomeData.contactedBy === socketId) {
+        // Caller sees their own guess during outcome
+        return outcomeData.guess;
+      } else {
+        // Others see the guess word ONLY on success
+        if (outcomeData.success) return outcomeData.guess;
+      }
+    }
+    // 2. If it's a contact attempt in progress
+    if (isContactAttempt) {
+      if (socketId === currentGuess?.contactedBy) {
+        // Caller sees their own guess during countdown
+        return currentGuess?.contactGuess || revealedPrefix;
+      }
+    }
+    // 3. Handle transition (prevent flash)
+    if (pendingContactGuess) {
+      return pendingContactGuess;
+    }
+    return displayWord;
+  }, [showOutcome, outcomeData, displayWord, socketId, isContactAttempt, currentGuess, revealedPrefix, pendingContactGuess]);
+
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isClueInput = activeAction === 'GUESS_CLUE';
   const isShowingOutcome = !!(showOutcome && outcomeData);
