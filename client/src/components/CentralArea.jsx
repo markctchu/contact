@@ -64,7 +64,8 @@ function CentralArea() {
     activeAction, 
     toggleAction, 
     handleCancel,
-    isWordmaster
+    isWordmaster,
+    pendingContactGuess
   } = useGame();
 
   const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 0);
@@ -120,8 +121,12 @@ function CentralArea() {
         return currentGuess?.contactGuess || revealedPrefix;
       }
     }
+    // 3. Handle transition (prevent flash)
+    if (pendingContactGuess) {
+      return pendingContactGuess;
+    }
     return displayWord;
-  }, [showOutcome, outcomeData, displayWord, socketId, isContactAttempt, currentGuess, revealedPrefix]);
+  }, [showOutcome, outcomeData, displayWord, socketId, isContactAttempt, currentGuess, revealedPrefix, pendingContactGuess]);
 
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isClueInput = activeAction === 'GUESS_CLUE';
@@ -138,9 +143,9 @@ function CentralArea() {
       return prefixLen + inputLen + 1;
     }
     if (isClueInput) return guessWord.length || 7;
-    if (!revealedPrefix && status !== 'game_over') return 7;
+    if (!revealedPrefix && status !== 'game_over' && !pendingContactGuess) return 7;
     return displayWordWithOutcome.length;
-  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWordWithOutcome, guessWord, secretWord]);
+  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWordWithOutcome, guessWord, secretWord, pendingContactGuess]);
 
   const tileStyle = useMemo(() => {
     const count = totalVisibleCount;

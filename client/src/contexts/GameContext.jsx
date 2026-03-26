@@ -12,6 +12,7 @@ export function GameProvider({ children, initialRoom, username }) {
   const [inputValue, setInputValue] = useState('');
   const [showKeyboard, setShowKeyboard] = useState(true);
   const [chat, setChat] = useState(initialRoom?.chat || []);
+  const [pendingContactGuess, setPendingContactGuess] = useState(null);
 
   const isWordmaster = room?.wordmaster === socketId;
   const { activeAction, setActiveAction, toggleAction: internalToggleAction } = useInternalGameState(room || { status: 'waiting' }, socketId, isWordmaster);
@@ -28,8 +29,13 @@ export function GameProvider({ children, initialRoom, username }) {
       if (roomFromSocket.chat) {
         setChat(roomFromSocket.chat);
       }
+      
+      // Clear pending state if the server confirms contact
+      if (roomFromSocket.currentGuess?.contactedBy === socketId) {
+        setPendingContactGuess(null);
+      }
     }
-  }, [roomFromSocket]);
+  }, [roomFromSocket, socketId]);
 
   // Socket Listeners
   useEffect(() => {
@@ -58,7 +64,9 @@ export function GameProvider({ children, initialRoom, username }) {
     } else if (activeAction === 'GUESS_CLUE') {
       socket.emit(EVENTS.SUBMIT_GUESS_CLUE, { clue: val });
     } else if (activeAction === 'CONTACT') {
-      socket.emit(EVENTS.CALL_CONTACT, { guess: prefix + val });
+      const guess = prefix + val;
+      setPendingContactGuess(guess);
+      socket.emit(EVENTS.CALL_CONTACT, { guess: guess });
     } else if (activeAction === 'DENY') {
       socket.emit(EVENTS.DENY_GUESS, { guess: prefix + val });
     } else if (val) {
@@ -81,6 +89,7 @@ export function GameProvider({ children, initialRoom, username }) {
 
   const handleCancel = useCallback(() => {
     setInputValue('');
+    setPendingContactGuess(null);
     
     // Only clear optimistically if it's NOT a mandatory state.
     // Mandatory states are managed by useGameState's internal effect.
@@ -116,7 +125,8 @@ export function GameProvider({ children, initialRoom, username }) {
     setShowKeyboard,
     handleEnter,
     handleCancel,
-    isWordmaster
+    isWordmaster,
+    pendingContactGuess
   };
 
   return (
