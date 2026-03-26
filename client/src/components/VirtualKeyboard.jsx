@@ -5,7 +5,7 @@ const ROWS = [
   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
   ['SPACER_1', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'SPACER_1'],
   ['SHIFT', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'DELETE'],
-  ['SPACER_2', ',', 'SPACE', '.', 'DONE']
+  ['SPACER_3', ',', 'SPACE', '.', 'DONE']
 ];
 
 const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
@@ -38,8 +38,8 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
               if (key === 'SPACER_1') {
                 return <div key={`spacer-${rowIndex}-${keyIndex}`} className="col-span-1" />;
               }
-              if (key === 'SPACER_2') {
-                return <div key={`spacer-${rowIndex}-${keyIndex}`} className="col-span-2" />;
+              if (key === 'SPACER_3') {
+                return <div key={`spacer-${rowIndex}-${keyIndex}`} className="col-span-3" />;
               }
 
               const isSpecial = ['SHIFT', 'DONE', 'DELETE', 'SPACE'].includes(key);
@@ -51,7 +51,7 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
                 spanClass = "col-span-3";
               } else if (key === 'DONE') {
                 content = <CornerDownLeft size={18} className="text-on-surface/60" />;
-                spanClass = "col-span-4";
+                spanClass = "col-span-3";
               } else if (key === 'DELETE') {
                 content = <Delete size={18} className="text-on-surface/60" />;
                 spanClass = "col-span-3";
