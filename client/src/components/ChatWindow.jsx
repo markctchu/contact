@@ -54,16 +54,16 @@ function ChatWindow() {
       </div>
       
       {/* 2. Persistent Chat Input Line - Absolutely positioned at bottom */}
-      <div className={`absolute bottom-0 left-0 w-full px-3 h-9 sm:h-11 border-t border-outline-variant overflow-hidden transition-all duration-300 bg-surface-low ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+      <div className={`absolute bottom-0 left-0 w-full px-3 h-8 sm:h-10 border-t border-outline-variant overflow-hidden transition-all duration-300 bg-surface-low ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
         {shouldRenderInput && (
           <div className="h-full flex flex-col justify-end">
-            <div className="flex items-end space-x-3 px-1 py-1.5 sm:py-2">
-              <span className="font-black text-tertiary shrink-0 uppercase text-xs sm:text-sm tracking-widest pb-0.5">{username}</span>
-              <div className="flex-1 flex flex-wrap items-center min-w-0 leading-tight">
+            <div className="flex items-baseline space-x-2 px-1 pb-1.5 sm:pb-2">
+              <span className="font-black text-tertiary shrink-0 uppercase text-[10px] sm:text-xs tracking-widest leading-none">{username}</span>
+              <div className="flex-1 min-w-0 leading-tight">
                 <span className="text-on-surface font-bold text-xs sm:text-sm tracking-widest break-words whitespace-pre-wrap">
                   {inputValue}
+                  <span className="inline-block w-1 h-3 sm:h-3.5 ml-1 bg-tertiary animate-[pulse_1.5s_infinite] rounded-full translate-y-[1px] sm:translate-y-[2px]"></span>
                 </span>
-                <span className="inline-block w-1 h-3.5 ml-1 bg-tertiary animate-[pulse_1.5s_infinite] rounded-full shrink-0"></span>
               </div>
             </div>
           </div>
