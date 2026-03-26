@@ -102,6 +102,15 @@ function CentralArea() {
   }, [revealedPrefix, status, secretWord]);
 
   const isContactAttempt = !!(currentGuess?.player && currentGuess?.contactedBy);
+  const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
+  const isClueInput = activeAction === 'GUESS_CLUE';
+  const isShowingOutcome = !!(showOutcome && outcomeData);
+  const isLockedIn = !!(pendingContactGuess || isContactAttempt);
+  const isCaller = socketId === (currentGuess?.contactedBy || outcomeData?.contactedBy);
+  const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction) || (isLockedIn && !isCaller) || (isShowingOutcome && !isCaller);
+  const isVictoryActive = status === 'victory_countdown';
+
+  const guessWord = currentGuess?.hiddenWord || '';
 
   const displayWordWithOutcome = useMemo(() => {
     // 1. If it's a contact outcome animation
@@ -128,15 +137,6 @@ function CentralArea() {
     return displayWord;
   }, [showOutcome, outcomeData, displayWord, socketId, isContactAttempt, currentGuess, revealedPrefix, pendingContactGuess]);
 
-  const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
-  const isClueInput = activeAction === 'GUESS_CLUE';
-  const isShowingOutcome = !!(showOutcome && outcomeData);
-  const isLockedIn = !!(pendingContactGuess || isContactAttempt);
-  const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction) || isLockedIn || isShowingOutcome;
-  const isVictoryActive = status === 'victory_countdown';
-
-  const guessWord = currentGuess?.hiddenWord || '';
-
   const totalVisibleCount = useMemo(() => {
     if (status === 'game_over') return secretWord?.length || 7;
     if (isClueInput) return guessWord.length || 7;
@@ -151,11 +151,11 @@ function CentralArea() {
       baseCount = displayWordWithOutcome.length;
     }
     
-    if (isWordInput || isLockedIn || isShowingOutcome) {
+    if (isWordInput || ((isLockedIn || isShowingOutcome) && !isCaller)) {
        return baseCount + 1;
     }
     return baseCount;
-  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWordWithOutcome, guessWord, secretWord, isLockedIn, isShowingOutcome, pendingContactGuess]);
+  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWordWithOutcome, guessWord, secretWord, isLockedIn, isShowingOutcome, pendingContactGuess, isCaller]);
 
   const tileStyle = useMemo(() => {
     const count = totalVisibleCount;
@@ -211,6 +211,15 @@ function CentralArea() {
     }
   }, [activeAction]);
 
+  const renderWord = useMemo(() => {
+    if (isClueInput) return guessWord;
+    if (isWordInput) {
+      const prefix = showPrefixInInput ? revealedPrefix : '';
+      return (prefix + inputValue).toUpperCase();
+    }
+    return (displayWordWithOutcome || '').toUpperCase();
+  }, [isClueInput, guessWord, isWordInput, showPrefixInInput, revealedPrefix, inputValue, displayWordWithOutcome]);
+
   return (
     <div className="flex-1 flex flex-col w-full h-full relative">
       <div className="flex-1 flex flex-col items-center justify-center space-y-2 sm:space-y-4 w-full transition-all duration-500 min-h-0 py-2 short-screen-tighten">
@@ -236,35 +245,29 @@ function CentralArea() {
                 />
               ))}
 
-              {status !== 'game_over' && showPrefixInInput && revealedPrefix && revealedPrefix.split('').map((char, i) => (
-                <LetterTile 
-                  key={`prefix-${i}`} 
-                  char={char.toUpperCase()} 
-                  style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                  className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-all duration-300 shrink-0 ${
-                    isShowingOutcome
-                      ? (outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10 opacity-100' : 'text-red-500 border-red-500 bg-red-500/10 opacity-100')
-                      : 'bg-surface-container text-on-surface opacity-30'
-                  }`}
-                />
-              ))}
+              {renderWord.split('').map((char, i) => {
+                const isPrefixPart = showPrefixInInput && i < revealedPrefix.length;
+                const isOutcomePart = isShowingOutcome;
+                const isLockedPart = isLockedIn && !isShowingOutcome;
 
-              {(isClueInput ? guessWord : (isWordInput ? inputValue : (isLockedIn || isShowingOutcome ? displayWordWithOutcome.slice(showPrefixInInput ? revealedPrefix.length : 0) : displayWordWithOutcome))).split('').map((char, i) => (
-                <LetterTile 
-                  key={`input-${i}`} 
-                  char={isClueInput ? char : char.toUpperCase()} 
-                  style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                  className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0 ${
-                    isShowingOutcome
-                      ? (outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10' : 'text-red-500 border-red-500 bg-red-500/10')
-                      : (isLockedIn
-                          ? 'bg-surface-container text-on-surface opacity-30'
-                          : 'bg-surface-lowest text-on-surface border border-outline-variant')
-                  }`}
-                />
-              ))}              
+                let tileClass = 'bg-surface-lowest text-on-surface border border-outline-variant';
+                if (isOutcomePart) {
+                  tileClass = outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10' : 'text-red-500 border-red-500 bg-red-500/10';
+                } else if (isPrefixPart || isLockedPart) {
+                  tileClass = 'bg-surface-container text-on-surface opacity-30';
+                }
+
+                return (
+                  <LetterTile 
+                    key={`char-${i}`} 
+                    char={char} 
+                    style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
+                    className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-all duration-300 shrink-0 ${tileClass} ${!isPrefixPart && !isLockedPart && !isOutcomePart ? 'animate-in zoom-in-90 slide-in-from-bottom-2' : ''}`}
+                  />
+                );
+              })}              
               
-              {(isWordInput || isLockedIn || isShowingOutcome) && (
+              {(isWordInput || ((isLockedIn || isShowingOutcome) && !isCaller)) && (
                 <div 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
                   className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black shrink-0 ${
@@ -277,7 +280,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && !isClueInput && (isLockedIn || isShowingOutcome || (!isShowingOutcome && !isContactAttempt)) && (
+              {revealedPrefix && !isClueInput && ((!isCaller && (isLockedIn || isShowingOutcome)) || (!isShowingOutcome && !isContactAttempt)) && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
