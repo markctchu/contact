@@ -54,10 +54,10 @@ function ChatWindow() {
       </div>
       
       {/* 2. Persistent Chat Input Line - Absolutely positioned at bottom */}
-      <div className={`absolute bottom-0 left-0 w-full px-3 h-8 sm:h-10 border-t border-outline-variant overflow-hidden transition-all duration-300 bg-surface-low ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+      <div className={`absolute bottom-0 left-0 w-full px-3 h-7 sm:h-9 border-t border-outline-variant overflow-hidden transition-all duration-300 bg-surface-low ${isChatInput ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
         {shouldRenderInput && (
           <div className="h-full flex flex-col justify-end">
-            <div className="flex items-end space-x-2 px-1 pb-1 sm:pb-1.5">
+            <div className="flex items-end space-x-2 px-1 pb-0.5 sm:pb-1">
               <div className="h-4 sm:h-5 flex items-center shrink-0">
                 <span className="font-black text-tertiary uppercase text-[10px] sm:text-xs tracking-widest leading-none">{username}</span>
               </div>
