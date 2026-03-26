@@ -102,50 +102,34 @@ function CentralArea() {
   }, [revealedPrefix, status, secretWord]);
 
   const isContactAttempt = !!(currentGuess?.player && currentGuess?.contactedBy);
-
-  const displayWordWithOutcome = useMemo(() => {
-    // 1. If it's a contact outcome animation
-    if (showOutcome && outcomeData) {
-      if (outcomeData.contactedBy === socketId) {
-        // Caller sees their own guess during outcome
-        return outcomeData.guess;
-      } else {
-        // Others see the guess word ONLY on success
-        if (outcomeData.success) return outcomeData.guess;
-      }
-    }
-    // 2. If it's a contact attempt in progress
-    if (isContactAttempt) {
-      if (socketId === currentGuess?.contactedBy) {
-        // Caller sees their own guess during countdown
-        return currentGuess?.contactGuess || revealedPrefix;
-      }
-    }
-    // 3. Handle transition (prevent flash)
-    if (pendingContactGuess) {
-      return pendingContactGuess;
-    }
-    return displayWord;
-  }, [showOutcome, outcomeData, displayWord, socketId, isContactAttempt, currentGuess, revealedPrefix, pendingContactGuess]);
-
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isClueInput = activeAction === 'GUESS_CLUE';
-  const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
+  const isShowingOutcome = !!(showOutcome && outcomeData);
+  const isLockedIn = !!(pendingContactGuess || isContactAttempt);
+  const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction) || isLockedIn || isShowingOutcome;
   const isVictoryActive = status === 'victory_countdown';
 
   const guessWord = currentGuess?.hiddenWord || '';
 
   const totalVisibleCount = useMemo(() => {
     if (status === 'game_over') return secretWord?.length || 7;
+    if (isClueInput) return guessWord.length || 7;
+    
+    let baseCount;
     if (isWordInput) {
       const prefixLen = showPrefixInInput ? revealedPrefix.length : 0;
-      const inputLen = inputValue.length;
-      return prefixLen + inputLen + 1;
+      baseCount = prefixLen + inputValue.length;
+    } else if (!revealedPrefix && status !== 'game_over' && !pendingContactGuess) {
+      baseCount = 7;
+    } else {
+      baseCount = displayWordWithOutcome.length;
     }
-    if (isClueInput) return guessWord.length || 7;
-    if (!revealedPrefix && status !== 'game_over' && !pendingContactGuess) return 7;
-    return displayWordWithOutcome.length;
-  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWordWithOutcome, guessWord, secretWord, pendingContactGuess]);
+    
+    if (isWordInput || isLockedIn || isShowingOutcome) {
+       return baseCount + 1;
+    }
+    return baseCount;
+  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWordWithOutcome, guessWord, secretWord, isLockedIn, isShowingOutcome, pendingContactGuess]);
 
   const tileStyle = useMemo(() => {
     const count = totalVisibleCount;
@@ -231,33 +215,43 @@ function CentralArea() {
                   key={`prefix-${i}`} 
                   char={char.toUpperCase()} 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                  className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-container text-on-surface opacity-30 shrink-0"
+                  className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-all duration-300 shrink-0 ${
+                    isShowingOutcome
+                      ? (outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10 opacity-100' : 'text-red-500 border-red-500 bg-red-500/10 opacity-100')
+                      : 'bg-surface-container text-on-surface opacity-30'
+                  }`}
                 />
               ))}
 
-              {(isClueInput ? guessWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWordWithOutcome)).split('').map((char, i) => (
+              {(isClueInput ? guessWord : (isWordInput ? inputValue : (isLockedIn || isShowingOutcome ? displayWordWithOutcome.slice(showPrefixInInput ? revealedPrefix.length : 0) : displayWordWithOutcome))).split('').map((char, i) => (
                 <LetterTile 
                   key={`input-${i}`} 
                   char={isClueInput ? char : char.toUpperCase()} 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
                   className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0 ${
-                    showOutcome && outcomeData
+                    isShowingOutcome
                       ? (outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10' : 'text-red-500 border-red-500 bg-red-500/10')
-                      : 'bg-surface-lowest text-on-surface border border-outline-variant'
+                      : (isLockedIn
+                          ? 'bg-surface-container text-on-surface opacity-30'
+                          : 'bg-surface-lowest text-on-surface border border-outline-variant')
                   }`}
                 />
               ))}              
               
-              {isWordInput && (
+              {(isWordInput || isLockedIn || isShowingOutcome) && (
                 <div 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
-                  className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-tertiary/10 border border-tertiary/20 shrink-0"
+                  className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black shrink-0 ${
+                    isLockedIn || isShowingOutcome ? 'bg-surface-container opacity-20' : 'bg-tertiary/10 border border-tertiary/20'
+                  }`}
                 >
-                  <span className="w-1 h-1/2 bg-tertiary rounded-full animate-[pulse_1.5s_infinite]"></span>
+                  <span className={`w-1 h-1/2 rounded-full align-middle ${
+                    isLockedIn || isShowingOutcome ? 'bg-on-surface/20' : 'bg-tertiary animate-[pulse_1.5s_infinite]'
+                  }`}></span>
                 </div>
               )}
 
-              {revealedPrefix && !isClueInput && !showOutcome && !isContactAttempt && (
+              {revealedPrefix && !isClueInput && (isLockedIn || isShowingOutcome || (!isShowingOutcome && !isContactAttempt)) && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
