@@ -161,7 +161,7 @@ function CentralArea() {
     <div className="flex-1 flex flex-col w-full h-full relative">
       <div className="flex-1 flex flex-col items-center justify-center space-y-2 sm:space-y-4 w-full transition-all duration-500 min-h-0 py-2 short-screen-tighten">
         {/* Top Section: Word Display / Labels */}
-        <div className={`w-full ${isClueInput ? 'space-y-3 sm:space-y-2' : 'space-y-4 sm:space-y-3'} py-2 short-screen-tighten`}>
+        <div className="w-full space-y-4 sm:space-y-3 py-2 short-screen-tighten">
           <div className="space-y-1.5 sm:space-y-2 w-full flex flex-col items-center relative">
             <h3 className={`text-[9px] sm:text-xs font-black tracking-[0.4em] uppercase transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
               {status === 'game_over' 
@@ -209,7 +209,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {(status === 'playing' || isVictoryActive) && !isWordInput && !isClueInput && revealedPrefix && (
+              {revealedPrefix && !isClueInput && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
@@ -269,7 +269,7 @@ function CentralArea() {
               </div>
             ) : isVictoryActive ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 flex flex-col items-center">
-                <div className="bg-surface-low/30 rounded-2xl w-full py-6 px-4 relative overflow-hidden flex flex-col items-center">
+                <div className="bg-surface-low/30 rounded-2xl w-full py-2 px-4 relative overflow-hidden flex flex-col items-center">
                   <div className={`text-xs sm:text-base font-black uppercase tracking-[0.4em] text-center italic transition-colors duration-500 text-on-secondary-container`}>
                     {STRINGS.STATUS_CONTEST_GAME}
                   </div>
@@ -279,7 +279,7 @@ function CentralArea() {
                 </div>
               </div>
             ) : (
-              <div className="text-on-surface/20 text-xs sm:text-base font-black uppercase tracking-[0.4em] py-6 text-center px-12 italic">
+              <div className="text-on-surface/20 text-xs sm:text-base font-black uppercase tracking-[0.4em] py-2 text-center px-12 italic">
                 {STRINGS.STATUS_PLAYING_EMPTY}
               </div>
             )}
