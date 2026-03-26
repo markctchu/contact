@@ -3,15 +3,17 @@ import { Delete, CornerDownLeft, ArrowUp } from 'lucide-react';
 
 const ROWS = [
   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+  ['SPACER_HALF', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'SPACER_HALF'],
   ['SHIFT', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'DELETE'],
-  [',', 'SPACE', '.', 'DONE']
+  ['SPACER_DOUBLE', ',', 'SPACE', '.', 'DONE']
 ];
 
 const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
   const [isShifted, setIsShifted] = useState(false);
 
   const handleKeyClick = (key) => {
+    if (key.startsWith('SPACER')) return;
+    
     if (key === 'SHIFT') {
       setIsShifted(!isShifted);
     } else if (key === 'DONE') {
@@ -32,7 +34,12 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
       <div className="flex flex-col gap-1.5 sm:gap-2">
         {ROWS.map((row, rowIndex) => (
           <div key={rowIndex} className="flex justify-center gap-1 sm:gap-1.5 w-full">
-            {row.map((key) => {
+            {row.map((key, keyIndex) => {
+              if (key.startsWith('SPACER')) {
+                const isHalf = key === 'SPACER_HALF';
+                return <div key={`spacer-${rowIndex}-${keyIndex}`} className={isHalf ? "flex-[0.5]" : "flex-[2]"} />;
+              }
+
               const isSpecial = ['SHIFT', 'DONE', 'DELETE', 'SPACE'].includes(key);
               let content = isShifted ? key : key.toLowerCase();
               let flexClass = "flex-1";
@@ -48,10 +55,7 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
                 flexClass = "flex-[1.5]";
               } else if (key === 'SPACE') {
                 content = "";
-                flexClass = "flex-[5]";
-              } else if (key === ',' || key === '.') {
-                content = key;
-                flexClass = "flex-1";
+                flexClass = "flex-[4]";
               }
 
               return (
