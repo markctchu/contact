@@ -3,9 +3,9 @@ import { Delete, CornerDownLeft, ArrowUp } from 'lucide-react';
 
 const ROWS = [
   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-  ['SPACER_HALF', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'SPACER_HALF'],
+  ['SPACER_1', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'SPACER_1'],
   ['SHIFT', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'DELETE'],
-  ['SPACER_DOUBLE', ',', 'SPACE', '.', 'DONE']
+  ['SPACER_2', ',', 'SPACE', '.', 'DONE']
 ];
 
 const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
@@ -33,29 +33,31 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
     <div className="w-full p-1 sm:p-2 bg-surface-low rounded-lg">
       <div className="flex flex-col gap-1.5 sm:gap-2">
         {ROWS.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex justify-center gap-1 sm:gap-1.5 w-full">
+          <div key={rowIndex} className="grid grid-cols-[repeat(20,minmax(0,1fr))] gap-1 sm:gap-1.5 w-full">
             {row.map((key, keyIndex) => {
-              if (key.startsWith('SPACER')) {
-                const isHalf = key === 'SPACER_HALF';
-                return <div key={`spacer-${rowIndex}-${keyIndex}`} className={isHalf ? "flex-[0.5]" : "flex-[2]"} />;
+              if (key === 'SPACER_1') {
+                return <div key={`spacer-${rowIndex}-${keyIndex}`} className="col-span-1" />;
+              }
+              if (key === 'SPACER_2') {
+                return <div key={`spacer-${rowIndex}-${keyIndex}`} className="col-span-2" />;
               }
 
               const isSpecial = ['SHIFT', 'DONE', 'DELETE', 'SPACE'].includes(key);
               let content = isShifted ? key : key.toLowerCase();
-              let flexClass = "flex-1";
+              let spanClass = "col-span-2";
               
               if (key === 'SHIFT') {
                 content = <ArrowUp size={18} className={isShifted ? 'text-primary dark:text-[#8B5CF6]' : 'text-on-surface/40'} />;
-                flexClass = "flex-[1.5]";
+                spanClass = "col-span-3";
               } else if (key === 'DONE') {
                 content = <CornerDownLeft size={18} className="text-on-surface/60" />;
-                flexClass = "flex-[2]";
+                spanClass = "col-span-4";
               } else if (key === 'DELETE') {
                 content = <Delete size={18} className="text-on-surface/60" />;
-                flexClass = "flex-[1.5]";
+                spanClass = "col-span-3";
               } else if (key === 'SPACE') {
                 content = "";
-                flexClass = "flex-[4]";
+                spanClass = "col-span-10";
               }
 
               return (
@@ -64,7 +66,7 @@ const VirtualKeyboard = React.memo(({ onKeyPress, onEnter, onBackspace }) => {
                   type="button"
                   onClick={() => handleKeyClick(key)}
                   className={`
-                    ${flexClass}
+                    ${spanClass}
                     h-12 sm:h-14 
                     flex items-center justify-center 
                     rounded-lg
