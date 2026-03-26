@@ -41,7 +41,8 @@ class RoomManager {
       chat: [],
       typingStatus: new Map(),
       usedWords: new Set(),
-      winner: null
+      winner: null,
+      lastContactResult: null
     };
     this.addPlayer(room, creatorId, username);
     this.rooms.set(roomId, room);
@@ -388,8 +389,18 @@ class RoomManager {
         room.currentGuess.countdown--;
         if (room.currentGuess.countdown === 0) {
           const { hiddenWord, contactGuess, player, contactedBy } = room.currentGuess;
+          const success = hiddenWord === contactGuess;
 
-          if (hiddenWord === contactGuess) {
+          room.lastContactResult = {
+            success,
+            guess: contactGuess,
+            player,
+            contactedBy,
+            contactedByName: this.getUsername(room, contactedBy),
+            timestamp: Date.now()
+          };
+
+          if (success) {
             room.usedWords.add(hiddenWord);
 
             if (hiddenWord === room.secretWord) {
@@ -432,7 +443,7 @@ class RoomManager {
     });
   }
 
-  serializeRoom(room) {
+  serializeRoom(room, targetSocketId = null) {
     if (!room) return null;
     return {
       id: room.id || '',
@@ -449,8 +460,10 @@ class RoomManager {
         hiddenWord: room.currentGuess?.hiddenWord || null,
         contactedBy: room.currentGuess?.contactedBy || null,
         contactedByName: room.currentGuess?.contactedBy ? this.getUsername(room, room.currentGuess.contactedBy) : null,
-        countdown: room.currentGuess?.countdown || 0
+        countdown: room.currentGuess?.countdown || 0,
+        contactGuess: (room.currentGuess?.contactedBy === targetSocketId) ? room.currentGuess?.contactGuess : null
       },
+      lastContactResult: room.lastContactResult || null,
       victoryCountdown: room.victoryCountdown || 0,
       chat: room.chat || [],
       secretWord: room.status === 'game_over' ? room.secretWord : null
@@ -458,12 +471,18 @@ class RoomManager {
   }
 
   emitRoomUpdate(io, room, targetSocket = null) {
-    const serialized = this.serializeRoom(room);
     if (targetSocket) {
-      console.log(`[Room] Emitting direct room update to socket: ${targetSocket.id}`);
+      const serialized = this.serializeRoom(room, targetSocket.id);
       targetSocket.emit(EVENTS.ROOM_UPDATE, serialized);
     }
-    io.to(room.id).emit(EVENTS.ROOM_UPDATE, serialized);
+    
+    room.players.forEach((player, socketId) => {
+      // Avoid double emission to targetSocket
+      if (targetSocket && targetSocket.id === socketId) return;
+      
+      const serialized = this.serializeRoom(room, socketId);
+      io.to(socketId).emit(EVENTS.ROOM_UPDATE, serialized);
+    });
   }
 }
 

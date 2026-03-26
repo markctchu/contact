@@ -75,12 +75,37 @@ function CentralArea() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const { revealedPrefix, currentGuess, status, victoryCountdown, secretWord, winner } = room;
+  const { revealedPrefix, currentGuess, status, victoryCountdown, secretWord, winner, lastContactResult } = room;
+
+  const [showOutcome, setShowOutcome] = useState(false);
+  const [outcomeData, setOutcomeData] = useState(null);
+
+  useEffect(() => {
+    if (lastContactResult) {
+      const now = Date.now();
+      const diff = now - lastContactResult.timestamp;
+      if (diff < 1000) {
+        setShowOutcome(true);
+        setOutcomeData(lastContactResult);
+        const timer = setTimeout(() => {
+          setShowOutcome(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [lastContactResult?.timestamp]);
 
   const displayWord = useMemo(() => {
     if (status === 'game_over' && secretWord) return secretWord;
     return revealedPrefix;
   }, [revealedPrefix, status, secretWord]);
+
+  const displayWordWithOutcome = useMemo(() => {
+    if (showOutcome && outcomeData && outcomeData.contactedBy !== socketId) {
+      if (outcomeData.success) return outcomeData.guess;
+    }
+    return displayWord;
+  }, [showOutcome, outcomeData, displayWord, socketId]);
 
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isClueInput = activeAction === 'GUESS_CLUE';
@@ -98,8 +123,8 @@ function CentralArea() {
     }
     if (isClueInput) return guessWord.length || 7;
     if (!revealedPrefix && status !== 'game_over') return 7;
-    return displayWord.length;
-  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWord, guessWord, secretWord]);
+    return displayWordWithOutcome.length;
+  }, [isWordInput, isClueInput, showPrefixInInput, revealedPrefix, inputValue, status, displayWordWithOutcome, guessWord, secretWord]);
 
   const tileStyle = useMemo(() => {
     const count = totalVisibleCount;
@@ -143,7 +168,7 @@ function CentralArea() {
     return { width: w, height: h, fontSize: `${fontSize}rem`, gap };
   }, [totalVisibleCount, windowWidth]);
 
-  const isContactAttempt = currentGuess.player && currentGuess.contactedBy;
+  const isContactAttempt = !!(currentGuess?.player && currentGuess?.contactedBy);
 
   const modeLabel = useMemo(() => {
     if (!activeAction) return STRINGS.ACTION_CHAT;
@@ -191,12 +216,16 @@ function CentralArea() {
                 />
               ))}
 
-              {(isClueInput ? guessWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWord)).split('').map((char, i) => (
+              {(isClueInput ? guessWord : (isWordInput ? (showPrefixInInput ? inputValue : inputValue) : displayWordWithOutcome)).split('').map((char, i) => (
                 <LetterTile 
                   key={`input-${i}`} 
                   char={isClueInput ? char : char.toUpperCase()} 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                  className="flex items-center justify-center rounded-lg sm:rounded-xl font-black bg-surface-lowest text-on-surface border border-outline-variant transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0"
+                  className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-all duration-300 animate-in zoom-in-90 slide-in-from-bottom-2 shrink-0 ${
+                    showOutcome && outcomeData && outcomeData.contactedBy !== socketId
+                      ? (outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10' : 'text-red-500 border-red-500 bg-red-500/10')
+                      : 'bg-surface-lowest text-on-surface border border-outline-variant'
+                  }`}
                 />
               ))}              
               
@@ -209,7 +238,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && !isClueInput && (
+              {revealedPrefix && !isClueInput && !showOutcome && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
@@ -245,16 +274,25 @@ function CentralArea() {
                   </div>
                 </div>
               </div>
-            ) : currentGuess.player ? (
+            ) : (currentGuess.player || (showOutcome && outcomeData && outcomeData.contactedBy === socketId)) ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
                 <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group">
-                  <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${isContactAttempt ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
-                    {isContactAttempt 
-                      ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess.contactedByName)
+                  <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${isContactAttempt || showOutcome ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
+                    {isContactAttempt || (showOutcome && outcomeData && outcomeData.contactedBy === socketId)
+                      ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess.contactedByName || (outcomeData && outcomeData.contactedByName))
                       : STRINGS.LOG_CLUE_HEADER(currentGuess.playerName)}
                   </p>
-                  <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4 text-center tracking-tight">
-                    "{currentGuess.clue || STRINGS.LOG_CLUE_PENDING}"
+                  <h4 className={`text-xl sm:text-4xl font-extrabold italic leading-tight break-words px-4 text-center tracking-tight transition-colors duration-300 ${
+                    showOutcome && outcomeData && outcomeData.contactedBy === socketId
+                      ? (outcomeData.success ? 'text-green-500' : 'text-red-500')
+                      : 'text-on-surface'
+                  }`}>
+                    {isContactAttempt && socketId === currentGuess.contactedBy
+                      ? (currentGuess.contactGuess || STRINGS.PLACEHOLDER_CONTACT)
+                      : (showOutcome && outcomeData && outcomeData.contactedBy === socketId
+                          ? outcomeData.guess
+                          : `"${currentGuess.clue || STRINGS.LOG_CLUE_PENDING}"`)
+                    }
                   </h4>
                   <div className="mt-2">
                     <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess.countdown} totalDuration={4} />
