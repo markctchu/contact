@@ -220,7 +220,7 @@ function CentralArea() {
             <h3 className={`text-[9px] sm:text-xs font-black tracking-[0.4em] uppercase transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
               {status === 'game_over' 
                 ? STRINGS.WORD_LABEL_FINAL 
-                : (isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (activeAction === 'SECRET' ? STRINGS.WORD_LABEL_SECRET : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))))}
+                : (isVictoryActive ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (activeAction === 'SECRET' ? STRINGS.WORD_LABEL_SECRET : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))))}
             </h3>
             
             <div 
@@ -291,7 +291,7 @@ function CentralArea() {
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
                 <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl w-full text-center relative overflow-hidden">
                   <p className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.3em] mb-1 sm:mb-2 transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-tertiary opacity-60'}`}>
-                    {isVictoryActive ? STRINGS.WORD_LABEL_VICTORY : STRINGS.CLUE_INPUT_PROMPT(guessWord)}
+                    {isVictoryActive ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) : STRINGS.CLUE_INPUT_PROMPT(guessWord)}
                   </p>
                   <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
                     {inputValue}
@@ -342,7 +342,7 @@ function CentralArea() {
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 flex flex-col items-center">
                 <div className="bg-surface-low/30 rounded-2xl w-full py-2 px-4 relative overflow-hidden flex flex-col items-center">
                   <div className={`text-xs sm:text-base font-black uppercase tracking-[0.4em] text-center italic transition-colors duration-500 text-on-secondary-container`}>
-                    {STRINGS.STATUS_CONTEST_GAME}
+                    {isWordmaster ? STRINGS.STATUS_CONTEST_GAME_WM : STRINGS.STATUS_CONTEST_GAME}
                   </div>
                   <div className="w-full mt-4">
                     <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
