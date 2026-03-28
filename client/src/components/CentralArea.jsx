@@ -239,7 +239,7 @@ function CentralArea() {
               {renderWord.split('').map((char, i) => {
                 const isPrefixPart = showPrefixInInput && i < revealedPrefix.length;
                 const isOutcomePart = isShowingOutcome && (isCaller || outcomeData.success);
-                const isLockedPart = isLockedIn && !isShowingOutcome;
+                const isLockedPart = isLockedIn && !isShowingOutcome && isCaller; // Only dim for caller
 
                 let tileClass = 'bg-surface-lowest text-on-surface border border-outline-variant';
                 if (isOutcomePart) {
@@ -269,7 +269,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && !isClueInput && !isShowingOutcome && !isContactAttempt && (
+              {revealedPrefix && !isClueInput && (!isShowingOutcome || (isShowingOutcome && !outcomeData.success)) && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
