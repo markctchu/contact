@@ -79,27 +79,27 @@ function CentralArea() {
 
   const { revealedPrefix, currentGuess, status, victoryCountdown, secretWord, winner, lastContactResult } = room;
 
-  const [showOutcome, setShowOutcome] = useState(false);
-  const [outcomeData, setOutcomeData] = useState(null);
-  const lastProcessedTimestamp = React.useRef(null);
+  const [clearedOutcomes, setClearedOutcomes] = useState(() => new Set());
 
-  useEffect(() => {
-    if (lastContactResult && lastContactResult.timestamp !== lastProcessedTimestamp.current) {
-      lastProcessedTimestamp.current = lastContactResult.timestamp;
-      const now = Date.now();
-      const diff = Math.abs(now - lastContactResult.timestamp);
-      
-      // Use a generous 10-second window to account for clock skew between client and server
+  const activeOutcome = useMemo(() => {
+    if (lastContactResult && !clearedOutcomes.has(lastContactResult.timestamp)) {
+      const diff = Math.abs(Date.now() - lastContactResult.timestamp);
       if (diff < 10000) {
-        setShowOutcome(true);
-        setOutcomeData(lastContactResult);
-        const timer = setTimeout(() => {
-          setShowOutcome(false);
-        }, 1000);
-        return () => clearTimeout(timer);
+        return lastContactResult;
       }
     }
-  }, [lastContactResult]);
+    return null;
+  }, [lastContactResult, clearedOutcomes]);
+
+  useEffect(() => {
+    if (activeOutcome) {
+      const ts = activeOutcome.timestamp;
+      const timer = setTimeout(() => {
+        setClearedOutcomes(prev => new Set(prev).add(ts));
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeOutcome]);
 
   const displayWord = useMemo(() => {
     if (status === 'game_over' && secretWord) return secretWord;
@@ -110,13 +110,14 @@ function CentralArea() {
   const isContactAttempt = !!(currentGuess?.player && currentGuess?.contactedBy);
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
   const isClueInput = activeAction === 'GUESS_CLUE' || !!pendingGuess;
-  const isShowingOutcome = !!(showOutcome && outcomeData);
+  const isShowingOutcome = !!activeOutcome;
+  const outcomeData = activeOutcome;
   const isLockedIn = !!(pendingContactGuess || isContactAttempt);
   const isCaller = !!(socketId === (currentGuess?.contactedBy || outcomeData?.contactedBy) || pendingContactGuess);
   const isVictoryActive = status === 'victory_countdown';
   
   // Others see the prefix during countdown/input, but the caller sees their guess
-  const showPrefixInInput = (['GUESS', 'CONTACT', 'DENY'].includes(activeAction) || (isLockedIn && !isCaller) || (isShowingOutcome && !isCaller));
+  const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction) || (isLockedIn && !isCaller);
 
   const guessWord = currentGuess?.hiddenWord || pendingGuess || '';
 
@@ -237,14 +238,14 @@ function CentralArea() {
 
               {renderWord.split('').map((char, i) => {
                 const isPrefixPart = showPrefixInInput && i < revealedPrefix.length;
-                const isOutcomePart = isShowingOutcome;
+                const isOutcomePart = isShowingOutcome && (isCaller || outcomeData.success);
                 const isLockedPart = isLockedIn && !isShowingOutcome;
 
                 let tileClass = 'bg-surface-lowest text-on-surface border border-outline-variant';
                 if (isOutcomePart) {
                   tileClass = outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10' : 'text-red-500 border-red-500 bg-red-500/10';
                 } else if (isPrefixPart || isLockedPart) {
-                  tileClass = 'bg-surface-container text-on-surface border border-transparent opacity-30';
+                  tileClass = 'bg-surface-container text-on-surface border border-outline-variant opacity-30';
                 }
 
                 return (
@@ -261,7 +262,7 @@ function CentralArea() {
                 <div 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
                   className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black shrink-0 ${
-                    (isLockedIn || isShowingOutcome) ? 'bg-surface-container border border-transparent opacity-20' : 'bg-tertiary/10 border border-tertiary/20'
+                    (isLockedIn || isShowingOutcome) ? 'bg-surface-container border border-outline-variant opacity-20' : 'bg-tertiary/10 border border-tertiary/20'
                   }`}
                 >
                   <span className={`w-1 h-1/2 rounded-full align-middle ${
@@ -306,24 +307,24 @@ function CentralArea() {
                   </div>
                 </div>
               </div>
-            ) : (currentGuess?.player || (showOutcome && outcomeData && outcomeData.contactedBy === socketId)) ? (
+            ) : (currentGuess?.player || (isShowingOutcome && outcomeData.contactedBy === socketId)) ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
                 <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group">
-                  <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${(isContactAttempt || showOutcome) ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
-                    {(isContactAttempt || (showOutcome && outcomeData && outcomeData.contactedBy === socketId))
+                  <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${(isContactAttempt || isShowingOutcome) ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
+                    {(isContactAttempt || (isShowingOutcome && outcomeData.contactedBy === socketId))
                       ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess?.contactedByName || (outcomeData && outcomeData.contactedByName))
                       : STRINGS.LOG_CLUE_HEADER(currentGuess?.playerName)}
                   </p>
                   <h4 className={`text-xl sm:text-4xl font-extrabold italic leading-tight break-words px-4 text-center tracking-tight transition-colors duration-300 ${
-                    (showOutcome && outcomeData && outcomeData.contactedBy === socketId)
+                    isShowingOutcome
                       ? (outcomeData.success ? 'text-green-500' : 'text-red-500')
                       : 'text-on-surface'
                   }`}>
                     {(isContactAttempt && socketId === currentGuess?.contactedBy)
                       ? STRINGS.LOG_CLUE_PENDING
-                      : (showOutcome && outcomeData && outcomeData.contactedBy === socketId
+                      : (isShowingOutcome && outcomeData.contactedBy === socketId)
                           ? STRINGS.LOG_CLUE_PENDING
-                          : `"${currentGuess?.clue || STRINGS.LOG_CLUE_PENDING}"`)
+                          : `"${currentGuess?.clue || STRINGS.LOG_CLUE_PENDING}"`
                     }
                   </h4>
                   <div className="mt-2">
