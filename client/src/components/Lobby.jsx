@@ -44,7 +44,7 @@ function Lobby({ username, onCreateRoom, onJoinRoom, toggleTheme, theme }) {
             </span>
           </div>
           
-          <div className="space-y-6 flex-1 overflow-y-auto pr-4 custom-scrollbar min-h-0">
+          <div className="space-y-6 flex-1 overflow-y-auto md:pr-4 custom-scrollbar min-h-0">
             {rooms.length === 0 ? (
               <div className="bg-surface-low/50 rounded-xl p-12 text-center border-2 border-dashed border-on-surface/5">
                 <p className="text-on-surface-variant text-sm uppercase tracking-widest font-bold opacity-30 italic">{STRINGS.NO_ROOMS_MSG}</p>
