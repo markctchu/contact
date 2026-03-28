@@ -220,7 +220,17 @@ function CentralArea() {
             <h3 className={`text-[9px] sm:text-xs font-black tracking-[0.4em] uppercase transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
               {status === 'game_over' 
                 ? STRINGS.WORD_LABEL_FINAL 
-                : (isVictoryActive ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) : (isClueInput ? STRINGS.LOG_YOUR_GUESS : (activeAction === 'SECRET' ? STRINGS.WORD_LABEL_SECRET : (isWordInput ? STRINGS.WORD_LABEL_INPUT : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))))}
+                : (isVictoryActive 
+                    ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) 
+                    : (isClueInput 
+                        ? STRINGS.LOG_YOUR_GUESS 
+                        : (activeAction === 'SECRET' 
+                            ? STRINGS.WORD_LABEL_SECRET 
+                            : (isLockedIn && isCaller 
+                                ? STRINGS.WORD_LABEL_CONTACT_LOCK 
+                                : (isWordInput 
+                                    ? STRINGS.WORD_LABEL_INPUT 
+                                    : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT))))))}
             </h3>
             
             <div 
@@ -269,7 +279,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && status !== 'game_over' && !isClueInput && !isWordInput && (!isShowingOutcome || (isShowingOutcome && !outcomeData.success)) && (!isCaller || !isContactAttempt) && (
+              {revealedPrefix && status !== 'game_over' && !isClueInput && !isWordInput && (!isShowingOutcome || (isShowingOutcome && !outcomeData.success)) && (!isCaller || (!isContactAttempt && !pendingContactGuess)) && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
