@@ -65,7 +65,8 @@ function CentralArea() {
     toggleAction, 
     handleCancel,
     isWordmaster,
-    pendingContactGuess
+    pendingContactGuess,
+    pendingGuess
   } = useGame();
 
   const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 0);
@@ -104,7 +105,7 @@ function CentralArea() {
   // Unified Flags
   const isContactAttempt = !!(currentGuess?.player && currentGuess?.contactedBy);
   const isWordInput = ['SECRET', 'GUESS', 'CONTACT', 'DENY'].includes(activeAction);
-  const isClueInput = activeAction === 'GUESS_CLUE';
+  const isClueInput = activeAction === 'GUESS_CLUE' || !!pendingGuess;
   const isShowingOutcome = !!(showOutcome && outcomeData);
   const isLockedIn = !!(pendingContactGuess || isContactAttempt);
   const isCaller = !!(socketId === (currentGuess?.contactedBy || outcomeData?.contactedBy) || pendingContactGuess);
@@ -113,7 +114,7 @@ function CentralArea() {
   // Others see the prefix during countdown/input, but the caller sees their guess
   const showPrefixInInput = (['GUESS', 'CONTACT', 'DENY'].includes(activeAction) || (isLockedIn && !isCaller) || (isShowingOutcome && !isCaller));
 
-  const guessWord = currentGuess?.hiddenWord || '';
+  const guessWord = currentGuess?.hiddenWord || pendingGuess || '';
 
   const displayWordWithOutcome = useMemo(() => {
     if (isShowingOutcome) {

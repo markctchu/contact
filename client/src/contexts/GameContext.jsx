@@ -13,6 +13,7 @@ export function GameProvider({ children, initialRoom, username }) {
   const [showKeyboard, setShowKeyboard] = useState(true);
   const [chat, setChat] = useState(initialRoom?.chat || []);
   const [pendingContactGuess, setPendingContactGuess] = useState(null);
+  const [pendingGuess, setPendingGuess] = useState(null);
 
   const isWordmaster = room?.wordmaster === socketId;
   const { activeAction, setActiveAction, toggleAction: internalToggleAction } = useInternalGameState(room || { status: 'waiting' }, socketId, isWordmaster);
@@ -30,9 +31,12 @@ export function GameProvider({ children, initialRoom, username }) {
         setChat(roomFromSocket.chat);
       }
       
-      // Clear pending state if the server confirms contact
+      // Clear pending states if the server confirms
       if (roomFromSocket.currentGuess?.contactedBy === socketId) {
         setPendingContactGuess(null);
+      }
+      if (roomFromSocket.currentGuess?.player === socketId) {
+        setPendingGuess(null);
       }
     }
   }, [roomFromSocket, socketId]);
@@ -40,7 +44,13 @@ export function GameProvider({ children, initialRoom, username }) {
   // Socket Listeners
   useEffect(() => {
     const onChatUpdate = (updatedChat) => setChat(updatedChat);
-    const onPrivateChatUpdate = (log) => setChat(prev => [...prev, log]);
+    const onPrivateChatUpdate = (log) => {
+      setChat(prev => [...prev, log]);
+      if (log.logType === 'Error') {
+        setPendingGuess(null);
+        setPendingContactGuess(null);
+      }
+    };
     
     socket.on(EVENTS.CHAT_UPDATE, onChatUpdate);
     socket.on(EVENTS.CHAT_UPDATE_PRIVATE, onPrivateChatUpdate);
@@ -60,7 +70,9 @@ export function GameProvider({ children, initialRoom, username }) {
     if (activeAction === 'SECRET') {
       socket.emit(EVENTS.SET_SECRET_WORD, { word: val });
     } else if (activeAction === 'GUESS') {
-      socket.emit(EVENTS.SUBMIT_GUESS_WORD, { word: prefix + val });
+      const guess = prefix + val;
+      setPendingGuess(guess);
+      socket.emit(EVENTS.SUBMIT_GUESS_WORD, { word: guess });
     } else if (activeAction === 'GUESS_CLUE') {
       socket.emit(EVENTS.SUBMIT_GUESS_CLUE, { clue: val });
     } else if (activeAction === 'CONTACT') {
@@ -90,6 +102,7 @@ export function GameProvider({ children, initialRoom, username }) {
   const handleCancel = useCallback(() => {
     setInputValue('');
     setPendingContactGuess(null);
+    setPendingGuess(null);
     
     // Only clear optimistically if it's NOT a mandatory state.
     // Mandatory states are managed by useGameState's internal effect.
@@ -126,7 +139,8 @@ export function GameProvider({ children, initialRoom, username }) {
     handleEnter,
     handleCancel,
     isWordmaster,
-    pendingContactGuess
+    pendingContactGuess,
+    pendingGuess
   };
 
   return (
