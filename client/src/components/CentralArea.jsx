@@ -320,10 +320,10 @@ function CentralArea() {
                           : (isCaller ? 'text-red-500' : 'animate-flash-red-twice-text'))
                       : 'text-on-surface'
                   }`}>
-                    {(isContactAttempt && socketId === currentGuess?.contactedBy)
-                      ? STRINGS.LOG_CLUE_PENDING
-                      : (isShowingOutcome && outcomeData.contactedBy === socketId)
-                          ? STRINGS.LOG_CLUE_PENDING
+                    {isContactAttempt && isCaller
+                      ? ""
+                      : (isShowingOutcome && isCaller)
+                          ? ""
                           : `"${currentGuess?.clue || STRINGS.LOG_CLUE_PENDING}"`
                     }
                   </h4>
