@@ -81,12 +81,16 @@ function CentralArea() {
 
   const [showOutcome, setShowOutcome] = useState(false);
   const [outcomeData, setOutcomeData] = useState(null);
+  const lastProcessedTimestamp = React.useRef(null);
 
   useEffect(() => {
-    if (lastContactResult) {
+    if (lastContactResult && lastContactResult.timestamp !== lastProcessedTimestamp.current) {
+      lastProcessedTimestamp.current = lastContactResult.timestamp;
       const now = Date.now();
-      const diff = now - lastContactResult.timestamp;
-      if (diff < 1000) {
+      const diff = Math.abs(now - lastContactResult.timestamp);
+      
+      // Use a generous 10-second window to account for clock skew between client and server
+      if (diff < 10000) {
         setShowOutcome(true);
         setOutcomeData(lastContactResult);
         const timer = setTimeout(() => {
@@ -95,7 +99,7 @@ function CentralArea() {
         return () => clearTimeout(timer);
       }
     }
-  }, [lastContactResult?.timestamp]);
+  }, [lastContactResult]);
 
   const displayWord = useMemo(() => {
     if (status === 'game_over' && secretWord) return secretWord;
