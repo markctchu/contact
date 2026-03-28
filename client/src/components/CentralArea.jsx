@@ -134,7 +134,7 @@ function CentralArea() {
   }, [isShowingOutcome, outcomeData, displayWord, isCaller, isContactAttempt, currentGuess, revealedPrefix, pendingContactGuess]);
 
   const renderWord = useMemo(() => {
-    if (isClueInput) return guessWord;
+    if (isClueInput) return guessWord.toUpperCase();
     if (isWordInput) {
       const prefix = showPrefixInInput ? revealedPrefix : '';
       return (prefix + inputValue).toUpperCase();
@@ -244,7 +244,7 @@ function CentralArea() {
                 if (isOutcomePart) {
                   tileClass = outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10' : 'text-red-500 border-red-500 bg-red-500/10';
                 } else if (isPrefixPart || isLockedPart) {
-                  tileClass = 'bg-surface-container text-on-surface opacity-30';
+                  tileClass = 'bg-surface-container text-on-surface border border-transparent opacity-30';
                 }
 
                 return (
@@ -261,7 +261,7 @@ function CentralArea() {
                 <div 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
                   className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black shrink-0 ${
-                    (isLockedIn || isShowingOutcome) ? 'bg-surface-container opacity-20' : 'bg-tertiary/10 border border-tertiary/20'
+                    (isLockedIn || isShowingOutcome) ? 'bg-surface-container border border-transparent opacity-20' : 'bg-tertiary/10 border border-tertiary/20'
                   }`}
                 >
                   <span className={`w-1 h-1/2 rounded-full align-middle ${
