@@ -150,12 +150,12 @@ function CentralArea() {
     let baseCount = renderWord.length;
     if (!renderWord && !revealedPrefix && status !== 'game_over') baseCount = 7;
     
-    // Add cursor tile only during active input or for OTHERS during contact
-    if (isWordInput || ((isLockedIn || isShowingOutcome) && !isCaller)) {
+    // Add cursor tile only during active input
+    if (isWordInput) {
        return baseCount + 1;
     }
     return baseCount;
-  }, [status, secretWord, isClueInput, guessWord, renderWord, revealedPrefix, isWordInput, isLockedIn, isShowingOutcome, isCaller]);
+  }, [status, secretWord, isClueInput, guessWord, renderWord, revealedPrefix, isWordInput]);
 
   const tileStyle = useMemo(() => {
     const count = totalVisibleCount;
@@ -224,7 +224,7 @@ function CentralArea() {
             </h3>
             
             <div 
-              className="flex flex-nowrap justify-center items-center max-w-full px-2 short-screen-scale-tiles transition-all duration-300"
+              className="flex flex-nowrap justify-center items-center max-w-full px-2 short-screen-scale-tiles transition-transform duration-300"
               style={{ gap: `${tileStyle.gap}px` }}
             >
               {!revealedPrefix && !isWordInput && !isClueInput && status !== 'game_over' && !pendingContactGuess && 'CONTACT'.split('').map((char, i) => (
@@ -243,7 +243,9 @@ function CentralArea() {
 
                 let tileClass = 'bg-surface-lowest text-on-surface border border-outline-variant';
                 if (isOutcomePart) {
-                  tileClass = outcomeData.success ? 'text-green-500 border-green-500 bg-green-500/10' : 'text-red-500 border-red-500 bg-red-500/10';
+                  tileClass = outcomeData.success 
+                    ? (isCaller ? 'text-green-500 border-green-500 bg-green-500/10' : 'animate-flash-green-twice')
+                    : 'text-red-500 border-red-500 bg-red-500/10';
                 } else if (isPrefixPart || isLockedPart) {
                   tileClass = 'bg-surface-container text-on-surface border border-outline-variant opacity-30';
                 }
@@ -253,25 +255,21 @@ function CentralArea() {
                     key={`char-${i}`} 
                     char={char} 
                     style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-all duration-300 shrink-0 ${tileClass} ${!isPrefixPart && !isLockedPart && !isOutcomePart ? 'animate-in zoom-in-90 slide-in-from-bottom-2' : ''}`}
+                    className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-transform duration-300 shrink-0 ${tileClass} ${!isPrefixPart && !isLockedPart && !isOutcomePart ? 'animate-in zoom-in-90 slide-in-from-bottom-2' : ''}`}
                   />
                 );
               })}              
               
-              {(isWordInput || ((isLockedIn || isShowingOutcome) && !isCaller)) && (
+              {isWordInput && (
                 <div 
                   style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px` }}
-                  className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black shrink-0 ${
-                    (isLockedIn || isShowingOutcome) ? 'bg-surface-container border border-outline-variant opacity-20' : 'bg-tertiary/10 border border-tertiary/20'
-                  }`}
+                  className="flex items-center justify-center rounded-lg sm:rounded-xl font-black shrink-0 bg-tertiary/10 border border-tertiary/20"
                 >
-                  <span className={`w-1 h-1/2 rounded-full align-middle ${
-                    (isLockedIn || isShowingOutcome) ? 'bg-on-surface/20' : 'bg-tertiary animate-[pulse_1.5s_infinite]'
-                  }`}></span>
+                  <span className="w-1 h-1/2 rounded-full align-middle bg-tertiary animate-[pulse_1.5s_infinite]"></span>
                 </div>
               )}
 
-              {revealedPrefix && !isClueInput && ((!isCaller && (isLockedIn || isShowingOutcome)) || (!isShowingOutcome && !isContactAttempt)) && (
+              {revealedPrefix && !isClueInput && !isShowingOutcome && !isContactAttempt && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
@@ -310,14 +308,16 @@ function CentralArea() {
             ) : (currentGuess?.player || (isShowingOutcome && outcomeData.contactedBy === socketId)) ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
                 <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group">
-                  <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-all duration-500 ${(isContactAttempt || isShowingOutcome) ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
+                  <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-colors duration-500 ${(isContactAttempt || isShowingOutcome) ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
                     {(isContactAttempt || (isShowingOutcome && outcomeData.contactedBy === socketId))
                       ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess?.contactedByName || (outcomeData && outcomeData.contactedByName))
                       : STRINGS.LOG_CLUE_HEADER(currentGuess?.playerName)}
                   </p>
-                  <h4 className={`text-xl sm:text-4xl font-extrabold italic leading-tight break-words px-4 text-center tracking-tight transition-colors duration-300 ${
+                  <h4 className={`text-xl sm:text-4xl font-extrabold italic leading-tight break-words px-4 text-center tracking-tight ${
                     isShowingOutcome
-                      ? (outcomeData.success ? 'text-green-500' : 'text-red-500')
+                      ? (outcomeData.success 
+                          ? 'text-green-500' 
+                          : (isCaller ? 'text-red-500' : 'animate-flash-red-twice-text'))
                       : 'text-on-surface'
                   }`}>
                     {(isContactAttempt && socketId === currentGuess?.contactedBy)
