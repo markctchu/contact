@@ -117,7 +117,7 @@ function CentralArea() {
   const isVictoryActive = status === 'victory_countdown';
   
   // Others see the prefix during countdown/input, but the caller sees their guess
-  const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction) || (isLockedIn && !isCaller);
+  const showPrefixInInput = ['GUESS', 'CONTACT', 'DENY'].includes(activeAction);
 
   const guessWord = currentGuess?.hiddenWord || pendingGuess || '';
 
@@ -269,7 +269,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && !isClueInput && (!isShowingOutcome || (isShowingOutcome && !outcomeData.success)) && (
+              {revealedPrefix && !isClueInput && (!isShowingOutcome || (isShowingOutcome && !outcomeData.success)) && (!isCaller || !isContactAttempt) && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
