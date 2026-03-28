@@ -253,8 +253,10 @@ class RoomManager {
       contactGuess: null,
       countdown: 0
     };
+
+    this.addLog(io, roomId, 'System', STRINGS.MSG_GUESS_WORD_SUBMITTED(this.getUsername(room, playerId)));
     this.emitRoomUpdate(io, room);
-  }
+    }
 
   submitClue(io, roomId, playerId, clue) {
     const room = this.rooms.get(roomId);

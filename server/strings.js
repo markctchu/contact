@@ -18,6 +18,7 @@ const STRINGS = {
 
   // --- Game Flow ---
   MSG_GAME_STARTED: (prefix) => `Game Started! Revealed: ${prefix}`,
+  MSG_GUESS_WORD_SUBMITTED: (user) => `${user} has submitted a guess.`,
   MSG_GUESS_SUBMITTED: (user, clue) => `${user} submitted a new clue: "${clue}"`,
   MSG_GUESS_RETRACTED: (user) => `${user} retracted their guess.`,
 
