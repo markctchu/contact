@@ -269,7 +269,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && status !== 'game_over' && !isClueInput && (!isShowingOutcome || (isShowingOutcome && !outcomeData.success)) && (!isCaller || !isContactAttempt) && (
+              {revealedPrefix && status !== 'game_over' && !isClueInput && !isWordInput && (!isShowingOutcome || (isShowingOutcome && !outcomeData.success)) && (!isCaller || !isContactAttempt) && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
