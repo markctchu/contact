@@ -327,11 +327,11 @@ function CentralArea() {
                   </div>
                 </div>
               </div>
-            ) : (currentGuess?.player || (isShowingOutcome && outcomeData.contactedBy === socketId)) ? (
+            ) : (currentGuess?.player || isShowingOutcome) ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
                 <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group">
                   <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1.5 sm:mb-3 text-center transition-colors duration-500 ${(isContactAttempt || isShowingOutcome) ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
-                    {(isContactAttempt || (isShowingOutcome && outcomeData.contactedBy === socketId))
+                    {(isContactAttempt || isShowingOutcome)
                       ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess?.contactedByName || (outcomeData && outcomeData.contactedByName))
                       : STRINGS.LOG_CLUE_HEADER(currentGuess?.playerName)}
                   </p>
@@ -339,16 +339,12 @@ function CentralArea() {
                     isShowingOutcome
                       ? (outcomeData.success 
                           ? 'text-green-500' 
-                          : (isCaller ? 'text-red-500' : 'animate-flash-red-twice-text'))
+                          : (isCaller ? 'text-red-500' : 'text-on-surface'))
                       : 'text-on-surface'
                   }`}>
-                    {(isContactAttempt && !isCaller)
+                    {(isContactAttempt || isShowingOutcome)
                       ? ""
-                      : (isContactAttempt && isCaller)
-                        ? ""
-                        : (isShowingOutcome && isCaller)
-                            ? ""
-                            : `"${currentGuess?.clue || STRINGS.LOG_CLUE_PENDING}"`
+                      : `"${currentGuess?.clue || STRINGS.LOG_CLUE_PENDING}"`
                     }
                   </h4>
                   <div className="mt-2">
@@ -356,8 +352,9 @@ function CentralArea() {
                       isActive={isContactAttempt} 
                       currentCountdown={currentGuess?.countdown} 
                       totalDuration={4} 
-                      isOutcome={isShowingOutcome && outcomeData.contactedBy === socketId} 
+                      isOutcome={isShowingOutcome} 
                       outcomeSuccess={outcomeData?.success} 
+                      isCaller={isCaller}
                     />
                   </div>
                 </div>
