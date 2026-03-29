@@ -331,11 +331,38 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && status !== 'game_over' && !isClueInput && !isWordInput && (!isShowingOutcome || !outcomeData.success) && (!isCaller || (!isContactAttempt && !pendingContactGuess)) && !showDenyOutcome && (
-                <div className="flex items-center ml-1 shrink-0">
-                  <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
-                </div>
-              )}
+              {(() => {
+                // Ellipses Visibility Logic
+                if (!revealedPrefix || status === 'game_over' || isClueInput || isWordInput || showDenyOutcome) return null;
+                
+                // If showing a contact outcome
+                if (isShowingOutcome) {
+                  if (isCaller) return null; // Caller NEVER sees ellipses during outcome
+                  if (outcomeData.success) return null; // Success reveals word, no ellipses
+                  return (
+                    <div className="flex items-center ml-1 shrink-0">
+                      <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
+                    </div>
+                  );
+                }
+
+                // If in active countdown
+                if (isContactAttempt) {
+                  if (isCaller) return null; // Caller doesn't see them during countdown
+                  return (
+                    <div className="flex items-center ml-1 shrink-0">
+                      <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
+                    </div>
+                  );
+                }
+
+                // Default idle state
+                return (
+                  <div className="flex items-center ml-1 shrink-0">
+                    <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
