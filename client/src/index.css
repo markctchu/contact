@@ -197,3 +197,12 @@ h1, h2, h3, h4, .display-font {
 .animate-flash-red-twice-bg {
   animation: flash-red-twice-bg 1s ease-in-out;
 }
+
+@keyframes flash-red-twice {
+  0%, 100% { color: var(--on-surface); border-color: var(--outline-variant); background-color: var(--surface-lowest); }
+  25%, 75% { color: #ef4444; border-color: #ef4444; background-color: rgba(239, 68, 68, 0.1); }
+  50% { color: var(--on-surface); border-color: var(--outline-variant); background-color: var(--surface-lowest); }
+}
+.animate-flash-red-twice {
+  animation: flash-red-twice 1s ease-in-out;
+}

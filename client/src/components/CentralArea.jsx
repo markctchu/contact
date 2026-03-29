@@ -351,6 +351,24 @@ function CentralArea() {
                   {isWordmaster ? STRINGS.STATUS_DENIED_SUCCESS_WM : STRINGS.STATUS_DENIED_SUCCESS}
                 </p>
               </div>
+            ) : isClueInput ? (
+              <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
+                <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl w-full text-center relative overflow-hidden">
+                  <p className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.3em] mb-1 sm:mb-2 transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-tertiary opacity-60'}`}>
+                    {isVictoryActive ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) : STRINGS.CLUE_INPUT_PROMPT(guessWord)}
+                  </p>
+                  <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
+                    {inputValue}
+                    <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
+                  </h4>
+                  {isVictoryActive && (
+                    <p className="text-[10px] font-black text-on-secondary-container uppercase tracking-widest mt-2">{STRINGS.STATUS_CONTEST_GUESS}</p>
+                  )}
+                  <div className="mt-2">
+                    <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
+                  </div>
+                </div>
+              </div>
             ) : (currentGuess?.player || isShowingOutcome) ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
                 <div className="bg-surface-lowest p-3 sm:p-6 rounded-2xl w-full relative overflow-hidden group">
