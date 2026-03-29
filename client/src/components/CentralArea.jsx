@@ -9,8 +9,9 @@ const LetterTile = React.memo(({ char, className, style }) => (
   </div>
 ));
 
-const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration, isOutcome, outcomeSuccess }) => {
+const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration, isOutcome, outcomeSuccess, isCaller }) => {
   const [progress, setProgress] = useState(0);
+  const animationRef = React.useRef();
 
   useEffect(() => {
     if (!isActive && !isOutcome) {
@@ -23,34 +24,49 @@ const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration, isOut
       return;
     }
 
-    const startProgress = ((totalDuration - currentCountdown) / totalDuration) * 100;
-    setProgress(startProgress);
-
-    const remainingTime = currentCountdown * 1000;
-    if (remainingTime <= 0) {
+    const remainingSeconds = currentCountdown;
+    if (remainingSeconds <= 0) {
       setProgress(100);
       return;
     }
 
-    const interval = 16;
-    const totalSteps = remainingTime / interval;
-    const increment = (100 - startProgress) / totalSteps;
+    const now = Date.now();
+    // If we just started or joined late, calculate where we should be.
+    // Otherwise, start from our current visual progress to avoid jumps.
+    const serverExpectedProgress = ((totalDuration - remainingSeconds) / totalDuration) * 100;
+    const startProgress = (progress === 0) ? serverExpectedProgress : progress;
 
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + increment;
-        return next >= 100 ? 100 : next;
-      });
-    }, interval);
+    const animate = () => {
+      const currentTime = Date.now();
+      const elapsedSeconds = (currentTime - now) / 1000;
+      
+      // We want to reach 100% in exactly remainingSeconds
+      const t = Math.min(1, elapsedSeconds / remainingSeconds);
+      
+      // Glide from startProgress to 100
+      const currentVisual = startProgress + (100 - startProgress) * t;
+      
+      setProgress(currentVisual);
+      
+      if (t < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
 
-    return () => clearInterval(timer);
-  }, [isActive, currentCountdown, isOutcome]);
+    animationRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationRef.current);
+  }, [isActive, currentCountdown, isOutcome, totalDuration]);
 
   if (!isActive && !isOutcome) return null;
 
-  let barClass = "h-full transition-all duration-300 rounded-full";
+  let barClass = "h-full rounded-full";
   if (isOutcome) {
-    barClass += outcomeSuccess ? " bg-green-500" : " bg-red-500";
+    barClass += " transition-all duration-300";
+    if (outcomeSuccess) {
+      barClass += " bg-green-500";
+    } else {
+      barClass += isCaller ? " bg-red-500" : " animate-flash-red-twice-bg";
+    }
   } else {
     barClass += " bg-on-secondary-container transition-none";
   }
