@@ -9,12 +9,17 @@ const LetterTile = React.memo(({ char, className, style }) => (
   </div>
 ));
 
-const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration }) => {
+const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration, isOutcome, outcomeSuccess }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (!isActive) {
+    if (!isActive && !isOutcome) {
       setProgress(0);
+      return;
+    }
+
+    if (isOutcome) {
+      setProgress(100);
       return;
     }
 
@@ -39,15 +44,22 @@ const CountdownProgressBar = ({ isActive, currentCountdown, totalDuration }) => 
     }, interval);
 
     return () => clearInterval(timer);
-  }, [isActive, currentCountdown]);
+  }, [isActive, currentCountdown, isOutcome]);
 
-  if (!isActive) return null;
+  if (!isActive && !isOutcome) return null;
+
+  let barClass = "h-full transition-all duration-300 rounded-full";
+  if (isOutcome) {
+    barClass += outcomeSuccess ? " bg-green-500" : " bg-red-500";
+  } else {
+    barClass += " bg-on-secondary-container transition-none";
+  }
 
   return (
     <div className="w-full px-6 py-2">
       <div className="w-full h-1 bg-surface-container/50 rounded-full overflow-hidden">
         <div 
-          className="h-full bg-on-secondary-container transition-none rounded-full"
+          className={barClass}
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -279,7 +291,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && status !== 'game_over' && !isClueInput && !isWordInput && (!isShowingOutcome || (isShowingOutcome && !outcomeData.success)) && (!isCaller || (!isContactAttempt && !pendingContactGuess)) && (
+              {revealedPrefix && status !== 'game_over' && !isClueInput && !isWordInput && !isShowingOutcome && (!isCaller || (!isContactAttempt && !pendingContactGuess)) && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
@@ -323,22 +335,30 @@ function CentralArea() {
                       ? STRINGS.LOG_CONTACT_ATTEMPT(currentGuess?.contactedByName || (outcomeData && outcomeData.contactedByName))
                       : STRINGS.LOG_CLUE_HEADER(currentGuess?.playerName)}
                   </p>
-                  <h4 className={`text-xl sm:text-4xl font-extrabold italic leading-tight break-words px-4 text-center tracking-tight ${
+                  <h4 className={`text-xl sm:text-4xl font-extrabold italic leading-tight break-words px-4 text-center tracking-tight transition-colors duration-300 ${
                     isShowingOutcome
                       ? (outcomeData.success 
                           ? 'text-green-500' 
                           : (isCaller ? 'text-red-500' : 'animate-flash-red-twice-text'))
                       : 'text-on-surface'
                   }`}>
-                    {isContactAttempt && isCaller
+                    {(isContactAttempt && !isCaller)
                       ? ""
-                      : (isShowingOutcome && isCaller)
-                          ? ""
-                          : `"${currentGuess?.clue || STRINGS.LOG_CLUE_PENDING}"`
+                      : (isContactAttempt && isCaller)
+                        ? ""
+                        : (isShowingOutcome && isCaller)
+                            ? ""
+                            : `"${currentGuess?.clue || STRINGS.LOG_CLUE_PENDING}"`
                     }
                   </h4>
                   <div className="mt-2">
-                    <CountdownProgressBar isActive={isContactAttempt} currentCountdown={currentGuess?.countdown} totalDuration={4} />
+                    <CountdownProgressBar 
+                      isActive={isContactAttempt} 
+                      currentCountdown={currentGuess?.countdown} 
+                      totalDuration={4} 
+                      isOutcome={isShowingOutcome && outcomeData.contactedBy === socketId} 
+                      outcomeSuccess={outcomeData?.success} 
+                    />
                   </div>
                 </div>
               </div>
