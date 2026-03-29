@@ -183,10 +183,10 @@ h1, h2, h3, h4, .display-font {
 }
 
 .animate-flash-green-twice {
-  animation: flash-green-twice 1s ease-in-out;
+  animation: flash-green-twice 1.5s ease-in-out;
 }
 .animate-flash-red-twice-text {
-  animation: flash-red-twice-text 1s ease-in-out;
+  animation: flash-red-twice-text 1.5s ease-in-out;
 }
 
 @keyframes flash-red-twice-bg {
@@ -195,7 +195,7 @@ h1, h2, h3, h4, .display-font {
   50% { background-color: var(--on-secondary-container); }
 }
 .animate-flash-red-twice-bg {
-  animation: flash-red-twice-bg 1s ease-in-out;
+  animation: flash-red-twice-bg 1.5s ease-in-out;
 }
 
 @keyframes flash-red-twice {
@@ -204,5 +204,5 @@ h1, h2, h3, h4, .display-font {
   50% { color: var(--on-surface); border-color: var(--outline-variant); background-color: var(--surface-lowest); }
 }
 .animate-flash-red-twice {
-  animation: flash-red-twice 1s ease-in-out;
+  animation: flash-red-twice 1.5s ease-in-out;
 }

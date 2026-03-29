@@ -126,7 +126,7 @@ function CentralArea() {
       const ts = activeOutcome.timestamp;
       const timer = setTimeout(() => {
         setClearedOutcomes(prev => new Set(prev).add(ts));
-      }, 1000);
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [activeOutcome]);
