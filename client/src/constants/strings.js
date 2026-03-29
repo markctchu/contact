@@ -35,6 +35,8 @@ export const STRINGS = {
   WORD_LABEL_SECRET: "THEY'LL NEVER GUESS",
   WORD_LABEL_REVEALED: "IT STARTS WITH",
   WORD_LABEL_CONTACT_LOCK: "IT DEFINITELY HAS TO BE",
+  WORD_LABEL_DENIED: "WORDMASTER HAS DENIED",
+  WORD_LABEL_DENIED_WM: "YOU HAVE DENIED",
   WORD_LABEL_INIT: "PREPARE TO MAKE",
   WORD_LABEL_FINAL: "THE SECRET WORD WAS",
   WORD_LABEL_VICTORY: "WORDMASTER HAS DECLARED VICTORY!",
@@ -46,6 +48,8 @@ export const STRINGS = {
   STATUS_CONTEST_GAME: "Contest to continue the game",
   STATUS_CONTEST_GAME_WM: "You win the round if no one contests",
   STATUS_CONTEST_GUESS: "Submit Guess or Contest to continue",
+  STATUS_DENIED_SUCCESS: "submit new guess to progress",
+  STATUS_DENIED_SUCCESS_WM: "Players blocked successfully",
   TYPING_SUFFIX: "is typing...",
 
   // --- 5. Active Event Overlays: Countdowns (CentralArea.jsx) ---

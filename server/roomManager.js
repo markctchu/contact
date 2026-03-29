@@ -42,7 +42,8 @@ class RoomManager {
       typingStatus: new Map(),
       usedWords: new Set(),
       winner: null,
-      lastContactResult: null
+      lastContactResult: null,
+      lastDenyResult: null
     };
     this.addPlayer(room, creatorId, username);
     this.rooms.set(roomId, room);
@@ -302,6 +303,10 @@ class RoomManager {
 
     if (upperGuess === room.currentGuess.hiddenWord) {
       room.usedWords.add(upperGuess);
+      room.lastDenyResult = {
+        guess: upperGuess,
+        timestamp: Date.now()
+      };
       this.addLog(io, roomId, 'Failure', STRINGS.MSG_INTERCEPTED(upperGuess));
       room.currentGuess = null;
     } else {
@@ -466,6 +471,7 @@ class RoomManager {
         contactGuess: (room.currentGuess?.contactedBy === targetSocketId) ? room.currentGuess?.contactGuess : null
       },
       lastContactResult: room.lastContactResult || null,
+      lastDenyResult: room.lastDenyResult || null,
       victoryCountdown: room.victoryCountdown || 0,
       chat: room.chat || [],
       secretWord: room.status === 'game_over' ? room.secretWord : null

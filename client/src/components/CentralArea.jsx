@@ -105,9 +105,11 @@ function CentralArea() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const { revealedPrefix, currentGuess, status, victoryCountdown, secretWord, winner, lastContactResult } = room;
+  const { revealedPrefix, currentGuess, status, victoryCountdown, secretWord, winner, lastContactResult, lastDenyResult } = room;
 
   const [clearedOutcomes, setClearedOutcomes] = useState(() => new Set());
+  const [showDenyOutcome, setShowDenyOutcome] = useState(false);
+  const [denyData, setDenyData] = useState(null);
 
   const activeOutcome = useMemo(() => {
     if (lastContactResult && !clearedOutcomes.has(lastContactResult.timestamp)) {
@@ -128,6 +130,18 @@ function CentralArea() {
       return () => clearTimeout(timer);
     }
   }, [activeOutcome]);
+
+  useEffect(() => {
+    if (lastDenyResult) {
+      const diff = Math.abs(Date.now() - lastDenyResult.timestamp);
+      if (diff < 1000) {
+        setDenyData(lastDenyResult);
+        setShowDenyOutcome(true);
+        const timer = setTimeout(() => setShowDenyOutcome(false), 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [lastDenyResult?.timestamp]);
 
   const displayWord = useMemo(() => {
     if (status === 'game_over' && secretWord) return secretWord;
@@ -150,6 +164,7 @@ function CentralArea() {
   const guessWord = currentGuess?.hiddenWord || pendingGuess || '';
 
   const displayWordWithOutcome = useMemo(() => {
+    if (showDenyOutcome && denyData) return denyData.guess;
     if (isShowingOutcome) {
       if (isCaller) return outcomeData.guess;
       return outcomeData.success ? outcomeData.guess : displayWord;
@@ -160,7 +175,7 @@ function CentralArea() {
     }
     if (pendingContactGuess) return pendingContactGuess;
     return displayWord;
-  }, [isShowingOutcome, outcomeData, displayWord, isCaller, isContactAttempt, currentGuess, revealedPrefix, pendingContactGuess]);
+  }, [showDenyOutcome, denyData, isShowingOutcome, outcomeData, displayWord, isCaller, isContactAttempt, currentGuess, revealedPrefix, pendingContactGuess]);
 
   const renderWord = useMemo(() => {
     if (isClueInput) return guessWord.toUpperCase();
@@ -248,17 +263,19 @@ function CentralArea() {
             <h3 className={`text-[9px] sm:text-xs font-black tracking-[0.4em] uppercase transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-on-surface/30'}`}>
               {status === 'game_over' 
                 ? STRINGS.WORD_LABEL_FINAL 
-                : (isVictoryActive 
-                    ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) 
-                    : (isClueInput 
-                        ? STRINGS.LOG_YOUR_GUESS 
-                        : (activeAction === 'SECRET' 
-                            ? STRINGS.WORD_LABEL_SECRET 
-                            : (isLockedIn && isCaller 
-                                ? STRINGS.WORD_LABEL_CONTACT_LOCK 
-                                : (isWordInput 
-                                    ? STRINGS.WORD_LABEL_INPUT 
-                                    : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT))))))}
+                : (showDenyOutcome 
+                    ? (isWordmaster ? STRINGS.WORD_LABEL_DENIED_WM : STRINGS.WORD_LABEL_DENIED)
+                    : (isVictoryActive 
+                        ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) 
+                        : (isClueInput 
+                            ? STRINGS.LOG_YOUR_GUESS 
+                            : (activeAction === 'SECRET' 
+                                ? STRINGS.WORD_LABEL_SECRET 
+                                : (isLockedIn && isCaller 
+                                    ? STRINGS.WORD_LABEL_CONTACT_LOCK 
+                                    : (isWordInput 
+                                        ? STRINGS.WORD_LABEL_INPUT 
+                                        : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))))))}
             </h3>
             
             <div 
@@ -278,9 +295,12 @@ function CentralArea() {
                 const isPrefixPart = showPrefixInInput && i < revealedPrefix.length;
                 const isOutcomePart = isShowingOutcome && (isCaller || outcomeData.success);
                 const isLockedPart = isLockedIn && !isShowingOutcome && isCaller; // Only dim for caller
+                const isDenyOutcomePart = showDenyOutcome;
 
                 let tileClass = 'bg-surface-lowest text-on-surface border border-outline-variant';
-                if (isOutcomePart) {
+                if (isDenyOutcomePart) {
+                  tileClass = 'animate-flash-red-twice'; // Same animation as failed contact but forced twice pulse
+                } else if (isOutcomePart) {
                   tileClass = outcomeData.success 
                     ? (isCaller ? 'text-green-500 border-green-500 bg-green-500/10' : 'animate-flash-green-twice')
                     : 'text-red-500 border-red-500 bg-red-500/10';
@@ -293,7 +313,7 @@ function CentralArea() {
                     key={`char-${i}`} 
                     char={char} 
                     style={{ width: `${tileStyle.width}px`, height: `${tileStyle.height}px`, fontSize: tileStyle.fontSize }}
-                    className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-transform duration-300 shrink-0 ${tileClass} ${!isPrefixPart && !isLockedPart && !isOutcomePart ? 'animate-in zoom-in-90 slide-in-from-bottom-2' : ''}`}
+                    className={`flex items-center justify-center rounded-lg sm:rounded-xl font-black transition-transform duration-300 shrink-0 ${tileClass} ${!isPrefixPart && !isLockedPart && !isOutcomePart && !isDenyOutcomePart ? 'animate-in zoom-in-90 slide-in-from-bottom-2' : ''}`}
                   />
                 );
               })}              
@@ -307,11 +327,7 @@ function CentralArea() {
                 </div>
               )}
 
-              {revealedPrefix && status !== 'game_over' && !isClueInput && !isWordInput && (
-                ((isShowingOutcome && !outcomeData.success && !isCaller)) || 
-                (!isShowingOutcome && !isCaller) || 
-                (!isShowingOutcome && !isContactAttempt && !pendingContactGuess)
-              ) && (
+              {revealedPrefix && status !== 'game_over' && !isClueInput && !isWordInput && (!isShowingOutcome || !outcomeData.success) && (!isCaller || (!isContactAttempt && !pendingContactGuess)) && !showDenyOutcome && (
                 <div className="flex items-center ml-1 shrink-0">
                   <div className="text-2xl sm:text-5xl font-black text-on-surface opacity-10 tracking-widest italic">...</div>
                 </div>
@@ -329,23 +345,11 @@ function CentralArea() {
                 </div>
                 <p className="mt-4 text-[10px] font-black text-on-surface/20 uppercase tracking-[0.4em] animate-pulse">{STRINGS.PLAY_AGAIN_PROMPT}</p>
               </div>
-            ) : isClueInput ? (
-              <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
-                <div className="bg-tertiary/5 p-2 sm:p-4 rounded-2xl w-full text-center relative overflow-hidden">
-                  <p className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.3em] mb-1 sm:mb-2 transition-colors duration-500 ${isVictoryActive ? 'text-on-secondary-container' : 'text-tertiary opacity-60'}`}>
-                    {isVictoryActive ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) : STRINGS.CLUE_INPUT_PROMPT(guessWord)}
-                  </p>
-                  <h4 className="text-xl sm:text-4xl font-extrabold italic text-on-surface leading-tight break-words px-4">
-                    {inputValue}
-                    <span className="inline-block w-1 h-6 sm:h-10 ml-1 bg-tertiary rounded-full animate-[pulse_1.5s_infinite] align-middle"></span>
-                  </h4>
-                  {isVictoryActive && (
-                    <p className="text-[10px] font-black text-on-secondary-container uppercase tracking-widest mt-2">{STRINGS.STATUS_CONTEST_GUESS}</p>
-                  )}
-                  <div className="mt-2">
-                    <CountdownProgressBar isActive={isVictoryActive} currentCountdown={victoryCountdown} totalDuration={10} />
-                  </div>
-                </div>
+            ) : showDenyOutcome ? (
+              <div className="text-on-surface/40 flex flex-col items-center py-2 px-12">
+                <p className="text-xs sm:text-base font-bold uppercase tracking-[0.3em] text-center leading-loose italic">
+                  {isWordmaster ? STRINGS.STATUS_DENIED_SUCCESS_WM : STRINGS.STATUS_DENIED_SUCCESS}
+                </p>
               </div>
             ) : (currentGuess?.player || isShowingOutcome) ? (
               <div className="w-full max-w-2xl mx-auto px-2 sm:px-4">
