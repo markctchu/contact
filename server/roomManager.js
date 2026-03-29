@@ -302,12 +302,14 @@ class RoomManager {
     }
 
     if (upperGuess === room.currentGuess.hiddenWord) {
+      const guesserName = this.getUsername(room, room.currentGuess.player);
+      const wmName = this.getUsername(room, playerId);
       room.usedWords.add(upperGuess);
       room.lastDenyResult = {
         guess: upperGuess,
         timestamp: Date.now()
       };
-      this.addLog(io, roomId, 'Failure', STRINGS.MSG_INTERCEPTED(upperGuess));
+      this.addLog(io, roomId, 'Failure', STRINGS.MSG_INTERCEPTED(wmName, guesserName, upperGuess));
       room.currentGuess = null;
     } else {
       this.addPrivateLog(io, playerId, 'Error', 'Incorrect intercept attempt.');

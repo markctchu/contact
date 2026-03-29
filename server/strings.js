@@ -24,7 +24,23 @@ const STRINGS = {
 
   // --- Combat / Interaction ---
   MSG_CONTACT_ATTEMPT: (user1, user2) => `${user1} and ${user2} are attempting contact...`,
-  MSG_INTERCEPTED: (word) => `Wordmaster intercepted! The word was ${word}`,
+  MSG_INTERCEPTED: (wm, player, word) => {
+    const verbs = [
+      "OBLITERATED", "ATOMIZED", "ANNIHILATED", "DISINTEGRATED", "VAPORIZED", "DECIMATED", "CRUSHED", "EVAPORATED", 
+      "EXTERMINATED", "COMBUSTED", "DELETED", "ERASED", "NULLIFIED", "EXPUNGED", "REBOOTED", "SCRUBBED", "TERMINATED", 
+      "REDACTED", "THANOS'D", "YEETED", "BONKED", "DUNKED ON", "GHOSTED", "DEFENESTRATED", "DENIED", "SMASHED", 
+      "SHUT DOWN", "PARRIRIED", "\"BYE FELICIA\"'D", "YAMCHA'D", "FLAMBÉED", "ROASTED", "JAMMED UP", "PRE-COGGED", 
+      "4D CHESS MOVED", "POINTED AND LAUGHED AT", "THUMBS DOWNED", "ONE-STAR REVIEWED", "TEABAGGED", "TRAMPLED ON", 
+      "CURBSTOMPED", "REJECTED", "HUMILIATED", "'MARK AS SPAM'D", "VETOED", "SHADOW REALMED", "PERFECT COUNTERED", 
+      "\"DISCREETLY DISPOSED OF\"", "VIOLATED", "EXECUTED", "MOZAMBIQUED", "BLACK BAGGED", "POLITELY DECLINED", 
+      "SWIPED LEFT ON", "WON'T EVEN GET OUT OF BED FOR", "YAWNED AT", "SUGGESTS CALLING A DOCTOR FOR", "BURIED", 
+      "BANISHED", "DEFLECTED", "DODGE ROLLED", "BARREL ROLLED", "DUCKED", "BOB AND WEAVED", "100% RESISTED", 
+      "SIDESTEPPED", "SHOUTED \"YOU SHALL NOT PASS\" TO", "MEAN MUGGED", "CRAZY EYED", "SCARED OFF", "DEMORALIZED", 
+      "STUNLOCKED", "INTIMIDATED", "STEAMROLLED", "\"OBJECTED!\"", "\"OVERRULED!\"", "SPOOKED OFF", "SUPLEXED"
+    ];
+    const verb = verbs[Math.floor(Math.random() * verbs.length)];
+    return `Wordmaster ${wm} ${verb} ${player}'s guess of ${word.toUpperCase()}`;
+  },
   MSG_VICTORY_DECLARED: "Wordmaster is declaring victory!",
   MSG_VICTORY_CONTESTED: (user) => `${user} contested the victory!`,
 
