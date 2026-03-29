@@ -126,7 +126,7 @@ function CentralArea() {
       const ts = activeOutcome.timestamp;
       const timer = setTimeout(() => {
         setClearedOutcomes(prev => new Set(prev).add(ts));
-      }, 1500);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [activeOutcome]);
@@ -137,7 +137,7 @@ function CentralArea() {
       if (diff < 1000) {
         setDenyData(lastDenyResult);
         setShowDenyOutcome(true);
-        const timer = setTimeout(() => setShowDenyOutcome(false), 1000);
+        const timer = setTimeout(() => setShowDenyOutcome(false), 2000);
         return () => clearTimeout(timer);
       }
     }
