@@ -265,17 +265,21 @@ function CentralArea() {
                 ? STRINGS.WORD_LABEL_FINAL 
                 : (showDenyOutcome 
                     ? (isWordmaster ? STRINGS.WORD_LABEL_DENIED_WM : STRINGS.WORD_LABEL_DENIED)
-                    : (isVictoryActive 
-                        ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) 
-                        : (isClueInput 
-                            ? STRINGS.LOG_YOUR_GUESS 
-                            : (activeAction === 'SECRET' 
-                                ? STRINGS.WORD_LABEL_SECRET 
-                                : (isLockedIn && isCaller 
-                                    ? STRINGS.WORD_LABEL_CONTACT_LOCK 
-                                    : (isWordInput 
-                                        ? STRINGS.WORD_LABEL_INPUT 
-                                        : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT)))))))}
+                    : (isShowingOutcome
+                        ? (isCaller
+                            ? (outcomeData.success ? STRINGS.WORD_LABEL_CONTACT_SUCCESS : STRINGS.WORD_LABEL_CONTACT_FAILED)
+                            : (outcomeData.success ? STRINGS.WORD_LABEL_OBSERVER_SUCCESS : STRINGS.WORD_LABEL_OBSERVER_FAILED))
+                        : (isVictoryActive 
+                            ? (isWordmaster ? STRINGS.WORD_LABEL_VICTORY_WM : STRINGS.WORD_LABEL_VICTORY) 
+                            : (isClueInput 
+                                ? STRINGS.LOG_YOUR_GUESS 
+                                : (activeAction === 'SECRET' 
+                                    ? STRINGS.WORD_LABEL_SECRET 
+                                    : (isLockedIn && isCaller 
+                                        ? STRINGS.WORD_LABEL_CONTACT_LOCK 
+                                        : (isWordInput 
+                                            ? STRINGS.WORD_LABEL_INPUT 
+                                            : (revealedPrefix ? STRINGS.WORD_LABEL_REVEALED : STRINGS.WORD_LABEL_INIT))))))))}
             </h3>
             
             <div 
