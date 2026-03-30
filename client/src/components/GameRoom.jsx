@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import CentralArea from './CentralArea';
 import BottomInput from './BottomInput';
-import { Users, Sun, Moon } from 'lucide-react';
+import { Users, Sun, Moon, HelpCircle, X } from 'lucide-react';
 import { GameProvider, useGame } from '../contexts/GameContext';
 import { STRINGS } from '../constants/strings';
+import { RulesContent } from '../constants/rules';
 
 function GameRoomContent({ toggleTheme, theme }) {
   const { 
@@ -16,6 +17,7 @@ function GameRoomContent({ toggleTheme, theme }) {
   } = useGame();
 
   const [showPlayerList, setShowPlayerList] = useState(false);
+  const [showRules, setShowRules] = useState(false);
   const playerListRef = useRef(null);
 
   // Close player list when clicking anywhere else
@@ -52,7 +54,8 @@ function GameRoomContent({ toggleTheme, theme }) {
     const onKeyDown = (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'Escape') {
-        setShowKeyboard(!showKeyboard);
+        if (showRules) setShowRules(false);
+        else setShowKeyboard(!showKeyboard);
       } else if (e.key === 'Enter') {
         e.preventDefault();
         handleEnter();
@@ -68,7 +71,7 @@ function GameRoomContent({ toggleTheme, theme }) {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [showKeyboard, setShowKeyboard, handleEnter]);
+  }, [showKeyboard, setShowKeyboard, handleEnter, showRules]);
 
   return (
     <div className="flex flex-col h-[100dvh] bg-surface text-on-surface overflow-hidden transition-colors duration-300">
@@ -83,8 +86,16 @@ function GameRoomContent({ toggleTheme, theme }) {
           </div>
         </div>
         
-        <div className="flex items-center space-x-3">
-          <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-surface-container transition-all mr-1">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <button 
+            onClick={() => setShowRules(true)}
+            className="p-2 rounded-full hover:bg-surface-container transition-all"
+            title="Game Rules"
+          >
+            <HelpCircle size={18} />
+          </button>
+
+          <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-surface-container transition-all">
             {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
           </button>
           
@@ -128,6 +139,40 @@ function GameRoomContent({ toggleTheme, theme }) {
           </div>
         </div>
       </header>
+
+      {/* Game Rules Modal */}
+      {showRules && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div 
+            className="absolute inset-0 bg-surface/80 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => setShowRules(false)}
+          />
+          <div className="relative w-full max-w-2xl max-h-[85vh] bg-surface-lowest border border-outline-variant rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 fade-in duration-300">
+            {/* Close Button */}
+            <button 
+              onClick={() => setShowRules(false)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-surface-low transition-all z-10"
+            >
+              <X size={20} className="text-on-surface-variant opacity-50" />
+            </button>
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-10 pt-12">
+              <RulesContent />
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-surface-low/50 border-t border-outline-variant p-4 text-center">
+              <button 
+                onClick={() => setShowRules(false)}
+                className="bg-tertiary text-white font-black uppercase tracking-[0.2em] px-8 py-3 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all text-xs"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Unified Canvas */}
       <main className="flex-1 flex flex-col min-h-0 relative overflow-hidden w-full">
