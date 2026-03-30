@@ -23,19 +23,20 @@ function GameRoomContent({ toggleTheme, theme }) {
     if (!showPlayerList) return;
 
     const handleClickOutside = (event) => {
+      // If we clicked the button that toggles the list, let the button's own onClick handle it
+      const toggleButton = document.getElementById('player-list-toggle');
+      if (toggleButton && toggleButton.contains(event.target)) {
+        return;
+      }
+
       if (playerListRef.current && !playerListRef.current.contains(event.target)) {
         setShowPlayerList(false);
       }
     };
 
-    const timer = setTimeout(() => {
-      window.addEventListener('click', handleClickOutside);
-    }, 10);
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('click', handleClickOutside);
-    };
+    // Use capture phase or a small delay to ensure the opening click doesn't immediately close it
+    window.addEventListener('mousedown', handleClickOutside);
+    return () => window.removeEventListener('mousedown', handleClickOutside);
   }, [showPlayerList]);
 
   const handleKeyPress = (key) => {
@@ -89,6 +90,7 @@ function GameRoomContent({ toggleTheme, theme }) {
           
           <div className="relative">
             <button 
+              id="player-list-toggle"
               onClick={() => setShowPlayerList(!showPlayerList)}
               className={`flex items-center px-2 py-1 rounded-lg transition-all ${showPlayerList ? 'bg-surface-container' : 'hover:bg-surface-container'}`}
             >
