@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import CentralArea from './CentralArea';
 import BottomInput from './BottomInput';
 import { Users, Sun, Moon } from 'lucide-react';
@@ -11,8 +11,32 @@ function GameRoomContent({ toggleTheme, theme }) {
     showKeyboard, 
     setShowKeyboard, 
     handleEnter, 
-    setInputValue 
+    setInputValue,
+    socketId
   } = useGame();
+
+  const [showPlayerList, setShowPlayerList] = useState(false);
+  const playerListRef = useRef(null);
+
+  // Close player list when clicking anywhere else
+  useEffect(() => {
+    if (!showPlayerList) return;
+
+    const handleClickOutside = (event) => {
+      if (playerListRef.current && !playerListRef.current.contains(event.target)) {
+        setShowPlayerList(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      window.addEventListener('click', handleClickOutside);
+    }, 10);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('click', handleClickOutside);
+    };
+  }, [showPlayerList]);
 
   const handleKeyPress = (key) => {
     setInputValue(prev => prev + key);
@@ -48,7 +72,7 @@ function GameRoomContent({ toggleTheme, theme }) {
   return (
     <div className="flex flex-col h-[100dvh] bg-surface text-on-surface overflow-hidden transition-colors duration-300">
       {/* Top Bar */}
-      <header className="bg-surface-low border-b border-outline-variant w-full z-10 shrink-0 px-4 sm:px-8 py-2 sm:py-3 flex justify-between items-center">
+      <header className="bg-surface-low border-b border-outline-variant w-full z-30 shrink-0 px-4 sm:px-8 py-2 sm:py-3 flex justify-between items-center">
         <div className="flex items-center space-x-3 sm:space-x-4">
           <div className="bg-tertiary p-1.5 rounded-md ambient-shadow">
             <h1 className="text-sm sm:text-base font-black text-white leading-none">C</h1>
@@ -62,10 +86,43 @@ function GameRoomContent({ toggleTheme, theme }) {
           <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-surface-container transition-all mr-1">
             {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
           </button>
-          <div className="flex items-center px-2 py-1">
-            <Users size={16} className="text-tertiary mr-2 opacity-60" />
-            <span className="text-sm sm:text-base font-black">{room.players.length}</span>
-            <span className="hidden sm:inline text-sm text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-30">{STRINGS.PLAYER_COUNT_LABEL(room.players.length)}</span>
+          
+          <div className="relative">
+            <button 
+              onClick={() => setShowPlayerList(!showPlayerList)}
+              className={`flex items-center px-2 py-1 rounded-lg transition-all ${showPlayerList ? 'bg-surface-container' : 'hover:bg-surface-container'}`}
+            >
+              <Users size={16} className="text-tertiary mr-2 opacity-60" />
+              <span className="text-sm sm:text-base font-black">{room.players.length}</span>
+              <span className="hidden sm:inline text-sm text-on-surface-variant ml-2 font-black uppercase tracking-widest opacity-30">{STRINGS.PLAYER_COUNT_LABEL(room.players.length)}</span>
+            </button>
+
+            {showPlayerList && (
+              <div 
+                ref={playerListRef}
+                className="absolute top-full right-0 mt-2 w-56 bg-surface-lowest border border-outline-variant rounded-xl shadow-2xl z-50 py-3 animate-in fade-in slide-in-from-top-2 duration-200"
+              >
+                <div className="px-4 pb-2 mb-2 border-b border-outline-variant">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-50">Players In Room</span>
+                </div>
+                <div className="max-h-64 overflow-y-auto custom-scrollbar px-2">
+                  {room.players.map((p) => (
+                    <div key={p.id} className="flex items-center px-3 py-2 rounded-lg hover:bg-surface-low/50">
+                      <div className={`w-1.5 h-1.5 rounded-full mr-3 shrink-0 ${p.status === 'active' ? 'bg-green-500' : 'bg-on-surface/10 animate-pulse'}`} />
+                      <span className={`text-xs sm:text-sm font-bold truncate ${p.id === room.wordmaster ? 'text-tertiary' : 'text-on-surface'}`}>
+                        {p.username}
+                        {p.id === socketId && <span className="ml-1.5 text-[9px] font-black text-on-surface-variant opacity-30">(YOU)</span>}
+                      </span>
+                      {p.id === room.wordmaster && (
+                        <div className="ml-auto bg-tertiary/10 text-tertiary text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter shrink-0 ml-2">
+                          WM
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
