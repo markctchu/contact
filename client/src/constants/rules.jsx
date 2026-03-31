@@ -63,13 +63,13 @@ export const RulesContent = () => (
         <div className="space-y-2">
           <h4 className="font-black text-sm uppercase opacity-60 italic">Step 2: Make Contact!</h4>
           <p className="text-sm sm:text-base leading-relaxed">
-            <strong>Everyone</strong>can see your clue. If they think they know your word, they tap <strong>Contact!</strong> and submit their guess. If the guesses match after a 4-second countdown, you've <strong>Made Contact!</strong> If they don't match, the clue is still 'live'.
+            <strong>Everyone</strong> can see your clue. If they think they know your word, they tap <strong>Contact!</strong> and submit their guess. If the guesses match after a 4-second countdown, you've made <strong>Contact!</strong> If they don't match, the clue is still 'live'.
           </p>
         </div>
         <div className="space-y-2">
           <h4 className="font-black text-sm uppercase opacity-60 italic">Step 3: Reveal Letters</h4>
           <p className="text-sm sm:text-base leading-relaxed">
-            Making Contact reveals the <strong>next letter</strong> of the secret word. Make Contact using the secret word as a guess to win the round!
+            Making <strong>Contact!</strong> reveals the <strong>next letter</strong> of the secret word. If you <strong>Contact!</strong> using the secret word as a guess, you win the round!
           </p>
         </div>
       </div>
@@ -79,12 +79,12 @@ export const RulesContent = () => (
     <section className="space-y-4">
       <h3 className="text-lg font-black uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
         <ShieldAlert size={20} />
-        TAKE NOTE
+        A FEW THINGS TO NOTE
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="p-4 border border-outline-variant rounded-xl">
           <strong className="block mb-1 text-xs uppercase opacity-50">Nice Try</strong>
-          <p className="text-sm leading-snug">The Wordmaster cannot <strong>Deny</strong> their secret word. </p>
+          <p className="text-sm leading-snug">For reasons that should be obvious, the Wordmaster cannot <strong>Deny</strong> their secret word. </p>
         </div>
         <div className="p-4 border border-outline-variant rounded-xl">
           <strong className="block mb-1 text-xs uppercase opacity-50">Double Jeopardy</strong>
@@ -96,7 +96,7 @@ export const RulesContent = () => (
         </div>
         <div className="p-4 border border-outline-variant rounded-xl">
           <strong className="block mb-1 text-xs uppercase opacity-50">"Um akshually..."</strong>
-          <p className="text-sm leading-snug">Avoid derivative words and plural forms. Playing whack-a-mole with "CONSTRUCTS", "CONSTRUCTIONS", "CONSTRUCTABLE", "CONSTRUCTABILITY" is just tedious.</p>
+          <p className="text-sm leading-snug">Avoid derivative words and plural forms. Playing whack-a-mole with "CONSTRUCTS", "CONSTRUCTIONS", "CONSTRUCTABLE", and "CONSTRUCTABILITY" is just tedious.</p>
         </div>
       </div>
     </section>
